@@ -1,0 +1,95 @@
+﻿@model yillikizin.Models.BelgeViewModel
+
+@{
+    ViewBag.Title = "Belgeler";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h2>BELGELER</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Personel Adı</th>
+            <th>Yüklü Belgeler</th>
+            <th>İşlem</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var personel in Model.Personeller)
+        {
+            <tr>
+                <td>@personel.adi @personel.soyadi</td>
+                <td>
+                    <!-- Yüklü belgeleri listele -->
+                    <ul>
+                        @foreach (var belge in Model.Belgeler.Where(b => b.personel_id == personel.id).ToList())
+                        {
+                            <li>@belge.belgeAdi - <a href="@Url.Action("DownloadFile", "Belge", new { id = belge.belgeId })">İndir</a></li>
+                        }
+                    </ul>
+                </td>
+                <td>
+                    <button class="btn btn-primary" onclick="openUploadModal(@personel.id)">Belge Yükle</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Belge Yükleme Modalı -->
+<div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="uploadModalLabel">Belge Yükle</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <input type="hidden" id="personelId" name="personelId" />
+                    <div class="form-group">
+                        <label for="belgeAdi">Belge Adı</label>
+                        <input type="text" class="form-control" id="belgeAdi" name="belgeAdi" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="dosya">Dosya Seç</label>
+                        <input type="file" class="form-control" id="dosya" name="dosya" required />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+                <button type="button" class="btn btn-primary" onclick="uploadFile()">Dosya Yükle</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openUploadModal(personelId) {
+        $('#personelId').val(personelId);
+        $('#uploadModal').modal('show');
+    }
+
+    function uploadFile() {
+        var formData = new FormData($('#uploadForm')[0]);
+        $.ajax({
+            url: '@Url.Action("UploadFile", "Belge")',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                if (response.success) {
+                    alert(response.message);
+                    location.reload(); // Yükleme sonrası sayfayı yenile
+                } else {
+                    alert(response.message);
+                }
+            }
+        });
+    }
+</script>

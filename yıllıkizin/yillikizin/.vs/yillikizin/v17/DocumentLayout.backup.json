@@ -1,0 +1,53 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\huseyin\\Desktop\\y\u0131ll\u0131kizin\\yillikizin\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|c:\\users\\huseyin\\desktop\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\controllers\\belgecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|solutionrelative:yillikizin\\controllers\\belgecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|c:\\users\\huseyin\\desktop\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\models\\model.edmx||{C99AEA30-8E36-4515-B76F-496F5A48A6AA}|",
+      "RelativeMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|solutionrelative:yillikizin\\models\\model.edmx||{C99AEA30-8E36-4515-B76F-496F5A48A6AA}|"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Model.edmx [Diagram1]",
+              "DocumentMoniker": "C:\\Users\\huseyin\\Desktop\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Models\\Model.edmx",
+              "RelativeDocumentMoniker": "yillikizin\\Models\\Model.edmx",
+              "ToolTip": "C:\\Users\\huseyin\\Desktop\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Models\\Model.edmx [Diagram1]",
+              "RelativeToolTip": "yillikizin\\Models\\Model.edmx [Diagram1]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001116|",
+              "WhenOpened": "2024-10-24T11:59:42.489Z",
+              "EditorCaption": " [Diagram1]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "BelgeController.cs",
+              "DocumentMoniker": "C:\\Users\\huseyin\\Desktop\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Controllers\\BelgeController.cs",
+              "RelativeDocumentMoniker": "yillikizin\\Controllers\\BelgeController.cs",
+              "ToolTip": "C:\\Users\\huseyin\\Desktop\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Controllers\\BelgeController.cs*",
+              "RelativeToolTip": "yillikizin\\Controllers\\BelgeController.cs*",
+              "ViewState": "AgIAAAEAAAAAAAAAAAAMwAoAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-24T11:15:48.501Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

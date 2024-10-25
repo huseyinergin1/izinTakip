@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="YillikizinModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <EntityType Name="deneme">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="denemeadi" Type="nvarchar" MaxLength="50" />
+  </EntityType>
+  <EntityType Name="departman">
+    <Key>
+      <PropertyRef Name="departmanId" />
+    </Key>
+    <Property Name="departmanId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="departmanName" Type="nvarchar" MaxLength="50" />
+  </EntityType>
+  <EntityType Name="kullaniciGrup">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="GrupAdi" Type="nvarchar" MaxLength="150" Nullable="false" />
+    <Property Name="Aciklama" Type="nvarchar" MaxLength="150" Nullable="false" />
+    <Property Name="Yetki" Type="nvarchar" MaxLength="150" Nullable="false" />
+  </EntityType>
+  <EntityType Name="personel">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="kullaniciadi" Type="nvarchar" MaxLength="50" />
+    <Property Name="sifre" Type="nvarchar" MaxLength="50" />
+    <Property Name="adi" Type="nvarchar" MaxLength="50" />
+    <Property Name="soyadi" Type="nvarchar" MaxLength="50" />
+    <Property Name="kartno" Type="int" />
+    <Property Name="sicilno" Type="int" />
+    <Property Name="departman" Type="nvarchar" MaxLength="50" Nullable="false" />
+    <Property Name="unvan" Type="nvarchar" MaxLength="50" Nullable="false" />
+    <Property Name="dogumtarih" Type="date" />
+    <Property Name="isegiristarih" Type="date" />
+    <Property Name="hakettigi" Type="int" Nullable="false" />
+    <Property Name="kullandigi" Type="int" Nullable="false" />
+    <Property Name="kalan" Type="int" Nullable="false" />
+    <Property Name="resim" Type="nvarchar" MaxLength="150" Nullable="false" />
+    <Property Name="departmanId" Type="int" />
+  </EntityType>
+  <EntityType Name="sysdiagrams">
+    <Key>
+      <PropertyRef Name="diagram_id" />
+    </Key>
+    <Property Name="name" Type="nvarchar" MaxLength="128" Nullable="false" />
+    <Property Name="principal_id" Type="int" Nullable="false" />
+    <Property Name="diagram_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="version" Type="int" />
+    <Property Name="definition" Type="varbinary(max)" />
+  </EntityType>
+  <EntityContainer Name="YillikizinModelStoreContainer">
+    <EntitySet Name="deneme" EntityType="Self.deneme" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="departman" EntityType="Self.departman" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="kullaniciGrup" EntityType="Self.kullaniciGrup" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="personel" EntityType="Self.personel" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
+  </EntityContainer>
+</Schema>

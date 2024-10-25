@@ -1,0 +1,54 @@
+﻿@model List<yillikizin.Models.departman>
+@{
+    ViewBag.Title = "Departman";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h2>Departman Ekle</h2>
+
+@using (Html.BeginForm("DepartmanEkle", "Home", FormMethod.Post))
+{
+    <div class="form-group">
+        <label for="DepartmanAdi">Departman Adı:</label>
+        <input type="text" class="form-control" id="DepartmanAdi" name="DepartmanAdi" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Ekle</button>
+}
+
+<hr />
+
+<h3>Eklenen Departmanlar</h3>
+<table class="table-bordered table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Departman Adı</th>
+            <th>İşlemler</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Count() > 0)
+        {
+            int counter = 1;
+            foreach (var departman in Model)
+            {
+                <tr>
+                    <td>@counter</td>
+                    <td>@departman.departmanName</td>
+                    <td>
+                        @Html.ActionLink("Düzenle", "DepartmanDuzenle", new { id = departman.departmanId }, new { @class = "btn btn-warning" })
+                        |
+                        @Html.ActionLink("Sil", "DepartmanSil", new { id = departman.departmanId }, new { @class = "btn btn-danger", onclick = "return confirm('Bu departmanı silmek istediğinizden emin misiniz?');" })
+                    </td>
+                </tr>
+                counter++;
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="3">Henüz eklenmiş bir departman yok.</td>
+            </tr>
+        }
+    </tbody>
+</table>

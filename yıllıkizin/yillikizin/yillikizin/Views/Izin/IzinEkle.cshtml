@@ -1,0 +1,126 @@
+﻿@model IEnumerable<yillikizin.Models.personel>
+
+@{
+    ViewBag.Title = "Izin Ekle";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h2>Personellere İzin Ekle</h2>
+
+@if (ViewBag.Message != null)
+{
+    <div class="alert alert-info">
+        @ViewBag.Message
+    </div>
+}
+
+<!-- Sayfaya gömülü CSS -->
+<style>
+    .personel-label {
+        display: flex;
+        align-items: center;
+        font-size: 16px;
+        padding: 5px;
+    }
+
+    .personel-item:hover {
+        background-color: #f0f0f0; /* Hover esnasında gri arka plan */
+        cursor: pointer;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+</style>
+
+@using (Html.BeginForm())
+{
+    <div class="form-group">
+        <label>Başlangıç Tarihi</label>
+        @Html.TextBox("baslangicTarihi", null, new { @class = "form-control", @type = "date" })
+    </div>
+
+    <div class="form-group">
+        <label>Bitiş Tarihi</label>
+        @Html.TextBox("bitisTarihi", null, new { @class = "form-control", @type = "date" })
+    </div>
+
+    <h4>Personel Listesi</h4>
+    <table>
+        <thead>
+            <tr>
+                <th>Adı</th>
+                <th>Soyadı</th>
+                <th>İşe Giriş Tarihi</th>
+                <th>Kart ID</th>
+                <th>Hak Edilen</th>
+                <th>Kullandığı</th>
+                <th>Kalan</th>
+                <th>Seçim</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var personel in Model)
+            {
+                <tr class="personel-item" onclick="toggleSelection(this)">
+                    <td>@personel.adi</td>
+                    <td>@personel.soyadi</td>
+                    <td>@personel.isegiristarih</td>
+                    <td>@personel.kartno</td>
+                    <td>@personel.hakettigi</td>
+                    <td>@personel.kullandigi</td>
+                    <td>@personel.kalan</td>
+                    <td>
+                        <input type="hidden" name="selectedPersonelIds" value="@personel.id" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-primary">İzin Ekle</button>
+    <button type="submit" formaction="/Izin/IzinSil" class="btn btn-danger">İzin Sil</button>
+ <!-- İzin Sil Butonu -->
+}
+
+
+<!-- Sayfaya gömülü JavaScript -->
+<script>
+    var selectedIds = [];
+
+    function toggleSelection(item) {
+        const input = item.querySelector('input[type="hidden"]');
+        const personelId = input.value;
+
+        // Seçiliyse kaldır, değilse ekle
+        if (selectedIds.includes(personelId)) {
+            selectedIds = selectedIds.filter(id => id !== personelId);
+            item.style.backgroundColor = ""; // Arka plan rengini sıfırla
+        } else {
+            selectedIds.push(personelId);
+            item.style.backgroundColor = "#c8e6c9"; // Seçili personel için yeşil arka plan
+        }
+
+        // Hidden input'ları güncelle
+        updateHiddenInputs();
+    }
+
+    function updateHiddenInputs() {
+        const hiddenInputs = document.querySelectorAll('input[name="selectedPersonelIds"]');
+        hiddenInputs.forEach(input => {
+            input.disabled = !selectedIds.includes(input.value); // Seçilen personeller için input'u etkinleştir
+        });
+    }
+</script>

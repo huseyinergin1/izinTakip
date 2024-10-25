@@ -1,0 +1,136 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="YillikizinModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <EntityType Name="belge">
+    <Key>
+      <PropertyRef Name="belgeId" />
+    </Key>
+    <Property Name="belgeId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="belgeAdi" Type="nvarchar" MaxLength="50" Nullable="false" />
+    <Property Name="dosyaYolu" Type="nvarchar" MaxLength="250" Nullable="false" />
+    <Property Name="yuklemeTarihi" Type="datetime" Nullable="false" />
+    <Property Name="personel_id" Type="int" Nullable="false" />
+  </EntityType>
+  <EntityType Name="deneme">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="denemeadi" Type="nvarchar" MaxLength="50" />
+  </EntityType>
+  <EntityType Name="departman">
+    <Key>
+      <PropertyRef Name="departmanId" />
+    </Key>
+    <Property Name="departmanId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="departmanName" Type="nvarchar" MaxLength="50" />
+  </EntityType>
+  <EntityType Name="Izin">
+    <Key>
+      <PropertyRef Name="IzinId" />
+    </Key>
+    <Property Name="IzinId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Personelıd" Type="int" Nullable="false" />
+    <Property Name="BaslangicTarihi" Type="datetime" Nullable="false" />
+    <Property Name="BitisTarihi" Type="datetime" Nullable="false" />
+    <Property Name="IzinTuru" Type="nvarchar" MaxLength="100" Nullable="false" />
+    <Property Name="Aciklama" Type="nvarchar" MaxLength="200" Nullable="false" />
+  </EntityType>
+  <EntityType Name="kullanici_grup">
+    <Key>
+      <PropertyRef Name="kullaniciGrupId" />
+    </Key>
+    <Property Name="kullaniciGrupId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="grupAdi" Type="nvarchar" MaxLength="150" />
+    <Property Name="Aciklama" Type="nvarchar" MaxLength="200" Nullable="false" />
+    <Property Name="Yetki" Type="nvarchar" MaxLength="250" Nullable="false" />
+  </EntityType>
+  <EntityType Name="personel">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="kullaniciadi" Type="nvarchar" MaxLength="50" />
+    <Property Name="sifre" Type="nvarchar" MaxLength="50" />
+    <Property Name="adi" Type="nvarchar" MaxLength="50" />
+    <Property Name="soyadi" Type="nvarchar" MaxLength="50" />
+    <Property Name="kartno" Type="int" />
+    <Property Name="sicilno" Type="int" />
+    <Property Name="departman" Type="nvarchar" MaxLength="50" Nullable="false" />
+    <Property Name="unvan" Type="nvarchar" MaxLength="50" Nullable="false" />
+    <Property Name="dogumtarih" Type="date" />
+    <Property Name="isegiristarih" Type="date" />
+    <Property Name="hakettigi" Type="int" Nullable="false" />
+    <Property Name="kullandigi" Type="int" Nullable="false" />
+    <Property Name="kalan" Type="int" Nullable="false" />
+    <Property Name="resim" Type="nvarchar" MaxLength="150" Nullable="false" />
+    <Property Name="departmanId" Type="int" />
+    <Property Name="kullaniciGrupId" Type="int" />
+    <Property Name="kullaniciGrupAdi" Type="nvarchar" MaxLength="50" />
+  </EntityType>
+  <EntityType Name="sysdiagrams">
+    <Key>
+      <PropertyRef Name="diagram_id" />
+    </Key>
+    <Property Name="name" Type="nvarchar" MaxLength="128" Nullable="false" />
+    <Property Name="principal_id" Type="int" Nullable="false" />
+    <Property Name="diagram_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="version" Type="int" />
+    <Property Name="definition" Type="varbinary(max)" />
+  </EntityType>
+  <Association Name="FK_personel_izin">
+    <End Role="personel" Type="Self.personel" Multiplicity="1" />
+    <End Role="Izin" Type="Self.Izin" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="personel">
+        <PropertyRef Name="id" />
+      </Principal>
+      <Dependent Role="Izin">
+        <PropertyRef Name="Personelıd" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Function Name="fn_diagramobjects" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="true" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" ReturnType="int" />
+  <Function Name="sp_alterdiagram" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+    <Parameter Name="diagramname" Type="nvarchar" Mode="In" />
+    <Parameter Name="owner_id" Type="int" Mode="In" />
+    <Parameter Name="version" Type="int" Mode="In" />
+    <Parameter Name="definition" Type="varbinary(max)" Mode="In" />
+  </Function>
+  <Function Name="sp_creatediagram" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+    <Parameter Name="diagramname" Type="nvarchar" Mode="In" />
+    <Parameter Name="owner_id" Type="int" Mode="In" />
+    <Parameter Name="version" Type="int" Mode="In" />
+    <Parameter Name="definition" Type="varbinary(max)" Mode="In" />
+  </Function>
+  <Function Name="sp_dropdiagram" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+    <Parameter Name="diagramname" Type="nvarchar" Mode="In" />
+    <Parameter Name="owner_id" Type="int" Mode="In" />
+  </Function>
+  <Function Name="sp_helpdiagramdefinition" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+    <Parameter Name="diagramname" Type="nvarchar" Mode="In" />
+    <Parameter Name="owner_id" Type="int" Mode="In" />
+  </Function>
+  <Function Name="sp_helpdiagrams" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+    <Parameter Name="diagramname" Type="nvarchar" Mode="In" />
+    <Parameter Name="owner_id" Type="int" Mode="In" />
+  </Function>
+  <Function Name="sp_renamediagram" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+    <Parameter Name="diagramname" Type="nvarchar" Mode="In" />
+    <Parameter Name="owner_id" Type="int" Mode="In" />
+    <Parameter Name="new_diagramname" Type="nvarchar" Mode="In" />
+  </Function>
+  <Function Name="sp_upgraddiagrams" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
+  <EntityContainer Name="YillikizinModelStoreContainer">
+    <EntitySet Name="belge" EntityType="Self.belge" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="deneme" EntityType="Self.deneme" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="departman" EntityType="Self.departman" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Izin" EntityType="Self.Izin" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="kullanici_grup" EntityType="Self.kullanici_grup" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="personel" EntityType="Self.personel" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
+    <AssociationSet Name="FK_personel_izin" Association="Self.FK_personel_izin">
+      <End Role="personel" EntitySet="personel" />
+      <End Role="Izin" EntitySet="Izin" />
+    </AssociationSet>
+  </EntityContainer>
+</Schema>

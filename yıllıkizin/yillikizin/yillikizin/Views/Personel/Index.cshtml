@@ -1,0 +1,268 @@
+﻿@model List<yillikizin.Models.personel>
+
+@{
+    ViewBag.Title = "Personel";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<link href="@Url.Content("~/Content/Admin/plugins/jquery-datatable/skin/bootstrap/css/dataTables.bootstrap.css")" rel="stylesheet">
+
+<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+    <div class="card">
+        <div class="body">
+            <div class="table-responsive">
+                <table id="example" class="table-striped table-bordered nowrap table" cellspacing="0" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th>Resmi</th>
+                            <th>Adı Soyadı</th>
+                            <th>Kart No</th>
+                            <th>Departman</th>
+                            <th>Ünvan</th>
+                            <th>Doğum Tarihi</th>
+                            <th>İşe Giriş Tarihi</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var personel in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @if (personel.resim == null)
+                                    {
+                                        <img src="~/images/users/user.png" width="50" height="50" class="profile-image" />
+                                    }
+                                    else
+                                    {
+                                        <img src="@personel.resim" width="50" height="50" class="profile-image" />
+                                    }
+                                </td>
+                                <td class="text-break">@Html.DisplayFor(modelItem => personel.adi) <br /> @Html.DisplayFor(modelItem => personel.soyadi)</td>
+                                <td>@Html.DisplayFor(modelItem => personel.sicilno)</td>
+                                <td>@Html.DisplayFor(modelItem => personel.departman)</td>
+                                <td class="text-break">@Html.DisplayFor(modelItem => personel.unvan)</td>
+                                <td>@(personel.dogumtarih.HasValue ? personel.dogumtarih.Value.ToString("dd-MM-yyyy") : "Tarih yok")</td>
+                                <td>@(personel.isegiristarih.HasValue ? personel.isegiristarih.Value.ToString("dd-MM-yyyy") : "Tarih yok")</td>
+                                <td class="action-buttons">
+                                    <span class="btn bg-cyan waves-effect" data-toggle="tooltip" title="Detayı Gör" onclick="createModal('@Url.Action("Details", "Personel", new { id = personel.id })')">
+                                        <i class="material-icons">folder</i>
+                                    </span>
+
+                                    <a class="btn bg-purple waves-effect" href="javascript:void(0)" title="Düzenle" onclick="editModal(@personel.id)">
+                                        <i class="material-icons">mode_edit</i>
+                                    </a>
+
+                                    <a class="btn bg-red waves-effect" data-toggle="tooltip" title="Sil" onclick="JavaSend(@personel.id)">
+                                        <i class="material-icons">delete</i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Düzenleme Modalı -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Personel Düzenle</h4>
+            </div>
+            <div class="modal-body" id="modelContent">
+                <!-- Modal içeriği dinamik olarak yüklenecek -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    // Modal'ı aç ve içeriği yükle
+    function editModal(id) {
+        var url = '/Personel/Edit/' + id;
+        $('#modelContent').load(url, function () {
+            $('#myModal').modal('show');
+        });
+    }
+
+    // Formu Ajax ile gönder
+    $(document).on('submit', '#editForm', function (e) {
+        e.preventDefault();
+
+        $.ajax({
+            type: 'POST',
+            url: $(this).attr('action'),
+            data: $(this).serialize(),
+            success: function (response) {
+                if (response.success) {
+                    $('#myModal').modal('hide'); // Modal'ı kapat
+                    location.reload(); // Sayfayı yenile
+                }
+            },
+            error: function () {
+                alert("Bir hata oluştu.");
+            }
+        });
+    });
+</script>
+
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Personel Detayı</h4>
+            </div>
+            <div class="modal-body" id="modelContent">
+                <!-- Modal içeriği dinamik olarak yüklenecek -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Silme Modal -->
+<div class="modal fade" id="deleteAuthor" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header modal-header-danger">
+                <h3>Personel Kayıt Silme Onayı</h3>
+            </div>
+            <div class="modal-body">
+                <h4>Kaydı silmek istediğinize emin misiniz?</h4>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-danger" id="modalLink" href="#"><i class="material-icons">delete</i> Sil</a>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Vazgeç</button>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    table th, table td {
+        white-space: nowrap;
+        padding: 10px;
+    }
+
+    th:nth-child(1) {
+        width: 80px;
+    }
+
+    th:nth-child(2) {
+        width: 150px;
+    }
+
+    th:nth-child(3) {
+        width: 100px;
+    }
+
+    th:nth-child(4) {
+        width: 120px;
+    }
+
+    th:nth-child(5) {
+        width: 100px;
+    }
+
+    th:nth-child(6) {
+        width: 100px;
+    }
+
+    th:nth-child(7) {
+        width: 120px;
+    }
+
+    th:nth-child(8) {
+        width: 150px; /* Genişliği artırdık */
+        text-align: right; /* Sağ hizalama */
+    }
+
+    .profile-image {
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .action-buttons {
+        display: flex; /* Butonları yan yana dizmek için flex kullanıyoruz */
+        justify-content: flex-end; /* Sağda hizala */
+        gap: 5px; /* Butonlar arasına boşluk ekle */
+    }
+
+    .text-break {
+        word-wrap: break-word; /* Kelime taşmasını önler */
+        overflow-wrap: break-word; /* Taşmayı önler */
+        white-space: normal; /* Normal boşluk ayarları */
+    }
+
+    /* Responsive ayarlar */
+
+    th:nth-child(1),
+    th:nth-child(2),
+    th:nth-child(3),
+    th:nth-child(4),
+    th:nth-child(5),
+    th:nth-child(6),
+    th:nth-child(7),
+    th:nth-child(8) {
+        width: auto; /* Otomatik genişlik */
+    }
+    }
+</style>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#example').DataTable({
+            "lengthMenu": [[25, 50, -1], [25, 50, "Tümü"]],
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.10.12/i18n/Turkish.json"
+            },
+            "scrollX": true, // Yatay kaydırma için ayar
+        });
+    });
+
+    function createModal(url) {
+        $('#modelContent').load(url, function () {
+            $('#myModal').modal('show');
+        });
+    }
+
+    function JavaSend(id) {
+        var link = "/Personel/Delete/" + id; // Silme URL'si
+        $("#modalLink").attr("href", link);
+        $("#deleteAuthor").modal();
+    }
+</script>
+
+
+
+<script src="@Url.Content("~/Content/Admin/js/pages/ui/tooltips-popovers.js")"></script>
+<script src="@Url.Content("~/Content/Admin/plugins/jquery-slimscroll/jquery.slimscroll.js")"></script>
+<script src="@Url.Content("~/Content/Admin/plugins/jquery-datatable/jquery.dataTables.js")"></script>
+<script src="@Url.Content("~/Content/Admin/plugins/jquery-datatable/skin/bootstrap/js/dataTables.bootstrap.js")"></script>
+<script type="text/javascript">
+    var jQueryCalis = $.noConflict(true);
+    (function ($) {
+        $(document).ready(function () {
+            $('#example').DataTable({
+                "lengthMenu": [[25, 50, -1], [25, 50, "Tümü"]],
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.12/i18n/Turkish.json"
+                },
+                "scrollX": true // Yatay kaydırma için ayar
+            });
+            var table = $('#example').DataTable();
+            $('#example').show();
+        });
+    })(jQueryCalis);
+</script>
+<script src="@Url.Content("~/Content/Admin/js/admin.js")"></script>

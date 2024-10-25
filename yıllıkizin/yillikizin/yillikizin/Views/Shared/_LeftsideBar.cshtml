@@ -1,0 +1,153 @@
+﻿
+
+@{
+    var kullaniciadi = Context.Session["KullaniciAdi"] as string;
+    var sifre = Context.Session["Sifre"] as string;
+    var name = Context.Session["Name"] as string;
+    var surname = Context.Session["Surname"] as string;
+    var unvan = Context.Session["UserUnvan"] as string;
+    var departman = Context.Session["UserDepartman"] as string;
+    var Image = Context.Session["userImage"] as string;
+    var userId = Context.Session["UserId"] as string;
+}
+<aside id="leftsidebar" class="sidebar">
+    <!-- User Info -->
+    <div class="user-info">
+        <div class="image">
+            <img src="@Image" width="48" height="48" alt="User" />
+        </div>
+        <div class="info-container">
+            <div class="name" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">@name @surname</div>
+            <div class="departman"><strong>@departman</strong> - @unvan</div>
+            <div class="btn-group user-helper-dropdown">
+            </div>
+        </div>
+    </div>
+    <!-- #User Info -->
+    <!-- Menu -->
+    <div class="menu">
+        <ul class="list">
+            <li class="header">ANA MENÜ</li>
+            <a href="@Url.Action("Index","Home")">
+                <i class="material-icons">home</i>
+                <span>Anasayfa</span>
+            </a>
+            </li>
+
+            <li>
+                <a href="@Url.Action("Departman","Home")">
+                    <i class="material-icons">apartment</i>
+                    <span>Departmanlar</span>
+                </a>
+            </li>
+
+            <li class="">
+                <a href="javascript:void(0);" class="menu-toggle">
+                    <i class="material-icons">supervisor_account</i>
+                    <span>Personel İşlemleri</span>
+                </a>
+                <ul class="ml-menu">
+                    <li>
+                        <a href="@Url.Action("Index","Personel")">
+                            <i class="material-icons">view_list</i>
+                            <span>Personeller</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="@Url.Action("PersonelEkle","Home")">
+                            <i class="material-icons">person_add</i>
+                            <span>Personel Ekle</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <!-- İzinler Menüsü -->
+            <li>
+                <a href="javascript:void(0);" class="menu-toggle">
+                    <i class="material-icons">event</i>
+                    <span>İzin İşlemleri</span>
+                </a>
+                <ul class="ml-menu">
+                    <li>
+                        <a href="@Url.Action("Index", "Izin")">
+                            <i class="material-icons">event_note</i>
+                            <span>İzinler</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="@Url.Action("IzinBilgileri", "Izin")">
+                            <i class="material-icons">check_circle</i>
+                            <span>İzin Hakedişleri</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="@Url.Action("IzinEkle", "Izin")">
+                            <i class="material-icons">edit_calendar</i>
+                            <span>İzin Tanımlama</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <!-- Hareket Menüsü -->
+            <li>
+                <a href="javascript:void(0);" class="menu-toggle">
+                    <i class="material-icons">assignment</i>
+                    <span>Hareket İşlemleri</span>
+                </a>
+                <ul class="ml-menu">
+                    <li>
+                        <a href="@Url.Action("Index", "Hareket")">
+                            <i class="material-icons">history</i>
+                            <span>Hareket Giriş Çıkış</span>
+                        </a>
+                    </li>
+
+
+                </ul>
+            </li>
+            <li>
+                <a href="@Url.Action("Index","Belge")">
+                    <i class="material-icons">cloud_upload</i>
+                    <span>Döküman Yükleme</span>
+                </a>
+            </li>
+            <li>
+                <a href="@Url.Action("Index","KullaniciGruplari")">
+                    <i class="material-icons">group</i>
+                    <span>Kullanıcı Grupları</span>
+                </a>
+            </li>
+            <li>
+                <a href="@Url.Action("Index","Contact")" target="_blank">
+                    <i class="material-icons">support_agent</i>
+                    <span>Destek</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <!-- #Menu -->
+    
+    </ul>
+    </div>
+    <!-- #Menu -->
+    <!-- Footer -->
+    <div class="legal">
+        <div class="copyright22">
+            &copy; 2024 <a href="https://www.example.com" style="color: black; font-weight:bold;">İZİN TAKİP  - AFEW</a>.
+        </div>
+    </div>
+    <!-- #Footer -->
+</aside>
+<style>
+    .departman {
+        color: white;
+        font-weight: lighter;
+
+    }
+    .name {
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+</style>

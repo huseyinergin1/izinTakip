@@ -1,0 +1,111 @@
+﻿@{
+    var kartno = Context.Session["UserKartno"] as int?;
+    var sicilno = Context.Session["UserSicilno"] as int?;
+    var kullaniciadi = Context.Session["KullaniciAdi"] as string;
+    var sifre = Context.Session["Sifre"] as string;
+    var name = Context.Session["Name"] as string;
+    var surname = Context.Session["Surname"] as string;
+    var unvan = Context.Session["UserUnvan"] as string;
+    var departman = Context.Session["UserDepartman"] as string;
+    var Image = Context.Session["userImage"];
+    var userId = Context.Session["UserId"] as int?;
+    var Isegiris = Context.Session["UserIsegiris"] as DateTime?;
+    var dogum = Context.Session["UserDogum"] as DateTime?;
+}
+<div class="page-loader-wrapper">
+    <div class="loader">
+        <div class="preloader">
+            <div class="spinner-layer pl-red">
+                <div class="circle-clipper left">
+                    <div class="circle"></div>
+                </div>
+                <div class="circle-clipper right">
+                    <div class="circle"></div>
+                </div>
+            </div>
+        </div>
+        <p>Lütfen Bekleyin...</p>
+    </div>
+</div>
+<div class="overlay"></div>
+<nav class="navbar">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <div class="logo-container">
+                <img src="~/Content/Admin/images/logo.jpg" alt="Logo" class="logo" />
+            </div>
+            <a class="navbar-brand" href="index.html">İZİN TAKİP</a>
+            <a href="javascript:void(0);" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false"></a>
+            <a href="javascript:void(0);" class="bars"></a>
+        </div>
+        <div class="navbar-collapse collapse" id="navbar-collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="@Url.Action("Edit", "Personel", new { id = userId })"><i class="material-icons">edit</i></a></li>
+                <li><a href="javascript:void(0);" onclick="showDetails()"><i class="material-icons">person</i></a></li>
+                <li><a href="@Url.Action("Index", "Login")"><i class="material-icons">exit_to_app</i></a></li>
+                <li class="pull-right"><a href="javascript:void(0);" class="js-right-sidebar" data-close="true"><i class="material-icons">more_vert</i></a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div id="detailsModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Kullanıcı Detayları</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table-bordered table">
+                    <tr>
+                        <td>Ad Soyad</td>
+                        <td>@name @surname</td>
+                    </tr>
+                    <tr>
+                        <td>Kullanıcı Adı</td>
+                        <td>@kullaniciadi</td>
+                    </tr>
+                    <tr>
+                        <td>Departmanı</td>
+                        <td>@departman</td>
+                    </tr>
+                    <tr>
+                        <td>Ünvanı</td>
+                        <td>@unvan</td>
+                    </tr>
+                    <tr>
+                        <td>Kart Numarası</td>
+                        <td>@kartno</td>
+                    </tr>
+                    <tr>
+                        <td>Sicil Numarası</td>
+                        <td>@sicilno</td>
+                    </tr>
+                    <tr>
+                        <td>Doğum Tarihi</td>
+                        <td>
+                            @(dogum.HasValue ? dogum.Value.ToString("dd/MM/yyyy") : "Tarih yok")
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>İşe Giriş Tarihi</td>
+                        <td>
+                            @(Isegiris.HasValue ? Isegiris.Value.ToString("dd/MM/yyyy") : "Tarih yok")
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showDetails() {
+        $('#detailsModal').modal('show');
+    }
+</script>

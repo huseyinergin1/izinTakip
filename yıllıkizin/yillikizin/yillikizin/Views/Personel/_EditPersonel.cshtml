@@ -1,0 +1,52 @@
+﻿@model yillikizin.Models.personel
+
+<form id="editForm" method="post" action="/Personel/Edit">
+    @Html.HiddenFor(model => model.id)
+
+    <div class="form-group">
+        <label>Adı</label>
+        @Html.TextBoxFor(model => model.adi, new { @class = "form-control" })
+    </div>
+
+    <div class="form-group">
+        <label>Soyadı</label>
+        @Html.TextBoxFor(model => model.soyadi, new { @class = "form-control" })
+    </div>
+
+    <div class="form-group">
+        <label>Departman</label>
+        @Html.DropDownListFor(model => model.departmanId, ViewBag.DepartmanList as SelectList, "Departman Seçin", new { @class = "form-control", @required = "required" })
+    </div>
+
+    <button type="submit" class="btn btn-primary">Kaydet</button>
+</form>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#editForm").submit(function (event) {
+            event.preventDefault(); // Formun normal gönderimini durdur
+
+            var formData = $(this).serialize(); // Form verilerini al
+
+            $.ajax({
+                url: $(this).attr('action'), // Formun action URL'sini al
+                type: 'POST',
+                data: formData,
+                success: function (response) {
+                    // Başarılı ise sayfayı yenile
+                    if (response.success) {
+                        window.location.reload(); // Sayfayı yenile
+                    } else {
+                        // Hata durumunda kullanıcıya mesaj göster
+                        alert(response.message);
+                    }
+                },
+                error: function (xhr) {
+                    // Hata durumunda kullanıcıya bir mesaj göster
+                    alert("Bir hata oluştu. Lütfen tekrar deneyin.");
+                }
+            });
+        });
+    });
+</script>

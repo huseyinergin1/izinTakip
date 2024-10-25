@@ -1,0 +1,39 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PERSEA - Login</title>
+    <link rel='stylesheet' href='https://use.fontawesome.com/releases/v5.7.0/css/all.css' integrity='sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ' crossorigin='anonymous'>
+    <link href="~/Content/Admin/css/login.css" rel="stylesheet" />
+</head>
+<body>
+
+    <div class="login-box">
+        <div class="logo-container">
+            <img src="~/Content/Admin/images/logo.jpg" alt="Logo" class="logo" />
+        </div>
+        <form action="@Url.Action("Index", "Login")" method="post">
+            <div class="user-box">
+                <input type="text" name="KullaniciAdi" required="">
+                <label>Kullanıcı Adı</label>
+            </div>
+            <div class="user-box">
+                <input type="password" name="Sifre" required="">
+                <label>Şifre</label>
+            </div>
+            <button type="submit" class="submit-button">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                Giriş
+            </button>
+        </form>
+    </div>
+
+</body>
+</html>

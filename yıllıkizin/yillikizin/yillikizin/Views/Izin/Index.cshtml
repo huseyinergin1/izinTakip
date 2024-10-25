@@ -1,0 +1,32 @@
+﻿@model IEnumerable<yillikizin.Models.Izin>
+
+@{
+    ViewBag.Title = "İzin Listesi";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h2>İzinli Personeller</h2>
+
+<table class="table-striped table">
+    <thead>
+        <tr>
+            <th>Personel Adı</th>
+            <th>Başlangıç Tarihi</th>
+            <th>Bitiş Tarihi</th>
+            <th>İzin Türü</th>
+            <th>Açıklama</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var izin in Model)
+        {
+            <tr>
+                <td>@izin.personel.adi</td> <!-- İlişkili personel adını çekiyoruz -->
+                <td>@izin.BaslangicTarihi.ToShortDateString()</td>
+                <td>@izin.BitisTarihi.ToShortDateString()</td>
+                <td>@izin.IzinTuru</td>
+                <td>@izin.Aciklama</td>
+            </tr>
+        }
+    </tbody>
+</table>

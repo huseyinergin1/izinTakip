@@ -1,0 +1,177 @@
+﻿@model yillikizin.Models.personel
+@{
+    ViewBag.Title = "PersonelEkle";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<div class="row clearfix">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="card">
+            <div class="header">
+                <h2>
+                    PERSONEL EKLE
+                </h2>
+                <ul class="header-dropdown m-r--5">
+                    <li class="dropdown">
+                        <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                            <i class="material-icons">more_vert</i>
+                        </a>
+
+                    </li>
+                </ul>
+            </div>
+            <div class="body">
+                @using (Html.BeginForm("PersonelEkle", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    <label>Kullanıcı Adı</label>
+                    <div class="form-group">
+                        <div class="form-line">
+                            @Html.EditorFor(model => model.kullaniciadi, new { htmlAttributes = new { @class = "form-control", @maxlength = "50", @required = "required", id = "kullaniciadi" } })
+                            @Html.ValidationMessage("kullaniciadi", "", new { @class = "text-danger" }) <!-- Hata mesajını göster -->
+                        </div>
+                    </div>
+                    <label for="password">Şifre </label>
+                    <div class="form-group">
+                        <div class="form-line">
+                            @Html.EditorFor(model => model.sifre, new { htmlAttributes = new { @class = "form-control", @maxlength = "50", @required = "reguired", @type = "password" } })
+                        </div>
+                    </div>
+                    <label>Ad</label>
+                    <div class="form-group">
+                        <div class="form-line">
+                            @Html.EditorFor(model => model.adi, new { htmlAttributes = new { @class = "form-control", @maxlength = "50", @required = "reguired" } })
+                        </div>
+                    </div>
+                    <label for="password">Soyad</label>
+                    <div class="form-group">
+                        <div class="form-line">
+                            @Html.EditorFor(model => model.soyadi, new { htmlAttributes = new { @class = "form-control", @maxlength = "50", @required = "reguired" } })
+                        </div>
+                    </div>
+                    <label>Kart Numarası </label>
+                    <div class="form-group">
+                        <div class="form-line">
+                            @Html.EditorFor(model => model.kartno, new { htmlAttributes = new { @class = "form-control", @maxlength = "50", @required = "required" } })
+                            @Html.ValidationMessage("kartno", "", new { @class = "text-danger" }) <!-- Hata mesajını göster -->
+                        </div>
+                    </div>
+
+                    <label>Sicil Numarası </label>
+                    <div class="form-group">
+                        <div class="form-line">
+                            @Html.EditorFor(model => model.sicilno, new { htmlAttributes = new { @class = "form-control", @maxlength = "50", @required = "required" } })
+                            @Html.ValidationMessage("sicilno", "", new { @class = "text-danger" }) <!-- Hata mesajını göster -->
+                        </div>
+                    </div>
+                    <label>Departman</label>
+                    <div class="departman-container" style="display: flex; flex-wrap: wrap;">
+                        @foreach (var departman in (IEnumerable<SelectListItem>)ViewBag.DepartmanList)
+                        {
+                            <div style="margin-right: 15px;">
+                                <input type="radio" id="departman_@departman.Value" name="departmanId" value="@departman.Value" required />
+                                <label for="departman_@departman.Value">@departman.Text</label>
+                            </div>
+                        }
+                        @Html.ValidationMessage("departmanId", "", new { @class = "text-danger" })
+                    </div>
+
+
+                    <label for="password">Ünvan</label>
+                    <div class="form-group">
+                        <div class="form-line">
+                            @Html.EditorFor(model => model.unvan, new { htmlAttributes = new { @class = "form-control", @maxlength = "150", @required = "reguired" } })
+                        </div>
+                    </div>
+                    <label>Doğum Tarihi</label>
+                    <div class="form-group">
+                        <div class="form-line">
+                            @Html.EditorFor(model => model.dogumtarih, new { htmlAttributes = new { @class = "form-control", type = "date", @required = "required" } })
+                        </div>
+                    </div>
+                    <label>İşe Giriş Tarihi</label>
+                    <div class="form-group">
+                        <div class="form-line">
+                            @Html.EditorFor(model => model.isegiristarih, new { htmlAttributes = new { @class = "form-control", type = "date", @required = "required" } })
+                        </div>
+                    </div>
+
+                    <label for="password">Hak Ettiği İzin</label>
+                    <div class="form-group">
+                        <div class="form-line">
+                            @Html.EditorFor(model => model.hakettigi, new { htmlAttributes = new { @class = "form-control", @maxlength = "150", @required = "reguired" } })
+                        </div>
+                    </div>
+                    <label for="password">Kullandığı İzin</label>
+                    <div class="form-group">
+                        <div class="form-line">
+                            @Html.EditorFor(model => model.kullandigi, new { htmlAttributes = new { @class = "form-control", @maxlength = "150", @required = "reguired" } })
+                        </div>
+                    </div>
+                    <label for="password">Kalan İzin</label>
+                    <div class="form-group">
+                        <div class="form-line">
+                            @Html.EditorFor(model => model.kalan, new { htmlAttributes = new { @class = "form-control", @maxlength = "500", @required = "reguired" } })
+                        </div>
+                    </div>
+                    <label>Kullanıcı Grubu</label>
+                    <div class="kullaniciGrup-container" style="display: flex; flex-wrap: wrap;">
+                        @foreach (var grup in (IEnumerable<SelectListItem>)ViewBag.KullaniciGrupList)
+                        {
+                            <div style="margin-right: 15px;">
+                                <input type="radio" id="kullaniciGrup_@grup.Value" name="kullaniciGrupId" value="@grup.Value" required />
+                                <label for="kullaniciGrup_@grup.Value">@grup.Text</label>
+                            </div>
+                        }
+                        @Html.ValidationMessage("kullaniciGrupId", "", new { @class = "text-danger" })
+                    </div>
+                    <label for="email_address">Resim</label>
+                    <div class="form-group">
+                        <div class="form-line">
+                            <input type="file" id="File" name="File" accept=".jpg,.JPG,.PNG,.png,.jpeg,.JPEG" class="form-control" />
+                        </div>
+                    </div>
+
+
+                    <br>
+                    <div align="center">
+                        <input type="submit" class="btn btn-success m-t-15 waves-effect" value="Personel Ekle">
+
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#personelEkleForm").submit(function (event) {
+            event.preventDefault(); // Formun normal gönderimini durdur
+            var formData = new FormData(this);
+
+            $.ajax({
+                url: '@Url.Action("PersonelEkle", "Home")',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    // Başarılıysa yönlendirme
+                    window.location.href = '@Url.Action("Index", "Home")';
+                },
+                error: function (xhr) {
+                    // Hata durumunda kullanıcı adını kontrol et
+                    if (xhr.status === 400) { // Hata durumu
+                        $("#kullaniciadi").addClass("error"); // Kırmızı arka plan için stil ekleyin
+                        $("#kullaniciadiError").show(); // Hata mesajını göster
+                    }
+                }
+            });
+        });
+    });
+</script>
+<style>
+    .error {
+        border: 1px solid red; /* Hata durumunda kırmızı kenarlık */
+    }
+
+</style>

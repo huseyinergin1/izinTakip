@@ -1,0 +1,136 @@
+﻿@model IEnumerable<yillikizin.Models.Hareket>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Terminal</th>
+            <th>Kart ID</th>
+            <th>Tarih</th>
+            <th>Saat</th>
+            <th>İşlem Tipi</th>
+            <th></th> <!-- Düzenleme için ek kolon -->
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var hareket in Model)
+        {
+            <tr class="hareket-row" data-kart-no="@hareket.kartno" data-tarih="@hareket.Tarih.ToString("yyyy-MM-dd")" data-saat="@hareket.Saat.ToString(@"hh\:mm\:ss")" data-islem-tipi="@hareket.IslemTipi">
+                <td>@hareket.TerminalNo</td>
+                <td>@hareket.kartno</td>
+                <td>@hareket.Tarih.ToString("yyyy/MM/dd")</td>
+                <td>@hareket.Saat.ToString(@"hh\:mm")</td>
+                <td>@hareket.IslemTipi</td>
+                <td>
+                    <button class="btn btn-primary btn-sm btn-duzenle">Düzenle</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Düzenleme Modal -->
+<div class="modal fade" id="hareketModal" tabindex="-1" role="dialog" aria-labelledby="hareketModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="hareketModalLabel">Hareket Düzenle</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Kapat">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="hareketDuzenleForm">
+                    <input type="hidden" id="hareketId" name="hareketId" />
+                    <div class="form-group">
+                        <label for="kartNo">Kart Numarası:</label>
+                        <input type="text" class="form-control" id="kartNo" name="kartNo" readonly />
+                    </div>
+                    <div class="form-group">
+                        <label for="tarih">Tarih:</label>
+                        <input type="date" class="form-control" id="tarih" name="tarih" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="saat">Saat:</label>
+                        <input type="time" class="form-control" id="saat" name="saat" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Yön:</label>
+                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                            <label class="btn btn-outline-primary" id="girisBtn">
+                                <input type="radio" name="yon" value="001"> Giriş
+                            </label>
+                            <label class="btn btn-outline-primary" id="cikisBtn">
+                                <input type="radio" name="yon" value="002"> Çıkış
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+                <button type="button" class="btn btn-primary" id="hareketKaydetBtn">Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).on('click', '.btn-duzenle', function () {
+        var row = $(this).closest('tr');
+        var kartNo = row.data('kart-no');
+        var tarih = row.data('tarih');
+        var saat = row.data('saat');
+        var islemTipi = row.data('islem-tipi');
+
+        // Set values in the modal fields
+        $('#kartNo').val(kartNo);
+        $('#tarih').val(tarih);
+        $('#saat').val(saat);
+
+        // Set Yön
+        if (islemTipi === '001') {
+            $('#girisBtn').addClass('active');
+            $('#cikisBtn').removeClass('active');
+        } else if (islemTipi === '002') {
+            $('#cikisBtn').addClass('active');
+            $('#girisBtn').removeClass('active');
+        }
+
+        // Open the modal
+        $('#hareketModal').modal('show');
+    });
+
+    // Save the updated movement data
+// Save the updated movement data
+$('#hareketKaydetBtn').click(function () {
+    var kartNo = $('#kartNo').val();
+    var tarih = $('#tarih').val();
+    var saat = $('#saat').val();
+    var yon = $('input[name="yon"]:checked').val();
+
+    // Only send the fields that have been changed
+    var dataToSend = { kartNo: kartNo };
+
+    if (tarih) dataToSend.tarih = tarih;
+    if (saat) dataToSend.saat = saat;
+    if (yon) dataToSend.yon = yon;
+
+    $.ajax({
+        url: '@Url.Action("UpdateHareket")',
+        type: 'POST',
+        data: dataToSend,
+        success: function (response) {
+            if (response.success) {
+                alert(response.message);
+                // Optionally, refresh the table or do other updates
+                location.reload();  // Reload the page to reflect changes
+            } else {
+                alert(response.message);
+            }
+        },
+        error: function (xhr, status, error) {
+            alert("Hareket güncellenirken bir hata oluştu: " + error);
+        }
+    });
+});
+</script>

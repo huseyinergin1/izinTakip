@@ -1,0 +1,74 @@
+﻿@model yillikizin.Models.personel
+<div class="modal-body">
+    <table class="table-bordered table">
+        <td>
+            @if (Model.resim == null)
+            {
+                <img src="~/images/users/user.png" width="50" height="50" class="profile-image" />
+            }
+            else
+            {
+                <img src="@Model.resim" width="100"  class="profile-image22" />
+            }
+        </td>
+        <tr>
+            <td>Adı</td>
+            <td>
+                @Model.adi
+            </td>
+        </tr>
+        <tr>
+            <td>Soyadı</td>
+            <td>
+                @Model.soyadi
+            </td>
+        </tr>
+        <tr>
+            <td>Kullanıcı Adı</td>
+            <td>
+                @Model.kullaniciadi
+            </td>
+        </tr>
+        <tr>
+            <td>Departmanı</td>
+            <td>
+                @Model.departman
+            </td>
+        </tr>
+        <tr>
+            <td>Ünvanı</td>
+            <td>
+                @Model.unvan
+            </td>
+        </tr>
+        <tr>
+            <td>Kart Numarası</td>
+            <td>
+                @Model.kartno
+            </td>
+        </tr>
+        <tr>
+            <td>Sicil Numarası</td>
+            <td>
+                @Model.sicilno
+            </td>
+        </tr>
+        <tr>
+            <td>Doğum Tarihi</td>
+            <td>
+                @(Model.dogumtarih.HasValue ? Model.dogumtarih.Value.ToString("dd/MM/yyyy") : "Tarih yok")
+            </td>
+        </tr>
+        <tr>
+            <td>İşe Giriş Tarihi</td>
+            <td>
+                @(Model.isegiristarih.HasValue ? Model.isegiristarih.Value.ToString("dd/MM/yyyy") : "Tarih yok")
+            </td>
+        </tr>
+        <tr>
+            <td>Kullanıcı Grubu</td>
+            <td>
+                @Model.kullaniciGrupAdi
+            </td>
+    </table>
+</div>

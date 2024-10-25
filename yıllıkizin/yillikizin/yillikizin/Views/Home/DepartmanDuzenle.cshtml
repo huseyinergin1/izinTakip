@@ -1,0 +1,21 @@
+﻿@model yillikizin.Models.departman
+
+@{
+    ViewBag.Title = "Departman Düzenle";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h2>Departman Düzenle</h2>
+
+@using (Html.BeginForm("DepartmanDuzenle", "Home", FormMethod.Post))
+{
+    @Html.HiddenFor(model => model.departmanId)
+
+    <div class="form-group">
+        <label for="DepartmanAdi">Departman Adı:</label>
+        @Html.TextBoxFor(model => model.departmanName, new { @class = "form-control", required = "required" })
+    </div>
+
+    <button type="submit" class="btn btn-primary">Kaydet</button>
+    @Html.ActionLink("Geri", "Departman", null, new { @class = "btn btn-secondary" })
+}

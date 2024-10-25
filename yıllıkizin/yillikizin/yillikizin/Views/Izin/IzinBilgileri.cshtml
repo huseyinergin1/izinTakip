@@ -1,0 +1,98 @@
+﻿@{
+    ViewBag.Title = "IzinBilgileri";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<style>
+    /* Başlık Stili */
+    .page-title {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    /* Tablo Stili */
+    .table-responsive {
+        margin-top: 20px;
+    }
+
+    .table {
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+
+        .table thead {
+            background-color: #343a40;
+            color: white;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f1f1f1;
+            transition: background-color 0.3s ease;
+        }
+
+    /* Butonlar */
+    .export-buttons {
+        margin-top: 20px;
+        display: flex; /* Flexbox ile butonları yan yana hizala */
+        gap: 10px; /* Butonlar arasındaki mesafeyi ayarla */
+    }
+
+    .export-btn {
+        padding: 10px 20px;
+        font-size: 1rem;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+        display: inline-block; /* Butonları yan yana tut */
+    }
+
+        /* Hover Stili */
+        .export-btn:hover {
+            background-color: #28a745 !important; /* yeşil ton hover */
+            transform: scale(1.05);
+            color: white;
+        }
+
+    .btn-danger:hover {
+        background-color: #c82333 !important; /* kırmızı ton hover */
+    }
+</style>
+<h2 class="page-title">Personel İzin Bilgileri</h2>
+
+<div class="table-responsive">
+    <table class="table-striped table-hover table">
+        <thead class="thead-dark">
+            <tr>
+                <th>Adı Soyadı</th>
+                <th>Kart No</th>
+                <th>İşe Giriş Tarihi</th>
+                <th>Hak Edilen İzin (Gün)</th>
+                <th>Kullandığı İzin (Gün)</th>
+                <th>Kalan İzin (Gün)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var personel in Model)
+            {
+                <tr>
+                    <td>@personel.adi @personel.soyadi</td>
+                    <td>@personel.kartno</td>
+                    <td>@personel.isegiristarih.ToShortDateString()</td>
+                    <td>@personel.hakettigi</td>
+                    <td>@personel.kullandigi</td>
+                    <td>@personel.kalan</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Dışa Aktar Butonları -->
+<div class="export-buttons d-flex justify-content-start mt-3">
+    <form action="@Url.Action("ExportToExcel", "Izin")" method="post">
+        <button type="submit" class="btn btn-success export-btn">Excel'e Aktar</button>
+    </form>
+    <form action="@Url.Action("ExportToPdf", "Izin")" method="post" class="ml-2">
+        <button type="submit" class="btn btn-danger export-btn">PDF'e Aktar</button>
+    </form>
+</div>
