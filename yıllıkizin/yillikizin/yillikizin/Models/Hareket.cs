@@ -11,8 +11,30 @@ namespace yillikizin.Models {
         public TimeSpan Saat { get; set; }
         public string TerminalNo { get; set; }
         public int PersonelId { get; set; } // İlişkilendirmek için personel ID
-        public int kartno { get; set; } // Kart numarası string olarak tanımlandı
+        public string kartno { get; set; } // Kart numarası string olarak tanımlandı
         public string IslemTipi { get; set; }
+        public string Bilgi { get; set; }
+        public int id { get; set; }
+        public string personelAdi { get; set; }
+        public string personelSoyadi { get; set; }
+        public string departman { get; set; }
+        // Yeni eklenen özellik
+        public Vardiya Vardiya { get; set; }
+        // Giriş ve Çıkış saatlerini listeler olarak ekliyoruz
+        public List<TimeSpan> GirişSaatleri { get; set; }
+        public List<TimeSpan> ÇıkışSaatleri { get; set; }
+
+        // Yeni özellik
+        public TimeSpan CalismaBaslangic { get; set; }
+
+        // Yeni eklenen özellik
+        public string GirişDurumu { get; set; }
+        public string Renk { get; set; } // Bu özelliği ekledik
+        public string Degerlendirme { get; set; }
+        public List<TimeSpan> NCS { get; set; } // Normal Çalışma Süreleri
+        public List<TimeSpan> DVS { get; set; }
+        public virtual personel Personel { get; set; }
+
     }
 
 }

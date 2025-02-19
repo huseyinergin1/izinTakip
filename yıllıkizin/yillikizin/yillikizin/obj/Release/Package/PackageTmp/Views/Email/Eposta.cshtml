@@ -1,0 +1,344 @@
+﻿@{
+    ViewBag.Title = "E-posta Ayarları";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@model yillikizin.Models.EmailSettings
+
+<h2 class="mt-4 text-center">E-posta Ayarları</h2>
+
+<div class="container-fluid mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">E-posta Ayarlarını Güncelle</h4>
+                </div>
+                <div class="card-body">
+                    @using (Html.BeginForm())
+                    {
+                        <table class="table-bordered table">
+                            <tr>
+                                <td class="text-end align-middle">
+                                    <label for="RecipientEmails" class="form-label">Gönderilecek E-posta</label>
+                                </td>
+                                <td>
+                                    <div id="emailInputs">
+                                        <input type="email" name="RecipientEmails[]" class="form-control mb-2" placeholder="E-posta adresini girin" />
+                                    </div>
+                                    <button type="button" id="addEmailButton" class="btn btn-secondary">Yeni E-posta Ekle</button>
+                                    @Html.ValidationMessageFor(m => m.RecipientEmails, null, new { @class = "text-danger" })
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-end align-middle">
+                                    <label for="SendTime" class="form-label">Gönderilecek Zaman</label>
+                                </td>
+                                <td>
+                                    @Html.TextBoxFor(m => m.SendTime, "{0:hh\\:mm}", new { @class = "form-control", type = "time" })
+                                    @Html.ValidationMessageFor(m => m.SendTime)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" class="text-center">
+                                    <button type="submit" class="btn btn-success w-100">Kaydet</button>
+                                </td>
+                            </tr>
+                        </table>
+                    }
+                    @using (Html.BeginForm("SendTestEmail", "Email", FormMethod.Post))
+                    {
+                        <div class="mt-3 text-center">
+                            <button type="submit" class="btn btn-warning w-100">Test Gönder</button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid mt-5">
+    <h3 class="text-center">Mevcut E-posta Ayarları</h3>
+    <div class="table-responsive">
+        <table class="table-bordered table">
+            <thead>
+                <tr>
+                    <th>E-posta Adresi</th>
+                    <th>Gönderilecek Zaman</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.EmailSettingsList)
+                {
+                    <tr>
+                        <td>@item.RecipientEmails</td>
+                        <td>@item.SendTime</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-primary editBtn" data-id="@item.Id" data-email="@item.RecipientEmails" data-time="@item.SendTime">Düzenle</button>
+                                @using (Html.BeginForm("DeleteEmailSetting", "Email", new { id = item.Id }, FormMethod.Post, new { id = "deleteForm_" + @item.Id }))
+                                {
+                                    <button type="button" class="btn btn-danger deleteBtn" data-id="@item.Id">Sil</button>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Düzenleme Modali -->
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">E-posta Ayarını Düzenle</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Kapat">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("EditEmailSetting", "Email", FormMethod.Post))
+            {
+                <div class="modal-body">
+                    <input type="hidden" id="editId" name="Id" />
+                    <div class="form-group">
+                        <label for="editEmail" class="form-label">E-posta Adresi</label>
+                        <input type="email" id="editEmail" name="RecipientEmails" class="form-control" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="editTime" class="form-label">Gönderilecek Zaman</label>
+                        <input type="time" id="editTime" name="SendTime" class="form-control" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+                    <button type="submit" class="btn" style="background-color:green">Kaydet</button> 
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Silme Onay Modali -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Emin misiniz?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Kapat">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bu e-posta ayarını silmek istediğinizden emin misiniz?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Sil</button>
+            </div>
+        </div>
+    </div> 
+</div>
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Emin misiniz?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Kapat">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+                        <button type="submit" class="btn btn-primary">Sil</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @section Scripts {
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                document.getElementById('addEmailButton').addEventListener('click', function () {
+                    var emailInputs = document.getElementById('emailInputs');
+                    var newEmailInput = document.createElement('input');
+                    newEmailInput.type = 'email';
+                    newEmailInput.name = 'RecipientEmails[]';
+                    newEmailInput.className = 'form-control mb-2';
+                    newEmailInput.placeholder = 'E-posta adresini girin';
+                    emailInputs.appendChild(newEmailInput);
+                });
+
+                // Düzenle butonuna tıklanınca modal'ı açma
+                document.querySelectorAll('.editBtn').forEach(function (button) {
+                    button.addEventListener('click', function () {
+                        var id = this.getAttribute('data-id');
+                        var email = this.getAttribute('data-email');
+                        var time = this.getAttribute('data-time');
+
+                        document.getElementById('editId').value = id;
+                        document.getElementById('editEmail').value = email;
+                        document.getElementById('editTime').value = time;
+
+                        // Bootstrap modal gösterme
+                        $('#editModal').modal('show');
+                    });
+
+                });
+                // Silme butonuna tıklayınca onay modali açma ve silme işlemi
+                document.querySelectorAll('.deleteBtn').forEach(function (button) {
+                    button.addEventListener('click', function () {
+                        var id = this.getAttribute('data-id');
+                        document.getElementById('confirmDelete').setAttribute('data-id', id);
+                        $('#deleteModal').modal('show');
+                    });
+                });
+
+                // Silme onay butonuna tıklayınca silme işlemi
+                document.getElementById('confirmDelete').addEventListener('click', function () {
+                    var id = this.getAttribute('data-id');
+                    document.getElementById('deleteForm_' + id).submit();
+                });
+            });
+
+        </script>
+
+    }
+<style>
+    button,
+    .button {
+        position: relative;
+        background-color: dodgerblue;
+        color: white;
+        border-radius: 0.2em;
+        border: none;
+        box-shadow: 0 0.125em 0.125em rgba(0, 0, 0, 0.3);
+        box-sizing: border-box;
+        display: inline-block;
+        cursor: pointer;
+        user-select: none;
+        -webkit-user-select: none;
+        font-family: inherit;
+        font-size: inherit;
+        line-height: normal;
+        font-weight: bold;
+        text-align: center;
+        outline: none;
+        padding: 0.6em;
+        margin: 0.2em;
+        transition: all 0.1s;
+        min-width: 10em;
+    }
+
+        button:focus:not(:disabled),
+        .button:focus:not(:disabled) {
+            opacity: 0.8;
+        }
+
+        button:hover:not(:disabled),
+        .button:hover:not(:disabled) {
+            opacity: 0.8;
+            top: -0.1em;
+            box-shadow: 0 0.2em 0.1em rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover:active,
+        .button:hover:active {
+            top: 0.1em;
+            box-shadow: 0 0.02em 0.125em rgba(0, 0, 0, 0.4);
+            transition: all 0.05s;
+        }
+
+        button:disabled,
+        .button:disabled {
+            cursor: initial;
+            background-color: silver;
+        }
+
+    a.button {
+        text-decoration: none;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f6f9;
+        color: #333;
+        margin: 0;
+        padding: 0;
+    }
+
+
+    .modern-box {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+        cursor: pointer;
+        height: 150px; /* Fixed height for consistency */
+        margin-bottom: 10px;
+    }
+
+        .modern-box:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+    .modern-box-content {
+        text-align: left;
+        flex-grow: 1;
+        padding-right: 20px;
+    }
+
+        .modern-box-content h3 {
+            margin: 0;
+            font-size: 1.2em;
+            color: #007bff;
+        }
+
+        .modern-box-content p {
+            margin: 10px 0 0;
+            font-size: 2em;
+            color: #333;
+        }
+
+    .modern-box-image img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+
+    h1, h2 {
+        color: #007bff;
+    }
+
+    table {
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-top: 20px;
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 12px;
+        border: 1px solid #ddd;
+    }
+
+    th {
+        background: #007bff;
+        color: white;
+    }
+
+    td {
+        vertical-align: middle;
+    }
+</style>

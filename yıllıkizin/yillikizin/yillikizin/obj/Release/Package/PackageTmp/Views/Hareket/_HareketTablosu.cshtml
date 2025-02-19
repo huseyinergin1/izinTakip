@@ -1,0 +1,61 @@
+﻿@model yillikizin.Models.HareketViewModel
+<tbody>
+    @if (Model.HareketListesi != null && Model.HareketListesi.Count > 0)
+    {
+        foreach (var hareket in Model.HareketListesi)
+        {
+            // Hareket ile ilişkili personel bilgilerini bul
+            var personel = Model.PersonelListesi.FirstOrDefault(p => p.id == hareket.PersonelId);
+
+            <tr>
+                <td>@hareket.Tarih.ToString("yyyy-MM-dd")</td>
+                <td>@personel?.adi ?? "Bilinmiyor"</td>
+                <td>@personel?.soyadi ?? "Bilinmiyor"</td>
+                <td class="time-column">
+                    @if (hareket.GirişSaatleri != null && hareket.GirişSaatleri.Count > 0)
+                    {
+                        foreach (var girişSaati in hareket.GirişSaatleri)
+                        {
+                            if (hareket.GirişDurumu == "Erken")
+                            {
+                                <div style="color: blue;">@girişSaati.ToString(@"hh\:mm")</div>
+                            }
+                            else if (hareket.GirişDurumu == "Geç")
+                            {
+                                <div style="color: red;">@girişSaati.ToString(@"hh\:mm")</div>
+                            }
+                            else
+                            {
+                                <div>@hareket.GirişDurumu</div>
+                            }
+                        }
+                    }
+                    else
+                    {
+                        <span style="color: red;">&#9888;</span>
+                    }
+                </td>
+                <td class="time-column">
+                    @if (hareket.ÇıkışSaatleri != null && hareket.ÇıkışSaatleri.Count > 0)
+                    {
+                        foreach (var çıkışSaati in hareket.ÇıkışSaatleri)
+                        {
+                            <div>@çıkışSaati.ToString(@"hh\:mm")</div>
+                        }
+                    }
+                    else
+                    {
+                        <span style="color: red;">&#9888;</span>
+                    }
+                </td>
+                <td>@hareket.Bilgi</td>
+            </tr>
+        }
+    }
+    else
+    {
+        <tr>
+            <td colspan="6">Filtreye uygun hareket bulunamadı.</td>
+        </tr>
+    }
+</tbody>

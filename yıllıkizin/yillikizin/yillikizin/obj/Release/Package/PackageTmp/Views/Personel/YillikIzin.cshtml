@@ -1,0 +1,27 @@
+﻿
+@{
+    ViewBag.Title = "YillikIzin";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@model List<yillikizin.Models.YillikizinEntities>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>İzin Başlangıç Tarihi</th>
+            <th>İzin Bitiş Tarihi</th>
+            <th>Toplam Gün</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var izin in Model)
+        {
+            <tr>
+                <td>@izin.BaslangicTarihi.ToString("dd-MM-yyyy")</td>
+                <td>@izin.BitisTarihi.ToString("dd-MM-yyyy")</td>
+                <td>@izin.ToplamGun</td>
+            </tr>
+        }
+    </tbody>
+</table>

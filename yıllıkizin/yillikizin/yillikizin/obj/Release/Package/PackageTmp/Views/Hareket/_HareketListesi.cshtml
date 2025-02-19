@@ -1,0 +1,282 @@
+﻿@model IEnumerable<yillikizin.Models.Hareket>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<table class="table">
+    <thead>
+        <tr>
+            <th></th>
+            <th>Terminal</th>
+            <th>Tarih</th>
+            <th>Saat</th>
+            <th>Yön</th>
+            <th></th> <!-- Düzenleme için ek kolon -->
+            <th></th> <!-- Silme butonu için yeni kolon -->
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var hareket in Model)
+        {
+            <tr class="hareket-row" data-id="@hareket.id" data-kart-no="@hareket.kartno" data-tarih="@hareket.Tarih.ToString("yyyy-MM-dd")" data-saat="@hareket.Saat.ToString(@"hh\:mm\:ss")" data-islem-tipi="@hareket.IslemTipi">
+                <td>
+                    @if (hareket.IslemTipi == "Giriş") // Giriş için
+                    {
+                        <i class="fas fa-sign-in-alt text-success fa-lg"></i>
+                    }
+                    else if (hareket.IslemTipi == "Çıkış") // Çıkış için
+                    {
+                        <i class="fas fa-sign-out-alt text-danger fa-lg" title="Çıkış"></i>
+                    }
+                </td>
+                <td>@hareket.TerminalNo</td>
+                <td>@hareket.Tarih.ToString("yyyy/MM/dd")</td>
+                <td>@hareket.Saat.ToString(@"hh\:mm")</td>
+                <td>@hareket.IslemTipi</td>
+                <td>
+                    <button class="btn btn-primary btn-sm btn-duzenle">Düzenle</button>
+                    <button class="btn btn-primary btn-sm btn-sil" data-id="@hareket.id" id="silbuton">Sil</button> <!-- Silme butonu -->
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script>
+// Silme butonuna tıklama işlemi
+$(document).on('click', '.btn-sil', function () {
+    var hareketId = $(this).data('id');  // Silinecek hareketin ID'sini al
+    var hareketRow = $(this).closest('tr'); // Silinecek hareketin bulunduğu satırı seç
+
+    $.ajax({
+        url: '@Url.Action("DeleteHareket", "Hareket")',
+        type: 'POST',
+        data: { id: hareketId },
+        success: function () {
+            // Silme işlemi sonrası satırı DOM'dan kaldır
+            hareketRow.fadeOut(300, function () {
+                $(this).remove(); // Satırı DOM'dan kaldır
+            });
+            showMessage("Hareket başarıyla silindi.", true); // Başarı mesajı
+        },
+        error: function () {
+            showMessage("Hareket silinirken bir hata oluştu.", false); // Hata mesajı
+        }
+    });
+});
+
+// Düzenle butonuna tıklama işlemi
+$(document).on('click', '.btn-duzenle', function () {
+    var row = $(this).closest('tr'); // Tıklanan satır
+    var hareketId = row.data('id');
+    var kartNo = row.data('kart-no');
+    var tarih = row.data('tarih');
+    var saat = row.data('saat');
+    var yon = row.data('islem-tipi');
+
+    // Modalda yer alan inputlara verileri aktarma
+    $('#kartNo').val(kartNo);
+    $('#tarih').val(tarih);
+    $('#saat').val(saat);
+    $('#hareketId').val(hareketId); // `hareketId`'yi modal formuna aktarma
+
+    // Yönü (Giriş/Çıkış) seçme
+    if (yon === "01") {
+        $('#girisBtn input').prop('checked', true);
+    } else if (yon === "02") {
+        $('#cikisBtn input').prop('checked', true);
+    }
+
+    // Modal'ı göster
+    $('#hareketModal').modal('show');
+});
+
+// Düzenle butonuna tıkladıktan sonra güncellemeyi AJAX ile yap
+$('#hareketKaydetBtn').click(function (event) {
+    event.preventDefault(); // Sayfanın yenilenmesini engelle
+
+    var kartNo = $('#kartNo').val();
+    var tarih = $('#tarih').val();
+    var saat = $('#saat').val();
+    var yon = $('input[name="yon"]:checked').val();
+    var hareketId = $('#hareketId').val();
+
+$.ajax({
+    url: '@Url.Action("UpdateHareket", "Hareket")',
+    type: 'POST',
+    data: {
+        id: hareketId,
+        kartNo: kartNo,
+        tarih: tarih,
+        saat: saat,
+        yon: yon,
+        yonDegistir: $("#yonDegistir").is(":checked") // Eğer işaretliyse true gönder
+    },
+    success: function (response) {
+        if (response.success) {
+            // **Ana hareketi güncelle**
+            updateTableRow(hareketId, response.kartNo, tarih, saat, yon);
+
+            // **Sonraki hareketler de değiştiyse, tümünü güncelle**
+            if (response.sonrakiHareketler && response.sonrakiHareketler.length > 0) {
+                response.sonrakiHareketler.forEach(hareket => {
+                    updateTableRow(hareket.id, hareket.kartNo, hareket.tarih, hareket.saat, hareket.yon);
+                });
+            }
+
+            $('#hareketModal').modal('hide');
+            showMessage("Hareket başarıyla güncellendi.", true);
+        } else {
+            showMessage(response.message, false);
+        }
+    },
+    error: function () {
+        showMessage("Hareket güncellenirken bir hata oluştu.", false);
+    }
+});
+
+// **Tablodaki bir satırı güncelleyen fonksiyon**
+function updateTableRow(hareketId, kartNo, tarih, saat, yon) {
+    var hareketRow = $('tr[data-id="' + hareketId + '"]');
+
+    if (hareketRow.length > 0) {
+        var updatedRow = `
+            <tr data-id="${hareketId}" data-kart-no="${kartNo}" data-tarih="${tarih}" data-saat="${saat}" data-islem-tipi="${yon}">
+                <td>
+                    ${yon === "01" ?
+                        '<i class="fas fa-sign-in-alt text-success fa-lg"></i>' :
+                        '<i class="fas fa-sign-out-alt text-danger fa-lg"></i>'}
+                </td>
+                <td>001</td> <!-- Terminal No -->
+                <td>${tarih}</td>
+                <td>${saat}</td>
+                <td>${yon === "01" ? "Giriş" : "Çıkış"}</td>
+                <td>
+                    <button class="btn btn-primary btn-sm btn-duzenle" data-id="${hareketId}">Düzenle</button>
+                    <button id="silbuton" class="btn btn-primary btn-sm btn-sil" data-id="${hareketId}">Sil</button>
+                </td>
+            </tr>
+        `;
+        hareketRow.replaceWith(updatedRow);
+    }
+}
+
+// **Tablodaki bir satırı güncelleyen fonksiyon**
+function updateTableRow(hareketId, kartNo, tarih, saat, yon) {
+    var hareketRow = $('tr[data-id="' + hareketId + '"]');
+    if (hareketRow.length > 0) {
+        var updatedRow = `
+            <tr data-id="${hareketId}" data-kart-no="${kartNo}" data-tarih="${tarih}" data-saat="${saat}" data-islem-tipi="${yon}">
+                <td>
+                    ${yon === "01" ?
+                        '<i class="fas fa-sign-in-alt text-success fa-lg"></i>' :
+                        '<i class="fas fa-sign-out-alt text-danger fa-lg"></i>'}
+                </td>
+                <td>001</td> <!-- Terminal No -->
+                <td>${tarih}</td>
+                <td>${saat}</td>
+                <td>${yon === "01" ? "Giriş" : "Çıkış"}</td>
+                <td>
+                    <button class="btn btn-primary btn-sm btn-duzenle" data-id="${hareketId}">Düzenle</button>
+                    <button id="silbuton" class="btn btn-primary btn-sm btn-sil" data-id="${hareketId}">Sil</button>
+                </td>
+            </tr>
+        `;
+        hareketRow.replaceWith(updatedRow);
+    }
+}
+});
+
+// Mesaj gösterme fonksiyonu
+function showMessage(message, isSuccess) {
+    // Mesajı renkli olarak göster (yeşil: başarılı, kırmızı: hata)
+    $("#message").text(message).css("color", isSuccess ? "green" : "red").show();
+    setTimeout(function () {
+        $("#message").fadeOut();  // Mesajın 3 saniye sonra kaybolmasını sağla
+    }, 3000);
+}
+
+</script>
+<!-- Düzenleme Modal -->
+<div class="modal fade" id="hareketModal" tabindex="-1" role="dialog" aria-labelledby="hareketModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="hareketModalLabel">Hareket Düzenle</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Kapat">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="message" class="alert" style="display: none; margin-top: 10px;"></div>
+
+                <form id="hareketDuzenleForm">
+                    <input type="hidden" id="hareketId" name="hareketId" />
+                    <div class="form-group">
+                        <label for="kartNo">Kart Numarası:</label>
+                        <input type="text" class="form-control" id="kartNo" name="kartNo" readonly />
+                    </div>
+                    <div class="form-group">
+                        <label for="tarih">Tarih:</label>
+                        <input type="date" class="form-control" id="tarih" name="tarih" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="saat">Saat:</label>
+                        <input type="time" class="form-control" id="saat" name="saat" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Yön:</label>
+                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                            <label class="btn btn-outline-primary" id="girisBtn">
+                                <input type="radio" name="yon" value="01"> Giriş
+                            </label>
+                            <label class="btn btn-outline-primary" id="cikisBtn">
+                                <input type="radio" name="yon" value="02"> Çıkış
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input type="radio" id="yonDegistir" name="yonDegistir" />
+                        <label for="yonDegistir">Sonraki Yönleri Değiştir</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+                <button type="button" class="btn btn-primary" id="hareketKaydetBtn">Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    #silbuton {
+        background-color: red !important; /* Arka plan rengini kırmızı yapar */
+        border-color: red !important; /* Buton kenar rengini kırmızı yapar */
+    }
+
+    #yeniHareket {
+        background-color: #20c200 !important; /* Arka plan rengini kırmızı yapar */
+        border-color: green !important; /* Buton kenar rengini kırmızı yapar */
+    }
+
+    .btn {
+        display: inline-block;
+        text-align: center; /* Buton metnini ortalayın */
+    }
+
+    .table td {
+        vertical-align: middle; /* Butonları hücre içinde ortalayın */
+    }
+
+    .alert {
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+    }
+
+    .alert-success {
+        background-color: green;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+</style>
+
+
+

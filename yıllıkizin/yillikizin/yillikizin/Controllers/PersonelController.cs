@@ -2,11 +2,16 @@
 using System.Collections.Generic;
 using System.Data.Entity; // Entity Framework için gerekli
 using System.Linq;
+using System.Web;
 using System.Web.Mvc;
+using yillikizin.Filters;
 using yillikizin.Models; // Model namespace'inizi ekleyin
+using System.IO;
+using DocumentFormat.OpenXml.EMMA;
 
 namespace yillikizin.Controllers
 {
+    [CustomAuthorize]
     public class PersonelController : Controller
     {
         private readonly YillikizinEntities db = new YillikizinEntities(); // Veritabanı bağlantısı
@@ -75,7 +80,7 @@ namespace yillikizin.Controllers
                 return HttpNotFound();
             }
 
-            var personel = db.personel.Find(id);
+            var personel = db.personel.Include(p => p.Vardiya).FirstOrDefault(p => p.id == id);
             if (personel == null)
             {
                 return HttpNotFound();
@@ -84,12 +89,15 @@ namespace yillikizin.Controllers
             // Departman listesini yükleyin
             ViewBag.DepartmanList = new SelectList(db.departman.ToList(), "departmanId", "departmanName", personel.departmanId);
 
-            return PartialView("_EditPersonel", personel); // Kullanıcıyı burada PartialView'a yönlendirin
+            // Vardiya listesini yükleyin
+            ViewBag.VardiyaList = new SelectList(db.Vardiya.ToList(), "vardiyaId", "Ad", personel.VardiyaId);
+
+            return PartialView("_EditPersonel", personel);
         }
 
-
         [HttpPost]
-        public ActionResult Edit(personel personel)
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit(personel personel, HttpPostedFileBase resimDosya)
         {
             if (ModelState.IsValid)
             {
@@ -102,11 +110,67 @@ namespace yillikizin.Controllers
                         return HttpNotFound();
                     }
 
-                    // Sadece adı ve soyadı güncelle
+                    // Personel bilgilerini güncelle
+                    existingPersonel.kullaniciadi = personel.kullaniciadi;
+                    existingPersonel.sifre = personel.sifre;
                     existingPersonel.adi = personel.adi;
                     existingPersonel.soyadi = personel.soyadi;
+                    existingPersonel.dogumtarih = personel.dogumtarih;
+                    existingPersonel.kartno = personel.kartno;
+                    existingPersonel.sicilno = personel.sicilno;
+                    existingPersonel.unvan = personel.unvan;
+                    existingPersonel.departmanId = personel.departmanId;
+                    existingPersonel.VardiyaId = personel.VardiyaId;
 
-                    // Değişiklikleri kaydet
+                    // Departman ID değiştiğinde departman adını güncelle
+                    if (personel.departmanId.HasValue)
+                    {
+                        var departman = db.departman.Find(personel.departmanId.Value);
+                        if (departman != null)
+                        {
+                            existingPersonel.departman = departman.departmanName;
+                        }
+                    }
+                    // Yeni resim dosyası yüklenmişse
+                    if (resimDosya != null && resimDosya.ContentLength > 0)
+                    {
+                        try
+                        {
+                            // Mevcut resim dosyasını sil
+                            if (!string.IsNullOrEmpty(existingPersonel.resim))
+                            {
+                                var existingFilePath = Server.MapPath(existingPersonel.resim);
+                                if (System.IO.File.Exists(existingFilePath))
+                                {
+                                    System.IO.File.Delete(existingFilePath);
+                                }
+                            }
+
+                            // Klasör yolunu belirleyin
+                            var folderPath = Server.MapPath("~/images/users/");
+
+                            // Klasörün mevcut olup olmadığını kontrol edin, yoksa oluşturun
+                            if (!Directory.Exists(folderPath))
+                            {
+                                Directory.CreateDirectory(folderPath);
+                            }
+
+                            // Yeni dosya yolunu belirleyin
+                            var fileName = Path.GetFileName(resimDosya.FileName);
+                            var path = Path.Combine(folderPath, fileName);
+
+                            // Dosyayı kaydedin
+                            resimDosya.SaveAs(path);
+
+                            // Personel resim yolunu güncelleyin
+                            existingPersonel.resim = "/images/users/" + fileName;
+                        }
+                        catch (Exception ex)
+                        {
+                            ModelState.AddModelError("", "Dosya yükleme sırasında bir hata oluştu: " + ex.Message);
+                            return View(existingPersonel);
+                        }
+                    }
                     db.SaveChanges();
 
                     // Başarılı bir şekilde güncellendiğini belirt
@@ -126,11 +190,12 @@ namespace yillikizin.Controllers
                 }
             }
 
+            // Departman ve Vardiya listelerini yeniden yükleyin çünkü partial view tekrar döndürülecek
+            ViewBag.DepartmanList = new SelectList(db.departman.ToList(), "departmanId", "departmanName", personel.departmanId);
+            ViewBag.VardiyaList = new SelectList(db.Vardiya.ToList(), "vardiyaId", "Ad", personel.VardiyaId);
+
             return PartialView("_EditPersonel", personel);
         }
-
-
-
         protected override void Dispose(bool disposing)
         {
             if (disposing)

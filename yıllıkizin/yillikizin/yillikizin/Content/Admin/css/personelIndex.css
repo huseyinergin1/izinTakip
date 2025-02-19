@@ -1,0 +1,147 @@
+﻿
+}
+
+thead th {
+    position: sticky;
+    top: 0; /* Ensures the first row sticks to the top */
+    background-color: white;
+    z-index: 3; /* Keeps it above other elements */
+}
+
+thead tr:nth-child(2) th {
+    position: sticky;
+    top: 37px; /* Adjusts for the second row (filter row) */
+    background-color: white;
+    z-index: 2; /* Slightly lower than the header row */
+}
+
+.table tbody tr {
+    cursor: pointer; /* Optional: Add a pointer cursor for rows */
+}
+
+
+.btn-group-toggle .btn {
+    margin-right: 10px; /* Butonlar arasında boşluk bırak */
+}
+
+    .btn-group-toggle .btn input[type="radio"] {
+        display: none; /* Varsayılan radio buton görünümünü gizle */
+    }
+
+    .btn-group-toggle .btn.active {
+        background-color: #007bff; /* Seçili butonun arka plan rengi */
+        color: white; /* Seçili butonun yazı rengi */
+    }
+
+    .btn-group-toggle .btn:not(.active):hover {
+        background-color: #e2e6ea; /* Hover rengi */
+    }
+
+
+.alert {
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.alert-success {
+    background-color: green;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+/* Modal Stilleri */
+.modal-content {
+    border-radius: 10px; /* Köşe yuvarlama */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Gölge efekti */
+}
+
+/* Ekstra stil ve yerleşim ayarları */
+.modal-header, .modal-footer {
+    background-color: #f1f1f1; /* Arka plan rengi */
+}
+
+.modal-header {
+    border-bottom: 1px solid #007bff;
+}
+
+.modal-footer {
+    border-top: 1px solid #007bff;
+}
+
+
+/* Form Satırları */
+.form-row {
+    display: flex; /* Flexbox kullanarak yan yana hizala */
+    justify-content: space-between; /* Boşluğu eşit dağıt */
+    margin-bottom: 15px; /* Form elemanları arasındaki boşluk */
+}
+
+.form-group {
+    flex: 1; /* Elemanların eşit genişlikte olmasını sağlar */
+    margin-right: 10px; /* Sağdaki boşluk */
+}
+
+    .form-group:last-child {
+        margin-right: 0; /* Son eleman için sağdaki boşluğu kaldır */
+    }
+
+.form-control {
+    border-radius: 5px; /* Giriş alanlarının köşe yuvarlama */
+    padding: 10px; /* İç boşluk */
+    border: 1px solid #ced4da; /* Kenar rengi */
+    width: 100%; /* Genişlik %100 */
+}
+
+.btn-primary {
+    background-color: #007bff; /* Düğme arka plan rengi */
+    border-color: #007bff; /* Düğme kenar rengi */
+    transition: background-color 0.3s, border-color 0.3s; /* Hover geçişi */
+    padding: 10px 20px; /* Düğme içi boşluk */
+    border-radius: 8px; /* Düğme köşe yuvarlama */
+}
+
+    .btn-primary:hover {
+        background-color: #0056b3; /* Hoverda arka plan rengi */
+        border-color: #004085; /* Hoverda kenar rengi */
+    }
+
+/* Modern Tablo Stili */
+.table {
+    font-size: 15px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #e9ecef; /* Hoverda tablo satırı rengi */
+}
+
+/* Seçili satır stili */
+.table-active {
+    background-color: #007bff !important;
+    color: white !important;
+}
+
+.personel-row {
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Satır hover geçişi */
+}
+
+    .personel-row:hover {
+        background-color: #d6e5f3 !important; /* Hover rengi */
+        color: black;
+    }
+
+.shadow-sm {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); /* Gölge efekti */
+}
+
+.thead-light th {
+    background-color: #f1f1f1; /* Başlık arka plan rengi */
+    font-weight: bold; /* Kalın yazı */
+}
+
+.sortable {
+    cursor: pointer; /* Sıralanabilir sütun için işaretçi */
+}

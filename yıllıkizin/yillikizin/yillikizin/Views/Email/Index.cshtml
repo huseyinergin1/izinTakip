@@ -1,0 +1,25 @@
+﻿@{
+    ViewBag.Title = "E-Posta Gönder";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h2>E-Posta Gönder</h2>
+
+@if (ViewBag.Message != null)
+{
+    <div style="color: green;">@ViewBag.Message</div>
+}
+
+<form method="post" action="@Url.Action("SendEmail", "Email")">
+    <div class="form-group">
+        <label for="recipientEmail">Alıcı E-Posta:</label>
+        <input type="email" class="form-control" id="recipientEmail" name="recipientEmail" required />
+    </div>
+    <div class="form-group">
+        <label for="subject">Konu:</label>
+        <input type="text" class="form-control" id="subject" name="subject" required />
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Gönder</button>
+    </div>
+</form>

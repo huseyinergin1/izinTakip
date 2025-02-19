@@ -1,0 +1,133 @@
+﻿@{
+    ViewBag.Title = "PersonelEkle";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Meta tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Title -->
+    <title>İletişim APDKS</title>
+    <!-- Link to CSS file -->
+    <link href="~/Content/Admin/css/contact.css" rel="stylesheet" />
+</head>
+<body>
+    <!-- Ana konteyner -->
+    <div class="container">
+        <h1>BİZE ULAŞIN</h1>
+        <p>İletişime geçin.</p>
+
+        <!-- İletişim formu bölümü -->
+        <div class="contact-box">
+            <!-- Formun sol tarafı -->
+            <div class="container-left">
+                <h3>Formu Doldurun*</h3>
+                <!-- Form -->
+                <form id="contactForm" onsubmit="return validateForm()">
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>Ad*</label>
+                            <input type="text" id="name" placeholder="Adınızı girin..." required>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Telefon*</label>
+                            <input type="text" id="phone" placeholder="+90 " required>
+                        </div>
+                    </div>
+
+                    <!-- E-posta ve Konu için giriş satırı -->
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>E-posta*</label>
+                            <input type="email" id="email" placeholder="ornek@gmail.com" required>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Konu</label>
+                            <input type="text" id="subject" placeholder="Soru">
+                        </div>
+                    </div>
+
+                    <!-- Mesaj için etiket -->
+                    <label>Mesaj*</label>
+                    <textarea rows="10" id="message" placeholder="Mesajınızı girin" required></textarea>
+                    <button type="submit">MESAJ GÖNDER</button>
+                </form>
+            </div>
+            <!-- Sağ taraf iletişim bilgileri ile -->
+            <div class="container-right">
+                <h3>Bize Ulaşın</h3>
+                <!-- İletişim bilgileri tablosu -->
+                <table>
+                    <tr>
+                        <td>Eposta:</td>
+                        <td>destek@teknolojitek.com.tr</td>
+                    </tr>
+
+                    <tr>
+                        <td>Telefon: </td>
+                        <td>+90 542 193 03 65</td>
+                    </tr>
+
+                    <tr>
+                        <td>Adres: </td>
+                        <td>
+                            PERPA Ticaret Merkezi <br>
+                            Şişli, <br>
+                           İstanbul, Türkiye
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- Harita bölümü -->
+                <div class="map">
+                    <!-- Google Harita iframe -->
+                    <iframe src="https://www.google.com/maps/d/u/0/embed?mid=1rGWQidNKa4V0LX9MWKQcMjb0VFyXtKA&ehbc=2E312F&noprof=1" width="800" height="275" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- JavaScript dosyası -->
+    <script src="assets/js/script.js"></script>
+</body>
+</html>
+<script>
+    // Function to validate the contact form before submission
+    function validateForm() {
+        // Get values from input fields
+        var name = document.getElementById('name').value;
+        var phone = document.getElementById('phone').value;
+        var email = document.getElementById('email').value;
+        var message = document.getElementById('message').value;
+
+        // Check if name is empty
+        if (name.trim() == '') {
+            alert('Please enter your name');
+            return false;
+        }
+
+        // Check if phone number is empty
+        if (phone.trim() == '') {
+            alert('Please enter your phone number');
+            return false;
+        }
+
+        // Check if email is empty
+        if (email.trim() == '') {
+            alert('Please enter your email');
+            return false;
+        }
+
+        // Check if message is empty
+        if (message.trim() == '') {
+            alert('Please enter your message');
+            return false;
+        }
+
+        // All fields are filled, return true for form submission
+        return true;
+    }
+</script>

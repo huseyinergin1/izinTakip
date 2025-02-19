@@ -1,0 +1,165 @@
+﻿@model yillikizin.Models.HareketViewModel
+
+@{
+    ViewBag.Title = "Kişi Bazlı Rapor";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<!-- Üst Menü Gibi Yapı -->
+<form method="get" action="@Url.Action("KisiBazliRapor")">
+    <div class="d-flex align-items-center mb-3">
+        <!-- Personel Seçimi -->
+        <div class="mr-3">
+            <label for="PersonelId" class="mr-2">Personel</label>
+            <select name="PersonelId" class="form-control">
+                @foreach (var personel in Model.PersonelListesi)
+                {
+                    <option value="@personel.id">@personel.adi @personel.soyadi</option>
+                }
+            </select>
+        </div>
+
+        <!-- Başlangıç Tarihi -->
+        <div class="mr-3">
+            <label for="StartDate" class="mr-2">Başlangıç Tarihi</label>
+            <input type="date" name="StartDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" class="form-control" />
+        </div>
+
+        <!-- Bitiş Tarihi -->
+        <div class="mr-3">
+            <label for="EndDate" class="mr-2">Bitiş Tarihi</label>
+            <input type="date" name="EndDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" class="form-control" />
+        </div>
+
+        <!-- Güncelle Butonu -->
+        <button type="submit" class="btn btn-primary">Güncelle</button>
+
+        <!-- PDF İndir Butonu -->
+        <a href="@Url.Action("RaporuPDFAktar", new { personelId = Model.SelectedPersonelId, startDate = Model.StartDate, endDate = Model.EndDate })" class="btn btn-success ml-3">PDF Aktar</a>
+    </div>
+</form>
+
+<hr />
+
+<!-- Hareketler Tablosu -->
+<table class="table-bordered table-striped table-hover table">
+    <thead>
+        <tr>
+            <th class="header-column">Tarih</th>
+            <th class="header-column">Adı</th>
+            <th class="header-column">Soyadı</th>
+            <th class="header-column">Giriş</th>
+            <th class="header-column">Çıkış</th>
+            <th class="header-column">Çalışma Süresi</th>
+            <th class="header-column">Fazla Mesai</th>
+            <th class="header-column">Eksik Çalışma</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.HareketListesi != null && Model.HareketListesi.Count > 0)
+        {
+            foreach (var hareket in Model.HareketListesi)
+            {
+                TimeSpan? çalışmaSüresi = null;
+                TimeSpan? fazlaMesaiSüresi = null;
+                TimeSpan? eksikÇalışmaSüresi = null;
+
+                if (hareket.GirişSaatleri != null && hareket.ÇıkışSaatleri != null &&
+                    hareket.GirişSaatleri.Count > 0 && hareket.ÇıkışSaatleri.Count > 0)
+                {
+                    var girişSaat = hareket.GirişSaatleri.First();
+                    var çıkışSaat = hareket.ÇıkışSaatleri.First();
+
+                    // Çalışma Süresi Hesapla
+                    çalışmaSüresi = çıkışSaat - girişSaat;
+
+                    // Fazla Mesai Hesapla
+                    if (çalışmaSüresi.HasValue && çalışmaSüresi.Value.TotalHours > 8)
+                    {
+                        fazlaMesaiSüresi = çalışmaSüresi.Value - TimeSpan.FromHours(8);
+                    }
+
+                    // Eksik Çalışma Hesapla
+                    if (çalışmaSüresi.HasValue && çalışmaSüresi.Value.TotalHours < 8)
+                    {
+                        eksikÇalışmaSüresi = TimeSpan.FromHours(8) - çalışmaSüresi.Value;
+                    }
+                }
+
+                <tr>
+                    <td>@hareket.Tarih.ToString("yyyy-MM-dd")</td>
+                    <td>@hareket.personelAdi</td>
+                    <td>@hareket.personelSoyadi</td>
+
+                    <td>
+                        @if (hareket.GirişSaatleri != null && hareket.GirişSaatleri.Count > 0)
+                        {
+                            foreach (var girişSaati in hareket.GirişSaatleri)
+                            {
+                                <div>@girişSaati.ToString(@"hh\:mm")</div>
+                            }
+                        }
+                        else
+                        {
+                            <div style="color: red;">GİRİŞ YOK</div>
+                        }
+                    </td>
+
+                    <td>
+                        @if (hareket.ÇıkışSaatleri != null && hareket.ÇıkışSaatleri.Count > 0)
+                        {
+                            foreach (var çıkışSaati in hareket.ÇıkışSaatleri)
+                            {
+                                <div>@çıkışSaati.ToString(@"hh\:mm")</div>
+                            }
+                        }
+                        else
+                        {
+                            <div style="color: red;">ÇIKIŞ YOK</div>
+                        }
+                    </td>
+
+                    <td>
+                        @if (çalışmaSüresi.HasValue)
+                        {
+                            <div>@çalışmaSüresi.Value.ToString(@"hh\:mm")</div>
+                        }
+                        else
+                        {
+                            <div style="color: red;">Hesaplanamadı</div>
+                        }
+                    </td>
+
+                    <td>
+                        @if (fazlaMesaiSüresi.HasValue)
+                        {
+                            <div>@fazlaMesaiSüresi.Value.ToString(@"hh\:mm")</div>
+                        }
+                        else
+                        {
+                            <div>0:00</div>
+                        }
+                    </td>
+
+                    <td>
+                        @if (eksikÇalışmaSüresi.HasValue)
+                        {
+                            <div>@eksikÇalışmaSüresi.Value.ToString(@"hh\:mm")</div>
+                        }
+                        else
+                        {
+                            <div>0:00</div>
+                        }
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="8">Henüz hareket bulunmamaktadır.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+

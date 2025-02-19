@@ -9,40 +9,40 @@ namespace yillikizin.Controllers
         private YillikizinEntities db = new YillikizinEntities(); // Veritabanı bağlamı
 
         // GET: Login
+        [AllowAnonymous]
         public ActionResult Index()
         {
+
             return View();
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public ActionResult Index(string KullaniciAdi, string Sifre)
         {
-
             // Kullanıcı adı ve şifreyi kontrol et
             var user = db.personel.FirstOrDefault(u => u.kullaniciadi == KullaniciAdi && u.sifre == Sifre);
 
-
-
             if (user != null)
             {
-                // Kullanıcının bilgilerini sessiona at
-                HttpContext.Session["KullaniciAdi"] = user.kullaniciadi;
-                HttpContext.Session["Sifre"] = user.sifre;
-                HttpContext.Session["Name"] = user.adi;
-                HttpContext.Session["Surname"] = user.soyadi;
-                HttpContext.Session["UserId"] = user.id;
-                HttpContext.Session["UserKartno"] = user.kartno;
-                HttpContext.Session["UserSicilno"] = user.sicilno;
-                HttpContext.Session["UserDepartman"] = user.departman;
-                HttpContext.Session["UserUnvan"] = user.unvan;
-                HttpContext.Session["UserDogum"] = user.dogumtarih;
-                HttpContext.Session["UserImage"] = user.resim;
-                HttpContext.Session["UserKalan"] = user.kalan;
-                HttpContext.Session["UserKullandigi"] = user.kullandigi;
-                HttpContext.Session["UserHakettigi"] = user.hakettigi;
-                HttpContext.Session["UserIsegiris"] = user.isegiristarih;
-                // Kullanıcı varsa, oturum aç ve ana sayfaya yönlendir
+                // Kullanıcı varsa, bilgilerini session'a at
+                Session["KullaniciAdi"] = user.kullaniciadi;
+                Session["Sifre"] = user.sifre;
+                Session["Name"] = user.adi;
+                Session["Surname"] = user.soyadi;
                 Session["UserId"] = user.id;
+                Session["UserKartno"] = user.kartno;
+                Session["UserSicilno"] = user.sicilno;
+                Session["UserDepartman"] = user.departman;
+                Session["UserUnvan"] = user.unvan;
+                Session["UserDogum"] = user.dogumtarih;
+                Session["UserImage"] = user.resim;
+                Session["UserKalan"] = user.kalan;
+                Session["UserKullandigi"] = user.kullandigi;
+                Session["UserHakettigi"] = user.hakettigi;
+                Session["UserIsegiris"] = user.isegiristarih;
+
+                // Kullanıcı başarılıysa, ana sayfaya yönlendir
                 return RedirectToAction("Index", "Home");
             }
             else
@@ -52,6 +52,5 @@ namespace yillikizin.Controllers
                 return View();
             }
         }
-
     }
 }

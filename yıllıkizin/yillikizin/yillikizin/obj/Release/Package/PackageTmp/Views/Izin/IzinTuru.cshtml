@@ -1,0 +1,54 @@
+﻿@model List<yillikizin.Models.IzinTuru>
+@{
+    ViewBag.Title = "İzin";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h2>İzin Türü Ekle Ekle</h2>
+
+@using (Html.BeginForm("IzinTuruEkle", "Izin", FormMethod.Post))
+{
+    <div class="form-group">
+        <label for="IzinTuruAdi">İzin Türü:</label>
+        <input type="text" class="form-control" id="IzinTuruAdi" name="IzinTuruAdi" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Ekle</button>
+}
+
+<hr />
+
+<h3>İzin Türleri</h3>
+<table class="table-bordered table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>İzin Türü</th>
+            <th>İşlemler</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Count() > 0)
+        {
+            int counter = 1;
+            foreach (var izin in Model)
+            {
+                <tr>
+                    <td>@counter</td>
+                    <td>@izin.IzinTuruAdi</td>
+                    <td>
+                        @Html.ActionLink("Düzenle", "DepartmanDuzenle", new { id = izin.IzinTuruId }, new { @class = "btn btn-warning" })
+                        |
+                        @Html.ActionLink("Sil", "DepartmanSil", new { id = izin.IzinTuruId }, new { @class = "btn btn-danger", onclick = "return confirm('Bu departmanı silmek istediğinizden emin misiniz?');" })
+                    </td>
+                </tr>
+                counter++;
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="3">Henüz eklenmiş bir izin türü yok.</td>
+            </tr>
+        }
+    </tbody>
+</table>

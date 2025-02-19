@@ -5,18 +5,153 @@ using System.Web;
 using System.Web.Mvc;
 using System.IO;
 using System.Web.Helpers;
+using System.Collections.Generic;
+using yillikizin.Filters;
+using System.Data.Entity;
 
 namespace yillikizin.Controllers
 {
+    [CustomAuthorize]
     public class HomeController : Controller
     {
         YillikizinEntities db = new YillikizinEntities();
-
-        // GET: Home
-        public ActionResult Index()
+        public ActionResult Index(int hareketSayisi = 20)
         {
-            ViewBag.Title = "Yıllık İzin | 2024";
+            // Kullanıcı tarafından belirlenen hareket sayısını saklamak için
+            int defaultHareketSayisi = 20; // Varsayılan değeri 20
+            if (Request.Cookies["hareketSayisi"] != null)
+            {
+                int.TryParse(Request.Cookies["hareketSayisi"].Value, out defaultHareketSayisi);
+            }
+
+            hareketSayisi = hareketSayisi != 0 ? hareketSayisi : defaultHareketSayisi;
+            // Toplam personel sayısı
+            ViewBag.TotalPersonel = db.personel.Count();
+
+            // Departman sayısı
+            ViewBag.DepartmanSayisi = db.departman.Count();
+
+            // Bugün izinli olan personeller
+            var today = DateTime.Now.Date;
+            var izinliPersonelList = db.Izin
+                .Where(i => i.BaslangicTarihi <= today && i.BitisTarihi >= today)
+                .Select(i => i.personel)
+                .Distinct()
+                .ToList();
+
+            ViewBag.IzinliPersonel = izinliPersonelList.Count;
+            ViewBag.IzinliPersonelList = izinliPersonelList;
+
+            // Bugün doğum günü olan personeller
+            ViewBag.DogumGunuOlanlar = db.personel
+                .Where(p => p.dogumtarih.HasValue &&
+                            p.dogumtarih.Value.Month == today.Month &&
+                            p.dogumtarih.Value.Day == today.Day)
+                .ToList();
+
+            // Son hareket sayısını ViewBag'e ekleyin
+            ViewBag.HareketSayisi = hareketSayisi;
+
+            // Son hareketleri veritabanından al
+            ViewBag.SonHareketler = ReadLastMovements(hareketSayisi);
+
+            // Tüm personel bilgilerini al
+            ViewBag.Personeller = db.personel.ToList();
+            ViewBag.Departmanlar = db.departman.ToList();
+            ViewBag.DevamsizPersoneller = db.personel.ToList();
+            ViewBag.IseGelenPersonelSayisi = db.personel.ToList();
+
+            // Departman başına personel sayısını hesapla
+            var departmanPersonelSayilari = db.departman.ToDictionary(
+                d => d.departmanId,
+                d => db.personel.Count(p => p.departmanId == d.departmanId)
+            );
+
+            ViewBag.DepartmanPersonelSayilari = departmanPersonelSayilari;
+
+            // Devamsız personel kontrolü (ad, soyad ve kart no ile birlikte)
+            var devamsizPersonelList = GetDevamsizPersonelWithDetails(today);
+            ViewBag.DevamsizPersonelList = devamsizPersonelList;
+            ViewBag.DevamsizPersonelSayisi = devamsizPersonelList.Count;
+
+            // İşe gelen personel listesi
+            var iseGelenPersonelList = GetIseGelenPersonelWithDetails(today);
+            ViewBag.IseGelenPersonelSayisi = iseGelenPersonelList.Count; // İşe gelen sayısını alıyoruz
+            ViewBag.IseGelenPersonelList = iseGelenPersonelList;
+
             return View();
+        }
+
+        // Belirtilen sayıda hareketi veritabanından al
+        private List<Hareket> ReadLastMovements(int hareketSayisi)
+        {
+            // Belirtilen sayıda hareketi veritabanından alıyoruz
+            var hareketler = (from h in db.Hareketler
+                              join p in db.personel on h.KartNumarasi equals p.kartno
+                              orderby h.Tarih descending
+                              select new Hareket
+                              {
+                                  kartno = h.KartNumarasi,
+                                  TerminalNo = h.TerminalNo,
+                                  Tarih = h.Tarih ?? DateTime.MinValue,
+                                  Saat = h.Saat ?? TimeSpan.Zero,
+                                  IslemTipi = h.Yon,
+                                  personelAdi = p.adi,
+                                  personelSoyadi = p.soyadi,
+                                  departman = p.departman,
+                                  GirişSaatleri = new List<TimeSpan> { h.Saat ?? TimeSpan.Zero },
+                                  ÇıkışSaatleri = new List<TimeSpan> { h.Saat ?? TimeSpan.Zero }
+                              }).Take(hareketSayisi).ToList();
+
+            return hareketler;
+        }
+        // Devamsız personeli kontrol et
+        private List<personel> GetDevamsizPersonelWithDetails(DateTime today)
+        {
+            var devamsizPersonel = new List<personel>();
+
+            // Veritabanındaki hareketleri al
+            var hareketler = db.Hareketler
+                .Where(h => h.Tarih == today)
+                .Select(h => h.KartNumarasi)
+                .ToList();
+
+            // Bugün hareketi olmayan personelleri al
+            var tumPersoneller = db.personel.ToList();
+
+            foreach (var personel in tumPersoneller)
+            {
+                if (!hareketler.Contains(personel.kartno))
+                {
+                    devamsizPersonel.Add(personel); // Devamsız personel
+                }
+            }
+
+            return devamsizPersonel; // Devamsız personel listesini döndür
+        }
+        // İşe gelen personel listesini al
+        private List<personel> GetIseGelenPersonelWithDetails(DateTime today)
+        {
+            var iseGelenPersonel = new List<personel>();
+
+            // Veritabanındaki hareketleri al
+            var hareketler = db.Hareketler
+                .Where(h => h.Tarih == today)
+                .Select(h => h.KartNumarasi)
+                .ToList();
+
+            // Bugün hareket yapan personelleri al
+            var tumPersoneller = db.personel.ToList();
+
+            foreach (var personel in tumPersoneller)
+            {
+                if (hareketler.Contains(personel.kartno))
+                {
+                    iseGelenPersonel.Add(personel); // İşe gelen personel
+                }
+            }
+
+            return iseGelenPersonel; // İşe gelen personel listesini döndür
         }
         public ActionResult PersonelEkle()
         {
@@ -34,16 +169,18 @@ namespace yillikizin.Controllers
                 grupAdi = g.grupAdi
             }).ToList();
 
+            // Vardiyaları hazırlıyoruz
+            var vardiyalar = db.Vardiya.Select(v => new
+            {
+                vardiyaId = v.VardiyaId,
+                vardiyaAdi = v.Ad
+            }).ToList();
             // Dropdown listesi için varsayılan "Seçiniz" seçeneği ekliyoruz
             ViewBag.DepartmanList = new SelectList(departmanlar, "departmanId", "departmanName", null);
             ViewBag.KullaniciGrupList = new SelectList(kullaniciGruplari, "grupID", "grupAdi", null);
-
+            ViewBag.VardiyaList = new SelectList(vardiyalar, "vardiyaId", "vardiyaAdi");
             return View();
         }
-
-
-
-
         [HttpPost]
         public ActionResult PersonelEkle(personel Personel, HttpPostedFileBase File)
         {
@@ -72,9 +209,20 @@ namespace yillikizin.Controllers
 
                 var kullaniciGruplari = db.kullanici_grup.ToList();
                 ViewBag.KullaniciGrupList = new SelectList(kullaniciGruplari, "kullaniciGrupId", "grupAdi");
-
+                
+                var vardiyalar = db.Vardiya.ToList();
+                ViewBag.VardiyaList = new SelectList(db.Vardiya, "vardiyaId", "vardiyaAdi");
                 return View(Personel);
             }
+
+            // Kart numarasını 10 haneye tamamla
+            // Kart numarasını string'e çeviriyoruz
+            string kartNoString = Personel.kartno; // artık string olarak alıyoruz
+                                                   // PadLeft kullanarak 10 haneye tamamlıyoruz
+            kartNoString = kartNoString?.PadLeft(10, '0');
+
+            // Personel modeline kart numarasını atıyoruz
+            Personel.kartno = kartNoString; // kartno artık string
 
             // Resim yükleme işlemi
             if (File != null)
@@ -98,6 +246,7 @@ namespace yillikizin.Controllers
             // Seçilen kullanıcı grup Id'sini personel modeline ata
             Personel.kullaniciGrupId = int.Parse(Request.Form["kullaniciGrupId"]);
 
+            Personel.VardiyaId = int.Parse(Request.Form["vardiyaId"]);
             // Departman adı almak için departmanId ile karşılaştırma yap
             var departmanName = db.departman
                 .Where(d => d.departmanId == Personel.departmanId)
@@ -126,8 +275,6 @@ namespace yillikizin.Controllers
 
             return RedirectToAction("Index");
         }
-
-
         public ActionResult Departman()
         {
             ViewBag.Title = "Yıllık İzin | 2024";
@@ -201,6 +348,12 @@ namespace yillikizin.Controllers
             }
 
             return View(departman);
+        }
+
+        public ActionResult Contact()
+        {
+
+            return View();
         }
 
     }

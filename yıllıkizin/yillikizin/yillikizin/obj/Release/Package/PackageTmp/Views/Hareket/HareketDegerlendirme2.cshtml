@@ -1,0 +1,338 @@
+﻿@model yillikizin.Models.HareketViewModel
+
+@{
+    ViewBag.Title = "Personel Hareketleri";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<!-- JQuery Kütüphanesi -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Üst Menü Gibi Yapı -->
+<form id="dateForm" method="post">
+    <div class="d-flex align-items-center mb-3">
+        <!-- Başlangıç Tarihi -->
+        <div class="mr-3">
+            <label for="StartDate" class="mr-2">Başlangıç Tarihi</label>
+            <input type="date" name="StartDate" value="@ViewBag.StartDate" class="form-control" />
+        </div>
+
+        <!-- Bitiş Tarihi -->
+        <div class="mr-3">
+            <label for="EndDate" class="mr-2">Bitiş Tarihi</label>
+            <input type="date" name="EndDate" value="@ViewBag.EndDate" class="form-control" />
+        </div>
+
+        <!-- Güncelle Butonu -->
+        <button type="button" class="btn btn-primary" id="updateButton">Güncelle</button>
+
+        <div class="export-buttons d-flex justify-content-start mt-3">
+            <button type="button" class="btn btn-danger export-btn" id="exportButton">PDF'e Aktar</button>
+            <button type="button" class="btn btn-success export-btn" id="exportExcelButton">Excel'e Aktar</button>
+        </div>
+
+    </div>
+</form>
+
+<hr />
+<form id="filterForm" method="get">
+    <input type="hidden" name="StartDate" value="@ViewBag.StartDate" />
+    <input type="hidden" name="EndDate" value="@ViewBag.EndDate" />
+
+    <label>
+        <input type="radio" id="Erken" name="FilterType" value="Erken"
+               onchange="this.form.submit()"
+               @(ViewBag.FilterType == "Erken" ? "checked" : "") />
+        <label for="Erken">Erken Gelenler</label>
+    </label>
+    <label>
+        <input type="radio" id="Gec" name="FilterType" value="Geç"
+               onchange="this.form.submit()"
+               @(ViewBag.FilterType == "Geç" ? "checked" : "") />
+        <label for="Gec">Geç Gelenler</label>
+    </label>
+</form>
+
+<!-- Hareketler Tablosu -->
+<table class="table-bordered table-striped table-hover table">
+    <thead>
+        <tr>
+            <th class="header-column">Tarih</th>
+            <th class="header-column">Adı</th>
+            <th class="header-column">Soyadı</th>
+            <th class="header-column">Giriş</th>
+            <th class="header-column">Çıkış</th>
+            <th class="header-column">Bilgi</th>
+        </tr>
+        <tr>
+            <th><input type="text" class="form-control arama" placeholder="Tarih ara..." /></th>
+            <th><input type="text" class="form-control arama" placeholder="Adı ara..." /></th>
+            <th><input type="text" class="form-control arama" placeholder="Soyadı ara..." /></th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.PersonelListesi != null && Model.PersonelListesi.Count > 0)
+        {
+            foreach (var personel in Model.PersonelListesi)
+            {
+                for (var currentDate = Model.StartDate; currentDate <= Model.EndDate; currentDate = currentDate.AddDays(1))
+                {
+                    var hareket = Model.HareketListesi
+                        .FirstOrDefault(h => h.Tarih.Date == currentDate && h.PersonelId == personel.id);
+
+                    if (hareket != null)
+                    {
+                        // Bilgiye göre renk ve simge belirleme
+                        string bilgiClass = hareket.Bilgi == "OK" ? "text-success"
+                            : hareket.Bilgi == "DEVAMSIZ" ? "text-warning"
+                            : "text-danger"; // Kırmızı
+
+                        string bilgiIcon = hareket.Bilgi == "OK" ? "&#9989;"
+                            : hareket.Bilgi == "DEVAMSIZ" ? "&#9888;"
+                            : "&#9940;"; // Çarpı işareti (Hata)
+
+                        <tr>
+                            <td style="text-align: left;">
+                                @currentDate.ToString("yyyy-MM-dd") @currentDate.ToString("ddd")
+                            </td>
+                            <td>@personel.adi</td>
+                            <td>@personel.soyadi</td>
+                            <td class="time-column">
+                                @if (hareket.GirişSaatleri != null && hareket.GirişSaatleri.Count > 0)
+                                {
+                                    foreach (var girişSaati in hareket.GirişSaatleri)
+                                    {
+                                        if (hareket.GirişDurumu == "Erken")
+                                        {
+                                            <div style="color: blue;">@girişSaati.ToString(@"hh\:mm")</div>
+                                        }
+                                        else if (hareket.GirişDurumu == "Geç")
+                                        {
+                                            <div style="color: red;">@girişSaati.ToString(@"hh\:mm")</div>
+                                        }
+                                        else
+                                        {
+                                            <div>@girişSaati.ToString(@"hh\:mm")</div>
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    <span style="color: red;">&#9888;</span>
+                                }
+                            </td>
+                            <td class="time-column">
+                                @if (hareket.ÇıkışSaatleri != null && hareket.ÇıkışSaatleri.Count > 0)
+                                {
+                                    foreach (var çıkışSaati in hareket.ÇıkışSaatleri)
+                                    {
+                                        <div>@çıkışSaati.ToString(@"hh\:mm")</div>
+                                    }
+                                }
+                                else
+                                {
+                                    <span style="color: red;">&#9888;</span>
+                                }
+                            </td>
+                            <td class="@bilgiClass">
+                                <span>@Html.Raw(bilgiIcon)</span> @hareket.Bilgi
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        if (new string[2] { "Geç", "Erken" }.Any(x => x == ViewBag.FilterType))
+                        {
+                            continue;
+                        }
+
+                        // Devamsızlık durumunda "Bilgi" sütununda "DEVAMSIZ" yazısı
+                        <tr>
+                            <td style="text-align: left;">
+                                @currentDate.ToString("yyyy-MM-dd") @currentDate.ToString("ddd")
+                            </td>
+                            <td>@personel.adi</td>
+                            <td>@personel.soyadi</td>
+                            <td class="time-column"></td>
+                            <td class="time-column"></td>
+                            <td class="text-warning">
+                                <span>&#9888;</span> DEVAMSIZ
+                            </td>
+                        </tr>
+                    }
+                }
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="6">Henüz hareket bulunmamaktadır.</td>
+            </tr>
+        }
+    </tbody>
+
+</table>
+
+
+
+<script>
+    $(document).ready(function () {
+        // Arama inputları için filtreleme
+        $('.arama').on('keyup', function () {
+            var tarihArama = $('th input[placeholder="Tarih ara..."]').val().toLowerCase();
+            var adiArama = $('th input[placeholder="Adı ara..."]').val().toLowerCase();
+            var soyadiArama = $('th input[placeholder="Soyadı ara..."]').val().toLowerCase();
+
+            // Tablodaki satırları filtrele
+            $('tbody tr').filter(function () {
+                var tarih = $(this).find('td').eq(0).text().toLowerCase();
+                var adi = $(this).find('td').eq(1).text().toLowerCase();
+                var soyadi = $(this).find('td').eq(2).text().toLowerCase();
+
+                // Arama terimlerine göre eşleşmeleri kontrol et
+                var tarihEslesti = tarih.indexOf(tarihArama) > -1;
+                var adiEslesti = adi.indexOf(adiArama) > -1;
+                var soyadiEslesti = soyadi.indexOf(soyadiArama) > -1;
+
+                // Tüm kriterlerin eşleşmesi durumunda satırı göster, aksi takdirde gizle
+                $(this).toggle(tarihEslesti && adiEslesti && soyadiEslesti);
+            });
+        });
+    });
+
+  // Filtreleme fonksiyonu
+        function filterResults(filterType = "") {
+            // Tarih değerlerini al
+            var startDate = $("input[name='StartDate']").val();
+            var endDate = $("input[name='EndDate']").val();
+
+            // AJAX ile verileri gönder
+            $.ajax({
+                url: '@Url.Action("HareketDegerlendirme2", "Hareket")',
+                type: "POST",
+                data: {
+                    StartDate: startDate,
+                    EndDate: endDate,
+                    FilterType: filterType
+                },
+                success: function (result) {
+                    // Filtrelenmiş hareketleri view içine yerleştir
+                    $("#filteredResults").html(result);
+                },
+                error: function () {
+                    alert("Bir hata oluştu, lütfen tekrar deneyin.");
+                }
+            });
+        }
+       // Güncelle butonuna tıklanırsa
+    document.getElementById('updateButton').addEventListener('click', function() {
+        var form = document.getElementById('dateForm');
+        var actionUrl = '@Url.Action("HareketDegerlendirme2", "Hareket")'; // Güncelleme işlemi için url
+        form.action = actionUrl; // Form action'ını güncelle
+        form.submit(); // Formu gönder
+    });
+    // Excel'e aktar butonuna tıklanırsa
+document.getElementById('exportExcelButton').addEventListener('click', function () {
+    var form = document.getElementById('dateForm');
+    var actionUrl = '@Url.Action("ExportToExcel", "Hareket")'; // Excel aktarım işlemi için url
+    form.action = actionUrl; // Form action'ını güncelle
+    form.submit(); // Formu gönder
+});
+
+    // PDF'e aktar butonuna tıklanırsa
+    document.getElementById('exportButton').addEventListener('click', function() {
+        var form = document.getElementById('dateForm');
+        var actionUrl = '@Url.Action("ExportToPdf", "Hareket")'; // PDF aktarım işlemi için url
+        form.action = actionUrl; // Form action'ını güncelle
+        form.submit(); // Formu gönder
+    });
+</script>
+
+<style>
+    tr.mavi {
+        background-color: #cce5ff;
+    }
+
+    tr.kırmızı {
+        background-color: #f8d7da;
+    }
+
+    tr.normal {
+        background-color: #d4edda;
+    }
+
+    tr.devamsız {
+        background-color: #fff3cd;
+    }
+
+    /* Genel tablo düzenlemeleri */
+    .table {
+        width: 100%;
+        border-collapse: collapse; /* Kenarlıkları birleştir */
+    }
+
+    /* Başlık hücreleri */
+    .header-column {
+        background-color: #f2f2f2;
+        font-weight: bold;
+        text-align: center;
+        padding: 10px 15px;
+    }
+
+    /* Satır hücreleri */
+    .table td {
+        text-align: center;
+        padding: 10px 15px;
+        border: 1px solid #ddd; /* Hücre kenarlarını belirle */
+    }
+
+    /* Giriş ve Çıkış saat sütunlarının özel düzenlemesi */
+    .time-column {
+        min-width: 100px; /* Saatler için min-width ekleyelim */
+    }
+
+    /* Satır hover efekti */
+    .table tr:hover {
+        background-color: #f9f9f9; /* Hover rengini açık yapalım */
+    }
+
+    /* Tablo başlığının genel görünümü */
+    .table thead {
+        background-color: #007bff;
+        color: black;
+    }
+
+    /* Boş hücreler için özel stil */
+    .table td div {
+        margin-bottom: 5px;
+        font-size: 14px;
+        color: #555;
+    }
+
+    /* Satırların arka planını alternatife göre değiştirme */
+    .table tr:nth-child(even) {
+        background-color: #f9f9f9; /* Çift satırlara açık gri arka plan */
+    }
+
+    .table tr:nth-child(odd) {
+        background-color: #ffffff; /* Tek satırlara beyaz arka plan */
+    }
+
+    /* Üst Menü Düzeni */
+    .d-flex {
+        display: flex;
+        align-items: center;
+    }
+
+    /* Alanlar arası mesafe */
+    .mr-3 {
+        margin-right: 1rem;
+    }
+
+    /* Form kontrol alanlarının genişliğini ayarlama */
+    .form-control {
+        width: 150px; /* İstediğiniz genişliği buradan ayarlayabilirsiniz */
+    }
+</style>

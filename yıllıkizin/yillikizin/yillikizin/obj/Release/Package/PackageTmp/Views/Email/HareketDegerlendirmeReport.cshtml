@@ -1,0 +1,142 @@
+﻿@model yillikizin.Models.HareketViewModel
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Hareket Değerlendirme Raporu</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Hareket Değerlendirme Raporu</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Tarih</th>
+                <th>Personel Adı</th>
+                <th>Personel Soyadı</th>
+                <th>Giriş</th>
+                <th>Çıkış</th>
+                <th>Bilgi</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.PersonelListesi != null && Model.PersonelListesi.Count > 0)
+            {
+                foreach (var personel in Model.PersonelListesi)
+                {
+                    for (var currentDate = Model.StartDate; currentDate <= Model.EndDate; currentDate = currentDate.AddDays(1))
+                    {
+                        var hareket = Model.HareketListesi
+                            .FirstOrDefault(h => h.Tarih.Date == currentDate && h.PersonelId == personel.id);
+
+                        if (hareket != null)
+                        {
+                            // Bilgiye göre renk ve simge belirleme
+                            string bilgiClass = hareket.Bilgi == "OK" ? "text-success"
+                                : hareket.Bilgi == "DEVAMSIZ" ? "text-warning"
+                                : "text-danger"; // Kırmızı
+
+                            string bilgiIcon = hareket.Bilgi == "OK" ? "&#9989;"
+                                : hareket.Bilgi == "DEVAMSIZ" ? "&#9888;"
+                                : "&#9940;"; // Çarpı işareti (Hata)
+
+                            <tr>
+                                <td style="text-align: left;">
+                                    @currentDate.ToString("yyyy-MM-dd") @currentDate.ToString("ddd")
+                                </td>
+                                <td>@personel.adi</td>
+                                <td>@personel.soyadi</td>
+                                <td class="time-column">
+                                    @if (hareket.GirişSaatleri != null && hareket.GirişSaatleri.Count > 0)
+                                    {
+                                        foreach (var girişSaati in hareket.GirişSaatleri)
+                                        {
+                                            if (hareket.GirişDurumu == "Erken")
+                                            {
+                                                <div style="color: blue;">@girişSaati.ToString(@"hh\:mm")</div>
+                                            }
+                                            else if (hareket.GirişDurumu == "Geç")
+                                            {
+                                                <div style="color: red;">@girişSaati.ToString(@"hh\:mm")</div>
+                                            }
+                                            else
+                                            {
+                                                <div>@girişSaati.ToString(@"hh\:mm")</div>
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span style="color: red;">&#9888;</span>
+                                    }
+                                </td>
+                                <td class="time-column">
+                                    @if (hareket.ÇıkışSaatleri != null && hareket.ÇıkışSaatleri.Count > 0)
+                                    {
+                                        foreach (var çıkışSaati in hareket.ÇıkışSaatleri)
+                                        {
+                                            <div>@çıkışSaati.ToString(@"hh\:mm")</div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span style="color: red;">&#9888;</span>
+                                    }
+                                </td>
+                                <td class="@bilgiClass">
+                                    <span>@Html.Raw(bilgiIcon)</span> @hareket.Bilgi
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            if (new string[2] { "Geç", "Erken" }.Any(x => x == ViewBag.FilterType))
+                            {
+                                continue;
+                            }
+
+                            // Sadece devamsızlar için farklı bir stil kullanabilirsiniz
+                            <tr>
+                                <td style="text-align: left;">
+                                    @currentDate.ToString("yyyy-MM-dd") @currentDate.ToString("ddd")
+                                </td>
+                                <td>@personel.adi</td>
+                                <td>@personel.soyadi</td>
+                                <td class="time-column"></td>
+                                <td class="time-column"></td>
+                                <td class="text-warning">
+                                    <span>&#9888;</span> DEVAMSIZ
+                                </td>
+                            </tr>
+
+                        }
+                    }
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6">Henüz hareket bulunmamaktadır.</td>
+                </tr>
+            }
+        </tbody>
+
+    </table>
+</body>
+</html>

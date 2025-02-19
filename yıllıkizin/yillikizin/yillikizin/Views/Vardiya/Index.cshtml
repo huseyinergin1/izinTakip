@@ -1,0 +1,324 @@
+﻿@model yillikizin.Models.Vardiyalar
+@{
+    ViewBag.Title = "Vardiyalar";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h2>Vardiyalar</h2>
+
+<!-- Vardiya Ekle Butonu -->
+<button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#vardiyaModal">Yeni Vardiya Ekle</button>
+
+<!-- Vardiya Listesi -->
+<table class="table-striped table">
+    <thead>
+        <tr>
+            <th>Ad</th>
+            <th>Çalışma Başlangıç</th>
+            <th>Çalışma Bitiş</th>
+            <th>Mesai Başlangıç</th>
+            <th>Mesai Bitiş</th>
+            <th>Erken Gelme</th>
+            <th>Geç Gelme</th>
+            <th>Erken Çıkma</th>
+            <th>Geç Çıkma</th>
+            <th>Açıklama</th>
+            <th>İşlemler</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var vardiya in Model.VardiyaListesi)
+        {
+            <tr>
+                <td>@vardiya.Ad</td>
+                <td>@vardiya.CalismaBaslangic.ToString(@"hh\:mm")</td>
+                <td>@vardiya.CalismaBitis.ToString(@"hh\:mm")</td>
+                <td>@vardiya.MesaiBaslangic.ToString(@"hh\:mm")</td>
+                <td>@vardiya.MesaiBitis.ToString(@"hh\:mm")</td>
+                <td>@vardiya.ErkenGelme</td>
+                <td>@vardiya.GecGelme</td>
+                <td>@vardiya.ErkenCikma</td>
+                <td>@vardiya.GecCikma</td>
+                <td>@vardiya.Aciklama</td>
+                <td>
+                    <button type="button" class="btn btn-warning btn-sm" onclick="loadVardiyaDetails(@vardiya.VardiyaId)">
+                        Düzenle
+                    </button>
+
+                    <button type="button" class="btn btn-danger btn-sm"
+                            onclick="deleteVardiya(@vardiya.VardiyaId)">
+                        Sil
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Yeni Vardiya Ekle Modal -->
+<div class="modal fade" id="vardiyaModal" tabindex="-1" role="dialog" aria-labelledby="vardiyaModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="vardiyaModalLabel">Yeni Vardiya Ekle</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @using (Html.BeginForm("Ekle", "Vardiya", FormMethod.Post, new { id = "vardiyaForm" }))
+                {
+                    <div class="form-group">
+                        <label for="Ad">Ad</label>
+                        @Html.TextBox("Ad", "", new { @class = "form-control", @id = "Ad" })
+                    </div>
+                    <div class="form-group">
+                        <label for="CalismaBaslangic">Çalışma Başlangıç</label>
+                        @Html.TextBox("CalismaBaslangic", "", new { @class = "form-control", @type = "time" })
+                    </div>
+                    <div class="form-group">
+                        <label for="CalismaBitis">Çalışma Bitiş</label>
+                        @Html.TextBox("CalismaBitis", "", new { @class = "form-control", @type = "time" })
+                    </div>
+                    <div class="form-group">
+                        <label for="MesaiBaslangic">Mesai Başlangıç</label>
+                        @Html.TextBox("MesaiBaslangic", "", new { @class = "form-control", @type = "time" })
+                    </div>
+                    <div class="form-group">
+                        <label for="MesaiBitis">Mesai Bitiş</label>
+                        @Html.TextBox("MesaiBitis", "", new { @class = "form-control", @type = "time" })
+                    </div>
+                    <div class="form-group">
+                        <label for="ErkenGelme">Erken Gelme</label>
+                        @Html.TextBox("ErkenGelme", "", new { @class = "form-control", @type = "time" })
+                    </div>
+                    <div class="form-group">
+                        <label for="GecGelme">Geç Gelme</label>
+                        @Html.TextBox("GecGelme", "", new { @class = "form-control", @type = "time" })
+                    </div>
+                    <div class="form-group">
+                        <label for="Aciklama">Açıklama</label>
+                        @Html.TextArea("Aciklama", "", new { @class = "form-control", rows = "3" })
+                    </div>
+                    <button type="submit" class="btn btn-primary">Kaydet</button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Vardiya Düzenle Modal -->
+<div class="modal fade" id="editVardiyaModal" tabindex="-1" role="dialog" aria-labelledby="editVardiyaModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editVardiyaModalLabel">Vardiya Düzenle</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @using (Html.BeginForm("Duzenle", "Vardiya", FormMethod.Post, new { id = "editVardiyaForm" }))
+                {
+                    @Html.Hidden("Id", "", new { id = "editVardiyaId" })
+                    <div class="form-group">
+                        <label for="editAd">Ad</label>
+                        @Html.TextBox("Ad", "", new { @class = "form-control", @id = "editAd" })
+                    </div>
+                    <div class="form-group">
+                        <label for="editCalismaBaslangic">Çalışma Başlangıç</label>
+                        @Html.TextBox("CalismaBaslangic", "", new { @class = "form-control", @type = "time" })
+                    </div>
+                    <div class="form-group">
+                        <label for="editCalismaBitis">Çalışma Bitiş</label>
+                        @Html.TextBox("CalismaBitis", "", new { @class = "form-control", @type = "time" })
+                    </div>
+                    <div class="form-group">
+                        <label for="editMesaiBaslangic">Mesai Başlangıç</label>
+                        @Html.TextBox("MesaiBaslangic", "", new { @class = "form-control", @type = "time" })
+                    </div>
+                    <div class="form-group">
+                        <label for="editMesaiBitis">Mesai Bitiş</label>
+                        @Html.TextBox("MesaiBitis", "", new { @class = "form-control", @type = "time" })
+                    </div>
+                    <div class="form-group">
+                        <label for="editAciklama">Açıklama</label>
+                        @Html.TextArea("Aciklama", "", new { @class = "form-control", rows = "3" })
+                    </div>
+                    <button type="submit" class="btn btn-warning">Güncelle</button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function loadVardiyaDetails(vardiyaId) {
+        // Vardiya bilgilerini sunucudan al
+        $.get('/Vardiya/GetVardiya/' + vardiyaId, function (data) {
+            if (data.success) {
+                // Gelen verileri düzenleme modalındaki alanlara doldur
+                $('#editVardiyaId').val(data.VardiyaId);
+                $('#editAd').val(data.Ad);
+                $('#editCalismaBaslangic').val(data.CalismaBaslangic);
+                $('#editCalismaBitis').val(data.CalismaBitis);
+                $('#editMesaiBaslangic').val(data.MesaiBaslangic);
+                $('#editMesaiBitis').val(data.MesaiBitis);
+                $('#editAciklama').val(data.Aciklama);
+
+                // Modalı aç
+                $('#editVardiyaModal').modal('show');
+            } else {
+                // Eğer bir hata varsa mesajı göster
+                alert(data.message || 'Vardiya bilgileri yüklenemedi. Lütfen tekrar deneyin.');
+            }
+        }).fail(function () {
+            // AJAX çağrısı başarısız olursa kullanıcıyı bilgilendir
+            alert('Bir hata oluştu. Lütfen bağlantınızı kontrol edin ve tekrar deneyin.');
+        });
+    }
+
+
+    function deleteVardiya(vardiyaId) {
+        if (confirm('Bu vardiyayı silmek istediğinize emin misiniz?')) {
+            $.post('/Vardiya/Sil/' + vardiyaId, function () {
+                location.reload();
+            });
+        }
+    }
+</script>
+<style>
+    button,
+    .button {
+        position: relative;
+        background-color: dodgerblue;
+        color: white;
+        border-radius: 0.2em;
+        border: none;
+        box-shadow: 0 0.125em 0.125em rgba(0, 0, 0, 0.3);
+        box-sizing: border-box;
+        display: inline-block;
+        cursor: pointer;
+        user-select: none;
+        -webkit-user-select: none;
+        font-family: inherit;
+        font-size: inherit;
+        line-height: normal;
+        font-weight: bold;
+        text-align: center;
+        outline: none;
+        padding: 0.6em;
+        margin: 0.2em;
+        transition: all 0.1s;
+        min-width: 10em;
+    }
+
+        button:focus:not(:disabled),
+        .button:focus:not(:disabled) {
+            opacity: 0.8;
+        }
+
+        button:hover:not(:disabled),
+        .button:hover:not(:disabled) {
+            opacity: 0.8;
+            top: -0.1em;
+            box-shadow: 0 0.2em 0.1em rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover:active,
+        .button:hover:active {
+            top: 0.1em;
+            box-shadow: 0 0.02em 0.125em rgba(0, 0, 0, 0.4);
+            transition: all 0.05s;
+        }
+
+        button:disabled,
+        .button:disabled {
+            cursor: initial;
+            background-color: silver;
+        }
+
+    a.button {
+        text-decoration: none;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f6f9;
+        color: #333;
+        margin: 0;
+        padding: 0;
+    }
+
+
+    .modern-box {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+        cursor: pointer;
+        height: 150px; /* Fixed height for consistency */
+        margin-bottom: 10px;
+    }
+
+        .modern-box:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+    .modern-box-content {
+        text-align: left;
+        flex-grow: 1;
+        padding-right: 20px;
+    }
+
+        .modern-box-content h3 {
+            margin: 0;
+            font-size: 1.2em;
+            color: #007bff;
+        }
+
+        .modern-box-content p {
+            margin: 10px 0 0;
+            font-size: 2em;
+            color: #333;
+        }
+
+    .modern-box-image img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+
+    h1, h2 {
+        color: #007bff;
+    }
+
+    table {
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-top: 20px;
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 12px;
+        border: 1px solid #ddd;
+    }
+
+    th {
+        background: #007bff;
+        color: white;
+    }
+
+    td {
+        vertical-align: middle;
+    }
+</style>

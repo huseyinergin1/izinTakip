@@ -1,0 +1,29 @@
+﻿@model yillikizin.Models.Cihaz
+
+@{
+    ViewBag.Title = "Yeni Cihaz Ekle";
+}
+
+<h2>Yeni Cihaz Ekle</h2>
+
+@using (Html.BeginForm("Create", "Cihaz", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    <div class="form-group">
+        @Html.LabelFor(model => model.IpAdresi)
+        @Html.TextBoxFor(model => model.IpAdresi, new { @class = "form-control" })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(model => model.Model)
+        @Html.TextBoxFor(model => model.Model, new { @class = "form-control" })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(model => model.Port)
+        @Html.TextBoxFor(model => model.Port, new { @class = "form-control" })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(model => model.IsConnected)
+        @Html.CheckBoxFor(model => model.IsConnected)
+    </div>
+    <button type="submit" class="btn btn-success">Kaydet</button>
+}

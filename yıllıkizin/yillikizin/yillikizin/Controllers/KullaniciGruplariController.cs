@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Linq;
 using System.Web.Mvc;
+using yillikizin.Filters;
 using yillikizin.Models;
 
 namespace yillikizin.Controllers
 {
+    [CustomAuthorize]
     public class KullaniciGruplariController : Controller
     {
         private YillikizinEntities db = new YillikizinEntities();

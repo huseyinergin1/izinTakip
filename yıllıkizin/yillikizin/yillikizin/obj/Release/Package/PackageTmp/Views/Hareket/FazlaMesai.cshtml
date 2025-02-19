@@ -1,0 +1,225 @@
+﻿@model yillikizin.Models.HareketViewModel
+
+@{
+    ViewBag.Title = "Fazla Mesai";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<!-- Üst Menü Gibi Yapı -->
+<form method="get" action="@Url.Action("FazlaMesai")">
+    <div class="d-flex align-items-center mb-3">
+        <!-- Başlangıç Tarihi -->
+        <div class="mr-3">
+            <label for="StartDate" class="mr-2">Başlangıç Tarihi</label>
+            <input type="date" name="StartDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" class="form-control" />
+        </div>
+
+        <!-- Bitiş Tarihi -->
+        <div class="mr-3">
+            <label for="EndDate" class="mr-2">Bitiş Tarihi</label>
+            <input type="date" name="EndDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" class="form-control" />
+        </div>
+
+        <!-- Güncelle Butonu -->
+        <button type="submit" class="btn btn-primary">Güncelle</button>
+    </div>
+
+    <!-- Hidden fields for keeping the values -->
+    @Html.HiddenFor(model => model.StartDate)
+    @Html.HiddenFor(model => model.EndDate)
+</form>
+
+<hr />
+
+<!-- PDF ve Excel butonları -->
+<div class="mb-3">
+    <a href="@Url.Action("ExportIcmalExcel", new { StartDate = Model.StartDate, EndDate = Model.EndDate, SelectedPersonelId = Model.SelectedPersonelId })" class="btn btn-success">Excel'e Aktar</a>
+</div>
+
+<!-- Hareketler Tablosu -->
+<table class="table-bordered table-striped table-hover table">
+    <thead>
+        <tr>
+            <th class="header-column">Tarih</th>
+            <th class="header-column">Adı Soyadı</th>
+            <th class="header-column">Giriş</th>
+            <th class="header-column">Çıkış</th>
+            <th class="header-column">Fazla Mesai</th>
+        </tr>
+        <tr>
+            <!-- Arama Alanları -->
+            <th><input type="text" id="tarihSearch" class="form-control" placeholder="Tarih Ara"></th>
+            <th><input type="text" id="adSoyadSearch" class="form-control" placeholder="Ad Soyad Ara"></th>
+            <th colspan="3"></th> <!-- Diğer sütunlar için arama alanı gerekmediği için boş bırakıyoruz -->
+        </tr>
+    </thead>
+    <tbody id="hareketTableBody">
+        @if (Model.HareketListesi != null && Model.HareketListesi.Count > 0)
+        {
+            foreach (var hareket in Model.HareketListesi)
+            {
+                TimeSpan? fazlaMesaiSüresi = null;
+
+                if (hareket.GirişSaatleri != null && hareket.ÇıkışSaatleri != null &&
+                    hareket.GirişSaatleri.Count > 0 && hareket.ÇıkışSaatleri.Count > 0)
+                {
+                    var girişSaat = hareket.GirişSaatleri.First();
+                    var çıkışSaat = hareket.ÇıkışSaatleri.First();
+
+                    // Fazla Mesai Hesapla
+                    var çalışmaSüresi = çıkışSaat - girişSaat;
+                    if (çalışmaSüresi.TotalHours > 10)
+                    {
+                        fazlaMesaiSüresi = çalışmaSüresi - TimeSpan.FromHours(10);
+                    }
+                }
+
+                <tr>
+                    <!-- Tarih ve Gün -->
+                    <td style="text-align: left;">
+                        @hareket.Tarih.ToString("yyyy-MM-dd")
+                        @hareket.Tarih.ToString("ddd") <!-- Gün bilgisi -->
+                    </td>
+                    <td>@hareket.personelAdi @hareket.personelSoyadi</td>
+
+                    <td class="time-column">
+                        @if (hareket.GirişSaatleri != null && hareket.GirişSaatleri.Count > 0)
+                        {
+                            foreach (var girişSaati in hareket.GirişSaatleri)
+                            {
+                                <div>@girişSaati.ToString(@"hh\:mm")</div>
+                            }
+                        }
+                        else
+                        {
+                            <div style="color: red;">GİRİŞ YOK</div>
+                        }
+                    </td>
+
+                    <td class="time-column">
+                        @if (hareket.ÇıkışSaatleri != null && hareket.ÇıkışSaatleri.Count > 0)
+                        {
+                            foreach (var çıkışSaati in hareket.ÇıkışSaatleri)
+                            {
+                                <div>@çıkışSaati.ToString(@"hh\:mm")</div>
+                            }
+                        }
+                        else
+                        {
+                            <div style="color: red;">ÇIKIŞ YOK</div>
+                        }
+                    </td>
+
+                    <!-- Fazla Mesai -->
+                    <td class="time-column">
+                        @if (fazlaMesaiSüresi.HasValue)
+                        {
+                            <div>@fazlaMesaiSüresi.Value.ToString(@"hh\:mm")</div>
+                        }
+                        else
+                        {
+                            <div>0:00</div>
+                        }
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="5">Henüz hareket bulunmamaktadır.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    document.getElementById('tarihSearch').addEventListener('input', function () {
+        filterTable(0, this.value);
+    });
+
+    document.getElementById('adSoyadSearch').addEventListener('input', function () {
+        filterTable(1, this.value);
+    });
+
+    function filterTable(columnIndex, query) {
+        const rows = document.querySelectorAll('#hareketTableBody tr');
+        rows.forEach(row => {
+            const cell = row.cells[columnIndex];
+            if (cell) {
+                const cellText = cell.textContent.toLowerCase();
+                row.style.display = cellText.includes(query.toLowerCase()) ? '' : 'none';
+            }
+        });
+    }
+</script>
+<style>
+    /* Genel tablo düzenlemeleri */
+    .table {
+        width: 100%;
+        border-collapse: collapse; /* Kenarlıkları birleştir */
+    }
+
+    /* Başlık hücreleri */
+    .header-column {
+        background-color: #f2f2f2;
+        font-weight: bold;
+        text-align: center;
+        padding: 10px 15px;
+    }
+
+    /* Satır hücreleri */
+    .table td {
+        text-align: center;
+        padding: 10px 15px;
+        border: 1px solid #ddd; /* Hücre kenarlarını belirle */
+    }
+
+    /* Giriş ve Çıkış saat sütunlarının özel düzenlemesi */
+    .time-column {
+        min-width: 100px; /* Saatler için min-width ekleyelim */
+    }
+
+    /* Satır hover efekti */
+    .table tr:hover {
+        background-color: #f9f9f9; /* Hover rengini açık yapalım */
+    }
+
+    /* Tablo başlığının genel görünümü */
+    .table thead {
+        background-color: #007bff;
+        color: black;
+    }
+
+    /* Boş hücreler için özel stil */
+    .table td div {
+        margin-bottom: 5px;
+        font-size: 14px;
+        color: #555;
+    }
+
+    /* Satırların arka planını alternatife göre değiştirme */
+    .table tr:nth-child(even) {
+        background-color: #f9f9f9; /* Çift satırlara açık gri arka plan */
+    }
+
+    .table tr:nth-child(odd) {
+        background-color: #ffffff; /* Tek satırlara beyaz arka plan */
+    }
+
+    /* Üst Menü Düzeni */
+    .d-flex {
+        display: flex;
+        align-items: center;
+    }
+
+    /* Alanlar arası mesafe */
+    .mr-3 {
+        margin-right: 1rem;
+    }
+
+    /* Form kontrol alanlarının genişliğini ayarlama */
+    .form-control {
+        width: 150px; /* İstediğiniz genişliği buradan ayarlayabilirsiniz */
+    }
+</style>

@@ -1,0 +1,66 @@
+﻿.custom-table-wrapper {
+    max-height: 600px; /* Sabit bir maksimum yükseklik */
+    overflow-y: auto; /* Dikey kaydırma */
+    overflow-x: auto; /* Yatay kaydırma */
+    border: 1px solid #ddd; /* Tablo etrafına ince bir çerçeve */
+    margin-bottom: 20px; /* Alt boşluk */
+}
+
+
+/* Responsive medya sorguları */
+@media (max-width: 400px) {
+    .custom-table-wrapper {
+        max-height: 400px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .custom-table-wrapper {
+        max-height: 1200px;
+    }
+}
+@media (min-width: 1920px) {
+    .custom-table-wrapper {
+        max-height: 1800px;
+    }
+}
+style > table th, table td {
+    white-space: nowrap;
+    padding: 10px;
+}
+
+.profile-image {
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 5px;
+}
+
+.text-break {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+/* Responsive ayarlar */
+
+@media (max-width: 1200px) {
+    th:nth-child(1), th:nth-child(2), th:nth-child(3), th:nth-child(4), th:nth-child(5), th:nth-child(6), th:nth-child(7), th:nth-child(8) {
+        width: auto;
+    }
+}
+
+@media (max-width: 992px) {
+    .profile-image {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+@media (max-width: 768px) {
+    .action-buttons {
+        flex-direction: column;
+    }

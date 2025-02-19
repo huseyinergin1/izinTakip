@@ -3,12 +3,11 @@
     "",
     "\\yillikizin",
     "\\yillikizin\\Controllers",
-    "\\yillikizin\\Models",
     "\\yillikizin\\Views",
     "\\yillikizin\\Views\\Home",
     "\\yillikizin\\Views\\Login",
     "\\yillikizin\\Views\\Personel"
   ],
-  "SelectedNode": "\\yillikizin\\Views\\Login\\Index.cshtml",
+  "SelectedNode": "\\yillikizin",
   "PreviewInSolutionExplorer": false
 }

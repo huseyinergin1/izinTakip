@@ -1,33 +1,161 @@
 ﻿@model IEnumerable<yillikizin.Models.Hareket>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
 <table class="table">
     <thead>
         <tr>
+            <th></th>
             <th>Terminal</th>
-            <th>Kart ID</th>
             <th>Tarih</th>
             <th>Saat</th>
-            <th>İşlem Tipi</th>
+            <th>Yön</th>
             <th></th> <!-- Düzenleme için ek kolon -->
+            <th></th> <!-- Silme butonu için yeni kolon -->
         </tr>
     </thead>
     <tbody>
         @foreach (var hareket in Model)
         {
-            <tr class="hareket-row" data-kart-no="@hareket.kartno" data-tarih="@hareket.Tarih.ToString("yyyy-MM-dd")" data-saat="@hareket.Saat.ToString(@"hh\:mm\:ss")" data-islem-tipi="@hareket.IslemTipi">
+            <tr class="hareket-row" data-id="@hareket.id" data-kart-no="@hareket.kartno" data-tarih="@hareket.Tarih.ToString("yyyy-MM-dd")" data-saat="@hareket.Saat.ToString(@"hh\:mm\:ss")" data-islem-tipi="@hareket.IslemTipi">
+                <td>
+                    @if (hareket.IslemTipi == "Giriş") // Giriş için
+                    {
+                        <i class="fas fa-sign-in-alt text-success fa-lg"></i>
+                    }
+                    else if (hareket.IslemTipi == "Çıkış") // Çıkış için
+                    {
+                        <i class="fas fa-sign-out-alt text-danger fa-lg" title="Çıkış"></i>
+                    }
+                </td>
                 <td>@hareket.TerminalNo</td>
-                <td>@hareket.kartno</td>
                 <td>@hareket.Tarih.ToString("yyyy/MM/dd")</td>
                 <td>@hareket.Saat.ToString(@"hh\:mm")</td>
                 <td>@hareket.IslemTipi</td>
                 <td>
                     <button class="btn btn-primary btn-sm btn-duzenle">Düzenle</button>
+                    <button class="btn btn-primary btn-sm btn-sil" data-id="@hareket.id" id="silbuton">Sil</button> <!-- Silme butonu -->
                 </td>
             </tr>
         }
     </tbody>
 </table>
+<script>
+// Silme butonuna tıklama işlemi
+$(document).on('click', '.btn-sil', function () {
+    var hareketId = $(this).data('id');  // Silinecek hareketin ID'sini al
+    var hareketRow = $(this).closest('tr'); // Silinecek hareketin bulunduğu satırı seç
 
+    $.ajax({
+        url: '@Url.Action("DeleteHareket", "Hareket")',
+        type: 'POST',
+        data: { id: hareketId },
+        success: function () {
+            // Silme işlemi sonrası satırı DOM'dan kaldır
+            hareketRow.fadeOut(300, function () {
+                $(this).remove(); // Satırı DOM'dan kaldır
+            });
+            showMessage("Hareket başarıyla silindi.", true); // Başarı mesajı
+        },
+        error: function () {
+            showMessage("Hareket silinirken bir hata oluştu.", false); // Hata mesajı
+        }
+    });
+});
+
+// Düzenle butonuna tıklama işlemi
+$(document).on('click', '.btn-duzenle', function () {
+    var row = $(this).closest('tr'); // Tıklanan satır
+    var hareketId = row.data('id');
+    var kartNo = row.data('kart-no');
+    var tarih = row.data('tarih');
+    var saat = row.data('saat');
+    var yon = row.data('islem-tipi');
+
+    // Modalda yer alan inputlara verileri aktarma
+    $('#kartNo').val(kartNo);
+    $('#tarih').val(tarih);
+    $('#saat').val(saat);
+    $('#hareketId').val(hareketId); // `hareketId`'yi modal formuna aktarma
+
+    // Yönü (Giriş/Çıkış) seçme
+    if (yon === "01") {
+        $('#girisBtn input').prop('checked', true);
+    } else if (yon === "02") {
+        $('#cikisBtn input').prop('checked', true);
+    }
+
+    // Modal'ı göster
+    $('#hareketModal').modal('show');
+});
+
+// Düzenle butonuna tıkladıktan sonra güncellemeyi AJAX ile yap
+$('#hareketKaydetBtn').click(function (event) {
+    event.preventDefault(); // Sayfanın yenilenmesini engelle
+
+    var kartNo = $('#kartNo').val();
+    var tarih = $('#tarih').val();
+    var saat = $('#saat').val();
+    var yon = $('input[name="yon"]:checked').val();
+    var hareketId = $('#hareketId').val();
+
+    $.ajax({
+        url: '@Url.Action("UpdateHareket", "Hareket")', // Güncelleme action'ı
+        type: 'POST',
+        data: {
+            id: hareketId,
+            kartNo: kartNo,
+            tarih: tarih,
+            saat: saat,
+            yon: yon,
+            yonDegistir: false // Eğer yön değiştirilmişse bunu true yap
+        },
+        success: function (response) {
+            if (response.success) {
+                // Tabloyu güncelle
+                var updatedRow = `
+                    <tr data-id="${hareketId}" data-kart-no="${response.kartNo}" data-tarih="${tarih}" data-saat="${saat}" data-islem-tipi="${yon}">
+                        <td>
+                            ${yon === "01" ?
+                                '<i class="fas fa-sign-in-alt text-success fa-lg"></i>' :
+                                '<i class="fas fa-sign-out-alt text-danger fa-lg"></i>'}
+                        </td>
+                        <td>001</td> <!-- Terminal No'yu buraya yazıyoruz -->
+                        <td>${tarih}</td>
+                        <td>${saat}</td>
+                        <td>
+                            ${yon === "01" ? "Giriş" : "Çıkış"}
+                        </td>
+                        <td>
+                            <button class="btn btn-primary btn-sm btn-duzenle" data-id="${hareketId}">Düzenle</button>
+                            <button id="silbuton" class="btn btn-primary btn-sm btn-sil" data-id="${hareketId}">Sil</button>
+                        </td>
+                    </tr>
+                `;
+
+                // Tablodaki eski satırı sil ve yeni satırı ekle
+                $('tr[data-id="' + hareketId + '"]').replaceWith(updatedRow);
+                $('#hareketModal').modal('hide');
+                showMessage("Hareket başarıyla güncellendi.", true); // Başarı mesajı
+            } else {
+                showMessage(response.message, false); // Hata mesajı
+            }
+        },
+        error: function () {
+            showMessage("Hareket güncellenirken bir hata oluştu.", false); // Hata mesajı
+        }
+    });
+});
+
+// Mesaj gösterme fonksiyonu
+function showMessage(message, isSuccess) {
+    // Mesajı renkli olarak göster (yeşil: başarılı, kırmızı: hata)
+    $("#message").text(message).css("color", isSuccess ? "green" : "red").show();
+    setTimeout(function () {
+        $("#message").fadeOut();  // Mesajın 3 saniye sonra kaybolmasını sağla
+    }, 3000);
+}
+
+</script>
 <!-- Düzenleme Modal -->
 <div class="modal fade" id="hareketModal" tabindex="-1" role="dialog" aria-labelledby="hareketModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -39,6 +167,8 @@
                 </button>
             </div>
             <div class="modal-body">
+                <div id="message" class="alert" style="display: none; margin-top: 10px;"></div>
+
                 <form id="hareketDuzenleForm">
                     <input type="hidden" id="hareketId" name="hareketId" />
                     <div class="form-group">
@@ -57,12 +187,16 @@
                         <label>Yön:</label>
                         <div class="btn-group btn-group-toggle" data-toggle="buttons">
                             <label class="btn btn-outline-primary" id="girisBtn">
-                                <input type="radio" name="yon" value="001"> Giriş
+                                <input type="radio" name="yon" value="01"> Giriş
                             </label>
                             <label class="btn btn-outline-primary" id="cikisBtn">
-                                <input type="radio" name="yon" value="002"> Çıkış
+                                <input type="radio" name="yon" value="02"> Çıkış
                             </label>
                         </div>
+                    </div>
+                    <div class="form-group">
+                        <input type="radio" id="yonDegistir" name="yonDegistir" />
+                        <label for="yonDegistir">Sonraki Yönleri Değiştir</label>
                     </div>
                 </form>
             </div>
@@ -73,64 +207,38 @@
         </div>
     </div>
 </div>
+<style>
+    #silbuton {
+        background-color: red !important; /* Arka plan rengini kırmızı yapar */
+        border-color: red !important; /* Buton kenar rengini kırmızı yapar */
+    }
 
-<script>
-    $(document).on('click', '.btn-duzenle', function () {
-        var row = $(this).closest('tr');
-        var kartNo = row.data('kart-no');
-        var tarih = row.data('tarih');
-        var saat = row.data('saat');
-        var islemTipi = row.data('islem-tipi');
+    #yeniHareket {
+        background-color: #20c200 !important; /* Arka plan rengini kırmızı yapar */
+        border-color: green !important; /* Buton kenar rengini kırmızı yapar */
+    }
 
-        // Set values in the modal fields
-        $('#kartNo').val(kartNo);
-        $('#tarih').val(tarih);
-        $('#saat').val(saat);
+    .btn {
+        display: inline-block;
+        text-align: center; /* Buton metnini ortalayın */
+    }
 
-        // Set Yön
-        if (islemTipi === '001') {
-            $('#girisBtn').addClass('active');
-            $('#cikisBtn').removeClass('active');
-        } else if (islemTipi === '002') {
-            $('#cikisBtn').addClass('active');
-            $('#girisBtn').removeClass('active');
-        }
+    .table td {
+        vertical-align: middle; /* Butonları hücre içinde ortalayın */
+    }
 
-        // Open the modal
-        $('#hareketModal').modal('show');
-    });
+    .alert {
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+    }
 
-    // Save the updated movement data
-// Save the updated movement data
-$('#hareketKaydetBtn').click(function () {
-    var kartNo = $('#kartNo').val();
-    var tarih = $('#tarih').val();
-    var saat = $('#saat').val();
-    var yon = $('input[name="yon"]:checked').val();
+    .alert-success {
+        background-color: green;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+</style>
 
-    // Only send the fields that have been changed
-    var dataToSend = { kartNo: kartNo };
 
-    if (tarih) dataToSend.tarih = tarih;
-    if (saat) dataToSend.saat = saat;
-    if (yon) dataToSend.yon = yon;
 
-    $.ajax({
-        url: '@Url.Action("UpdateHareket")',
-        type: 'POST',
-        data: dataToSend,
-        success: function (response) {
-            if (response.success) {
-                alert(response.message);
-                // Optionally, refresh the table or do other updates
-                location.reload();  // Reload the page to reflect changes
-            } else {
-                alert(response.message);
-            }
-        },
-        error: function (xhr, status, error) {
-            alert("Hareket güncellenirken bir hata oluştu: " + error);
-        }
-    });
-});
-</script>

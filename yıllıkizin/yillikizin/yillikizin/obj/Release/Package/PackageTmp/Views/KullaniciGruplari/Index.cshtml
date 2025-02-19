@@ -1,0 +1,103 @@
+﻿@model IEnumerable<yillikizin.Models.kullanici_grup>
+
+@{
+    ViewBag.Title = "Kullanıcı Grupları";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="row clearfix">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="card">
+            <div class="header">
+                <h2>
+                    KULLANICI GRUP OLUŞTUR
+                </h2>
+            </div>
+            <div class="body">
+                @using (Html.BeginForm("Ekle", "KullaniciGruplari", FormMethod.Post))
+                {
+                    <label>Grup Adı</label>
+                    <div class="form-group">
+                        <div class="form-line">
+                            @Html.TextBox("grupAdi", null, new { @class = "form-control", @required = "required" })
+                        </div>
+                    </div>
+
+                    <label>Açıklama</label>
+                    <div class="form-group">
+                        <div class="form-line">
+                            @Html.TextBox("aciklama", null, new { @class = "form-control" })
+                        </div>
+                    </div>
+
+                    <label>Yetkiler</label>
+                    <div class="form-group">
+                        <div class="form-line">
+                            @Html.TextBox("yetkiler", null, new { @class = "form-control" })
+                        </div>
+                    </div>
+
+                    <input type="submit" class="btn btn-success" value="Grup Ekle" />
+                }
+
+                <h3 style="margin-top: 20px;">Mevcut Gruplar</h3>
+                <table class="table-bordered table">
+                    <thead>
+                        <tr>
+                            <th>Grup Adı</th>
+                            <th>Açıklama</th>
+                            <th>Yetkiler</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var grup in Model)
+                        {
+                            <tr>
+                                <td>@grup.grupAdi</td>
+                                <td>@grup.Aciklama</td>
+                                <td>@grup.Yetki</td>
+                                <td>
+                                    <!-- Silme Butonu -->
+                                    <button class="btn btn-danger" data-toggle="modal" data-target="#deleteModal" onclick="setDeleteId(@grup.kullaniciGrupId)">
+                                        Sil
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Silme Onayı Modal'ı -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Grup Silme Onayı</h4>
+            </div>
+            <div class="modal-body">
+                <p>Bu kullanıcı grubunu silmek istediğinizden emin misiniz?</p>
+            </div>
+            <div class="modal-footer">
+                @using (Html.BeginForm("Sil", "KullaniciGruplari", FormMethod.Post))
+                {
+                    @Html.Hidden("id", "", new { id = "deleteGroupId" }) <!-- Grup ID'si gizli alan -->
+                    <input type="submit" class="btn btn-danger" value="Sil" />
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Vazgeç</button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    // Silme işlemi için ilgili grubun ID'sini modal'a ekle
+    function setDeleteId(id) {
+        $('#deleteGroupId').val(id);
+    }
+</script>
