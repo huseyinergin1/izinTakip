@@ -1,30 +1,22 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\",
+  "WorkspaceRootPath": "C:\\Users\\huseyin\\Documents\\GitHub\\izinTakip\\y\u0131ll\u0131kizin\\yillikizin\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|c:\\users\\huseyin\\desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\controllers\\hareketcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|solutionrelative:yillikizin\\controllers\\hareketcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|c:\\users\\huseyin\\desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\models\\emailjob.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|C:\\Users\\huseyin\\Documents\\GitHub\\izinTakip\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\models\\emailjob.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|solutionrelative:yillikizin\\models\\emailjob.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\views\\hareket\\hareketdegerlendirme.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|solutionrelative:yillikizin\\views\\hareket\\hareketdegerlendirme.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|c:\\users\\huseyin\\documents\\github\\izintakip\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\models\\emailservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|solutionrelative:yillikizin\\models\\emailservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\views\\hareket\\_hareketlistesi.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|solutionrelative:yillikizin\\views\\hareket\\_hareketlistesi.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|c:\\users\\huseyin\\documents\\github\\izintakip\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\controllers\\emailcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|solutionrelative:yillikizin\\controllers\\emailcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|solutionrelative:yillikizin\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\views\\hareket\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|solutionrelative:yillikizin\\views\\hareket\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|c:\\users\\huseyin\\documents\\github\\izintakip\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\global.asax.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|solutionrelative:yillikizin\\global.asax.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -34,7 +26,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Bookmark",
@@ -42,80 +34,54 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "HareketController.cs",
-              "DocumentMoniker": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Controllers\\HareketController.cs",
-              "RelativeDocumentMoniker": "yillikizin\\Controllers\\HareketController.cs",
-              "ToolTip": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Controllers\\HareketController.cs",
-              "RelativeToolTip": "yillikizin\\Controllers\\HareketController.cs",
-              "ViewState": "AgIAAKsCAAAAAAAAAAAcwLMCAAAMAAAAAAAAAA==",
+              "DocumentIndex": 3,
+              "Title": "Global.asax.cs",
+              "DocumentMoniker": "C:\\Users\\huseyin\\Documents\\GitHub\\izinTakip\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Global.asax.cs",
+              "RelativeDocumentMoniker": "yillikizin\\Global.asax.cs",
+              "ToolTip": "C:\\Users\\huseyin\\Documents\\GitHub\\izinTakip\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Global.asax.cs",
+              "RelativeToolTip": "yillikizin\\Global.asax.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-02-04T11:48:50.708Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "EmailJob.cs",
-              "DocumentMoniker": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Models\\EmailJob.cs",
-              "RelativeDocumentMoniker": "yillikizin\\Models\\EmailJob.cs",
-              "ToolTip": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Models\\EmailJob.cs",
-              "RelativeToolTip": "yillikizin\\Models\\EmailJob.cs",
-              "ViewState": "AgIAAAkAAAAAAAAAAAAAABMAAAAjAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-02-17T06:58:01.573Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "Index.cshtml",
-              "DocumentMoniker": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Views\\Home\\Index.cshtml",
-              "RelativeDocumentMoniker": "yillikizin\\Views\\Home\\Index.cshtml",
-              "ToolTip": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Views\\Home\\Index.cshtml",
-              "RelativeToolTip": "yillikizin\\Views\\Home\\Index.cshtml",
-              "ViewState": "AgIAAFcAAAAAAAAAAAAAAEgAAAAuAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-02-15T09:23:39.804Z",
+              "WhenOpened": "2025-02-22T09:42:21.421Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "HareketDegerlendirme.cshtml",
-              "DocumentMoniker": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Views\\Hareket\\HareketDegerlendirme.cshtml",
-              "RelativeDocumentMoniker": "yillikizin\\Views\\Hareket\\HareketDegerlendirme.cshtml",
-              "ToolTip": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Views\\Hareket\\HareketDegerlendirme.cshtml",
-              "RelativeToolTip": "yillikizin\\Views\\Hareket\\HareketDegerlendirme.cshtml",
-              "ViewState": "AgIAAEEAAAAAAAAAAAAcwFQAAAAVAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-02-14T06:27:51.323Z",
+              "Title": "EmailController.cs",
+              "DocumentMoniker": "C:\\Users\\huseyin\\Documents\\GitHub\\izinTakip\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Controllers\\EmailController.cs",
+              "RelativeDocumentMoniker": "yillikizin\\Controllers\\EmailController.cs",
+              "ToolTip": "C:\\Users\\huseyin\\Documents\\GitHub\\izinTakip\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Controllers\\EmailController.cs",
+              "RelativeToolTip": "yillikizin\\Controllers\\EmailController.cs",
+              "ViewState": "AgIAAEEAAAAAAAAAAAA1wJUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-22T09:37:47.101Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "Index.cshtml",
-              "DocumentMoniker": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Views\\Hareket\\Index.cshtml",
-              "RelativeDocumentMoniker": "yillikizin\\Views\\Hareket\\Index.cshtml",
-              "ToolTip": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Views\\Hareket\\Index.cshtml",
-              "RelativeToolTip": "yillikizin\\Views\\Hareket\\Index.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAApAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-02-04T12:33:48.123Z",
+              "DocumentIndex": 1,
+              "Title": "EmailService.cs",
+              "DocumentMoniker": "C:\\Users\\huseyin\\Documents\\GitHub\\izinTakip\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Models\\EmailService.cs",
+              "RelativeDocumentMoniker": "yillikizin\\Models\\EmailService.cs",
+              "ToolTip": "C:\\Users\\huseyin\\Documents\\GitHub\\izinTakip\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Models\\EmailService.cs",
+              "RelativeToolTip": "yillikizin\\Models\\EmailService.cs",
+              "ViewState": "AgIAAEkAAAAAAAAAAAAowFAAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-22T09:37:21.606Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "_HareketListesi.cshtml",
-              "DocumentMoniker": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Views\\Hareket\\_HareketListesi.cshtml",
-              "RelativeDocumentMoniker": "yillikizin\\Views\\Hareket\\_HareketListesi.cshtml",
-              "ToolTip": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Views\\Hareket\\_HareketListesi.cshtml",
-              "RelativeToolTip": "yillikizin\\Views\\Hareket\\_HareketListesi.cshtml",
-              "ViewState": "AgIAAHoAAAAAAAAAAAAcwJIAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-02-04T11:49:39.305Z",
+              "DocumentIndex": 0,
+              "Title": "EmailJob.cs",
+              "DocumentMoniker": "C:\\Users\\huseyin\\Documents\\GitHub\\izinTakip\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Models\\EmailJob.cs",
+              "RelativeDocumentMoniker": "yillikizin\\Models\\EmailJob.cs",
+              "ToolTip": "C:\\Users\\huseyin\\Documents\\GitHub\\izinTakip\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Models\\EmailJob.cs",
+              "RelativeToolTip": "yillikizin\\Models\\EmailJob.cs",
+              "ViewState": "AgIAABQAAAAAAAAAAAAowBUAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-17T06:58:01.573Z",
               "EditorCaption": ""
             }
           ]

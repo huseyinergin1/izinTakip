@@ -8,6 +8,7 @@ using Unity;
 using yillikizin.Controllers;
 using System.IO;
 using System.Threading.Tasks;
+using System;
 namespace yillikizin
 {
     public class MvcApplication : System.Web.HttpApplication
@@ -18,9 +19,13 @@ namespace yillikizin
             container.RegisterType<EmailController>();
             DependencyResolver.SetResolver(new UnityDependencyResolver(container));
 
-            // Quartz Scheduler'ý baþlat
-            IScheduler scheduler = StdSchedulerFactory.GetDefaultScheduler().Result;
+            // Quartz.NET Scheduler'ý baþlat
+            StdSchedulerFactory factory = new StdSchedulerFactory();
+            IScheduler scheduler = factory.GetScheduler().Result;
             scheduler.Start();
+            Application["Scheduler"] = scheduler;
+
+            Console.WriteLine("Scheduler baþlatýldý ve çalýþýyor."); // Scheduler'ýn baþlatýldýðýný logla
 
             AreaRegistration.RegisterAllAreas();
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);

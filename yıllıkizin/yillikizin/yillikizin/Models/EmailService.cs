@@ -20,7 +20,7 @@ public class EmailService : IDisposable
             var message = new MimeMessage();
 
             // Gönderen adres
-            message.From.Add(new MailboxAddress("Teknoloji Tek | Selçuk K.", Email));
+            message.From.Add(new MailboxAddress("Teknoloji Tek | RAPOR", Email));
             // Alıcı adres
             message.To.Add(new MailboxAddress("", recipientEmail));
             // Konu
@@ -55,7 +55,7 @@ public class EmailService : IDisposable
             var message = new MimeMessage();
 
             // Gönderen adres
-            message.From.Add(new MailboxAddress("Teknoloji Tek | Selçuk K.", Email));
+            message.From.Add(new MailboxAddress("Teknoloji Tek | RAPOR", Email));
             // Alıcı adres
             message.To.Add(new MailboxAddress("", recipientEmail));
             // Konu

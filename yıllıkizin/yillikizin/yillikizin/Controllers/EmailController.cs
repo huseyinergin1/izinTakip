@@ -30,7 +30,6 @@ namespace yillikizin.Controllers
 
             return View(emailSettings);
         }
-
         [HttpPost]
         public async Task<ActionResult> Eposta(EmailSettings model, string[] RecipientEmails)
         {
@@ -62,6 +61,40 @@ namespace yillikizin.Controllers
             return View(model);
         }
 
+        private async Task ScheduleEmailJob()
+        {
+            var settings = db.EmailSettings.FirstOrDefault();
+            if (settings != null && settings.SendTime.HasValue)
+            {
+                var sendTime = settings.SendTime.Value;
+                // Cron formatı: "saniye dakika saat gün ay haftanın günü"
+                string cronExpression = $"0 {sendTime.Minutes} {sendTime.Hours} * * ?";
+
+                ITrigger trigger = TriggerBuilder.Create()
+                    .WithIdentity("dailyTrigger", "emailGroup")
+                    .WithCronSchedule(cronExpression)
+                    .Build();
+
+                // Job ve trigger'ı planla
+                IScheduler scheduler = (IScheduler)HttpContext.Application["Scheduler"];
+                await scheduler.Start();
+
+                // Mevcut trigger'ı kontrol et ve varsa sil
+                var existingTrigger = await scheduler.GetTrigger(new TriggerKey("dailyTrigger", "emailGroup"));
+                if (existingTrigger != null)
+                {
+                    await scheduler.UnscheduleJob(new TriggerKey("dailyTrigger", "emailGroup"));
+                }
+
+                IJobDetail job = JobBuilder.Create<EmailJob>()
+                    .WithIdentity("dailyJob", "emailGroup")
+                    .Build();
+
+                await scheduler.ScheduleJob(job, trigger);
+
+                Console.WriteLine("Job ve Trigger doğru şekilde zamanlandı."); // Job ve Trigger'ın zamanlandığını logla
+            }
+        }
         [HttpPost]
         public async Task<ActionResult> EditEmailSetting(EmailSettings model)
         {
@@ -130,38 +163,6 @@ namespace yillikizin.Controllers
             return RedirectToAction("Eposta");
         }
 
-        private async Task ScheduleEmailJob()
-        {
-            var settings = db.EmailSettings.FirstOrDefault();
-            if (settings != null && settings.SendTime.HasValue)
-            {
-                var sendTime = settings.SendTime.Value;
-                // Cron formatı: "saniye dakika saat gün ay haftanın günü"
-                string cronExpression = $"0 {sendTime.Minutes} {sendTime.Hours} * * ?";
-
-                ITrigger trigger = TriggerBuilder.Create()
-                    .WithIdentity("dailyTrigger", "emailGroup")
-                    .WithCronSchedule(cronExpression)
-                    .Build();
-
-                // Job ve trigger'ı planla
-                IScheduler scheduler = await StdSchedulerFactory.GetDefaultScheduler();
-                await scheduler.Start();
-
-                // Mevcut trigger'ı kontrol et ve varsa sil
-                var existingTrigger = await scheduler.GetTrigger(new TriggerKey("dailyTrigger", "emailGroup"));
-                if (existingTrigger != null)
-                {
-                    await scheduler.UnscheduleJob(new TriggerKey("dailyTrigger", "emailGroup"));
-                }
-
-                IJobDetail job = JobBuilder.Create<EmailJob>()
-                    .WithIdentity("dailyJob", "emailGroup")
-                    .Build();
-
-                await scheduler.ScheduleJob(job, trigger);
-            }
-        }
         // PDF olarak oluşturulacak rapor
         public ActionResult HareketDegerlendirmeReport(DateTime? StartDate, DateTime? EndDate)
         {
