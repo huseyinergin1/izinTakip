@@ -1213,14 +1213,33 @@ public class HareketController : Controller
 
                 if (hareket != null)
                 {
+                    // Tarih güncelleme
                     if (!string.IsNullOrEmpty(tarih))
                     {
                         hareket.Tarih = DateTime.ParseExact(tarih, "yyyy-MM-dd", CultureInfo.InvariantCulture);
                     }
+
+                    // Saat güncelleme - Sadece yeni değer girilmişse
                     if (!string.IsNullOrEmpty(saat))
                     {
-                        hareket.Saat = TimeSpan.ParseExact(saat, @"hh\:mm", CultureInfo.InvariantCulture);
+                        // Mevcut TimeSpan değerini koru, yeni bir değer girilmişse güncelle
+                        try
+                        {
+                            var saatParcalari = saat.Split(':');
+                            if (saatParcalari.Length >= 2)
+                            {
+                                int saat_ = Convert.ToInt32(saatParcalari[0]);
+                                int dakika = Convert.ToInt32(saatParcalari[1]);
+                                hareket.Saat = new TimeSpan(saat_, dakika, 0);
+                            }
+                        }
+                        catch
+                        {
+                            // Hata durumunda mevcut saati değiştirme
+                        }
                     }
+
+                    // Yön güncelleme
                     if (yon == "01" || yon == "02")
                     {
                         hareket.Yon = yon;
@@ -1228,22 +1247,21 @@ public class HareketController : Controller
 
                     if (yonDegistir)
                     {
-                        // Seçili hareketin yeni yönünü belirle
-                        string yeniYon = hareket.Yon;
+                        var kartNumarasi = hareket.KartNumarasi;
+                        var secilenTarih = hareket.Tarih.Value;
+                        var secilenSaat = hareket.Saat ?? DateTime.Now.TimeOfDay;
 
-                        // Sonraki hareketleri sırayla değiştir
                         var sonrakiHareketler = db.Hareketler
-                            .Where(h => h.KartNumarasi == hareket.KartNumarasi &&
-                                        (h.Tarih > hareket.Tarih ||
-                                        (h.Tarih == hareket.Tarih && h.Saat > hareket.Saat)))
-                            .OrderBy(h => h.Tarih).ThenBy(h => h.Saat)
+                            .Where(h => h.KartNumarasi == kartNumarasi &&
+                                      ((h.Tarih > secilenTarih) ||
+                                       (h.Tarih == secilenTarih && h.Saat > secilenSaat)))
+                            .OrderBy(h => h.Tarih)
+                            .ThenBy(h => h.Saat)
                             .ToList();
 
-                        foreach (var h in sonrakiHareketler)
+                        foreach (var sonrakiHareket in sonrakiHareketler)
                         {
-                            // Önceki hareketin yönüne bağlı olarak değiştir
-                            yeniYon = (yeniYon == "01") ? "02" : "01";
-                            h.Yon = yeniYon;
+                            sonrakiHareket.Yon = sonrakiHareket.Yon == "01" ? "02" : "01";
                         }
                     }
 
@@ -1254,9 +1272,10 @@ public class HareketController : Controller
                         success = true,
                         id = hareket.Id,
                         kartNo = hareket.KartNumarasi,
-                        tarih = hareket.Tarih,
-                        saat = hareket.Saat,
-                        yon = hareket.Yon
+                        tarih = hareket.Tarih?.ToString("yyyy-MM-dd"),
+                        saat = hareket.Saat?.ToString(@"HH\:mm"),
+                        yon = hareket.Yon,
+                        terminalNo = hareket.TerminalNo
                     });
                 }
                 else
@@ -1267,7 +1286,7 @@ public class HareketController : Controller
         }
         catch (Exception ex)
         {
-            return Json(new { success = false, message = "Hata oluştu: " + ex.Message });
+            return View(Index);
         }
     }
 }

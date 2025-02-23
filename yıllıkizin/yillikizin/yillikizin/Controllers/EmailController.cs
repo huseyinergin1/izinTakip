@@ -9,6 +9,8 @@ using Rotativa;
 using yillikizin.Models;
 using Quartz.Impl;
 using yillikizin.Filters;
+using System.Data.Entity;
+using DocumentFormat.OpenXml.Drawing;
 
 namespace yillikizin.Controllers
 {
@@ -63,21 +65,20 @@ namespace yillikizin.Controllers
 
         private async Task ScheduleEmailJob()
         {
-            var settings = db.EmailSettings.FirstOrDefault();
-            if (settings != null && settings.SendTime.HasValue)
+            // Quartz.NET Scheduler'ı başlat
+            StdSchedulerFactory factory = new StdSchedulerFactory();
+            IScheduler scheduler = await factory.GetScheduler();
+            await scheduler.Start();
+            //Application["Scheduler"] = scheduler;
+
+            Console.WriteLine("Scheduler başlatıldı ve çalışıyor."); // Scheduler'ın başlatıldığını logla
+
+            var settings = await db.EmailSettings.ToListAsync();
+            if (settings != null && settings.Last().SendTime.HasValue)
             {
-                var sendTime = settings.SendTime.Value;
+                var sendTime = settings.Last().SendTime.Value;
                 // Cron formatı: "saniye dakika saat gün ay haftanın günü"
                 string cronExpression = $"0 {sendTime.Minutes} {sendTime.Hours} * * ?";
-
-                ITrigger trigger = TriggerBuilder.Create()
-                    .WithIdentity("dailyTrigger", "emailGroup")
-                    .WithCronSchedule(cronExpression)
-                    .Build();
-
-                // Job ve trigger'ı planla
-                IScheduler scheduler = (IScheduler)HttpContext.Application["Scheduler"];
-                await scheduler.Start();
 
                 // Mevcut trigger'ı kontrol et ve varsa sil
                 var existingTrigger = await scheduler.GetTrigger(new TriggerKey("dailyTrigger", "emailGroup"));
@@ -86,11 +87,21 @@ namespace yillikizin.Controllers
                     await scheduler.UnscheduleJob(new TriggerKey("dailyTrigger", "emailGroup"));
                 }
 
+                ITrigger trigger = TriggerBuilder.Create()
+                    .WithIdentity("dailyTrigger", "emailGroup")
+                    .WithCronSchedule(cronExpression)
+                    .StartNow()
+                    .Build();
+
+                // Job ve trigger'ı planla
+                //IScheduler scheduler = (IScheduler)HttpContext.Application["Scheduler"];
+                //await scheduler.Start();
+
                 IJobDetail job = JobBuilder.Create<EmailJob>()
                     .WithIdentity("dailyJob", "emailGroup")
                     .Build();
 
-                await scheduler.ScheduleJob(job, trigger);
+                var result = await scheduler.ScheduleJob(job, trigger);
 
                 Console.WriteLine("Job ve Trigger doğru şekilde zamanlandı."); // Job ve Trigger'ın zamanlandığını logla
             }
@@ -164,6 +175,7 @@ namespace yillikizin.Controllers
         }
 
         // PDF olarak oluşturulacak rapor
+        [AllowAnonymous]
         public ActionResult HareketDegerlendirmeReport(DateTime? StartDate, DateTime? EndDate)
         {
             DateTime startDate = StartDate ?? DateTime.Now.Date;
@@ -248,27 +260,7 @@ namespace yillikizin.Controllers
 
             return View(model);
         }
-        private MemoryStream GeneratePdfStream(DateTime? StartDate, DateTime? EndDate)
-        {
-            try
-            {
-                var pdfResult = new ActionAsPdf("HareketDegerlendirmeReport", new { StartDate = StartDate, EndDate = EndDate })
-                {
-                    FileName = "Rapor.pdf"
-                };
-                var pdfData = pdfResult.BuildFile(ControllerContext);
-
-                var pdfStream = new MemoryStream(pdfData);
-                pdfStream.Position = 0; // Stream'in başına dön
-                Console.WriteLine("PDF başarıyla oluşturuldu.");
-                return pdfStream;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"PDF oluşturma başarısız oldu: {ex.Message}");
-                throw;
-            }
-        }
+    
 
         private List<personel> GetPersonelListesi()
         {
@@ -314,29 +306,139 @@ namespace yillikizin.Controllers
             }
         }
         [HttpPost]
-        public ActionResult SendEmail(string recipientEmail, string subject, DateTime? StartDate, DateTime? EndDate)
+        public async Task<ActionResult> SendEmail(DateTime? StartDate, DateTime? EndDate)
+        {
+            using (var db = new YillikizinEntities())
+            {
+                try
+                {
+                    var emailSettingsList = await db.EmailSettings.ToListAsync();
+
+                    if (!emailSettingsList.Any())
+                    {
+                        TempData["Error"] = "E-posta gönderilecek adres bulunamadı.";
+                        return RedirectToAction("Index");
+                    }
+
+                    StartDate = StartDate ?? DateTime.Now.AddDays(-1);
+                    EndDate = EndDate ?? DateTime.Now;
+
+                    using (var pdfStream = CreatePdfStream(StartDate, EndDate)) // Eski PDF metodunu kullan
+                    {
+                        Console.WriteLine("PDF oluşturma işlemi başarılı.");
+
+                        using (var emailService = new EmailService())
+                        {
+                            foreach (var emailSetting in emailSettingsList)
+                            {
+                                if (!string.IsNullOrEmpty(emailSetting.RecipientEmails))
+                                {
+                                    var recipientEmails = emailSetting.RecipientEmails
+                                        .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                                        .Select(e => e.Trim())
+                                        .Where(e => !string.IsNullOrEmpty(e));
+
+                                    foreach (var email in recipientEmails)
+                                    {
+                                        try
+                                        {
+                                            pdfStream.Position = 0; // Stream'i başa sar
+                                            await emailService.SendEmailWithAttachmentAsync(
+                                                email,
+                                                "Rapor",
+                                                "Rapor ekte bulunmaktadır.",
+                                                pdfStream,
+                                                $"Rapor_{DateTime.Now:yyyyMMdd}.pdf"
+                                            );
+                                            Console.WriteLine($"E-posta gönderildi: {email}");
+                                        }
+                                        catch (Exception emailEx)
+                                        {
+                                            Console.WriteLine($"E-posta gönderimi başarısız oldu ({email}): {emailEx.Message}");
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    TempData["Success"] = "E-postalar başarıyla gönderildi.";
+                    Console.WriteLine("Tüm e-posta gönderim işlemleri tamamlandı.");
+                }
+                catch (Exception ex)
+                {
+                    TempData["Error"] = $"İşlem sırasında hata oluştu: {ex.Message}";
+                    Console.WriteLine($"Genel bir hata oluştu: {ex.Message}");
+                }
+            }
+
+            return RedirectToAction("Eposta");
+        }
+
+        // Eski PDF oluşturma metodu
+        public MemoryStream CreatePdfStream(DateTime? StartDate, DateTime? EndDate)
         {
             try
             {
-                var pdfStream = GeneratePdfStream(StartDate, EndDate);
-                Console.WriteLine("PDF oluşturma işlemi başarılı."); // PDF'in oluşturulduğunu logla
+                var pdfResult = new ActionAsPdf("HareketDegerlendirmeReport", new { StartDate, EndDate })
+                {
+                    FileName = "Rapor.pdf",
+                    PageSize = Rotativa.Options.Size.A4,
+                    PageOrientation = Rotativa.Options.Orientation.Portrait,
+                    CustomSwitches = "--disable-smart-shrinking"
+                };
 
-                // E-posta gönderme
-                var emailService = new EmailService();
-                emailService.SendEmailWithAttachmentAsync(recipientEmail, subject, "Rapor ekte bulunmaktadır.", pdfStream, "Rapor.pdf");
+                var pdfData = pdfResult.BuildFile(ControllerContext);
+                if (pdfData == null || pdfData.Length == 0)
+                {
+                    throw new InvalidOperationException("PDF oluşturulamadı.");
+                }
 
-                ViewBag.Message = "E-posta başarıyla gönderildi.";
-                Console.WriteLine("E-posta başarıyla gönderildi."); // E-postanın gönderildiğini logla
+                var pdfStream = new MemoryStream(pdfData);
+                pdfStream.Position = 0;
+                Console.WriteLine($"PDF başarıyla oluşturuldu. Boyut: {pdfData.Length} bytes");
+                return pdfStream;
             }
             catch (Exception ex)
             {
-                ViewBag.Message = $"E-posta gönderimi başarısız oldu: {ex.Message}";
-                Console.WriteLine($"E-posta gönderimi başarısız oldu: {ex.Message}"); // Hata mesajını logla
+                Console.WriteLine($"PDF oluşturma hatası: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"İç hata: {ex.InnerException.Message}");
+                }
+                throw;
             }
-
-            return View("Index");
         }
+        private MemoryStream GeneratePdfStream(DateTime? StartDate, DateTime? EndDate)
+        {
+            try
+            {
+                if (!StartDate.HasValue || !EndDate.HasValue)
+                {
+                    throw new ArgumentException("Başlangıç ve bitiş tarihleri gereklidir.");
+                }
 
+                var pdfResult = new ActionAsPdf("HareketDegerlendirmeReport", new { StartDate, EndDate })
+                {
+                    FileName = "Rapor.pdf"
+                };
+
+                byte[] pdfData = pdfResult.BuildFile(ControllerContext);
+                if (pdfData == null || pdfData.Length == 0)
+                {
+                    throw new InvalidOperationException("PDF oluşturulamadı veya boş.");
+                }
+
+                var pdfStream = new MemoryStream(pdfData);
+                Console.WriteLine($"PDF başarıyla oluşturuldu. Boyut: {pdfData.Length} bytes");
+                return pdfStream;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"PDF oluşturma hatası: {ex.Message}");
+                throw new Exception("PDF raporu oluşturulurken bir hata oluştu.", ex);
+            }
+        }
         // PDF oluşturma işlemi için ayrı bir metod
     }
 }

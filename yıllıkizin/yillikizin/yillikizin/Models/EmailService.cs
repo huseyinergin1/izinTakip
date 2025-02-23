@@ -52,40 +52,49 @@ public class EmailService : IDisposable
     {
         try
         {
-            var message = new MimeMessage();
-
-            // Gönderen adres
-            message.From.Add(new MailboxAddress("Teknoloji Tek | RAPOR", Email));
-            // Alıcı adres
-            message.To.Add(new MailboxAddress("", recipientEmail));
-            // Konu
-            message.Subject = subject;
-
-            // Gövde
-            var bodyBuilder = new BodyBuilder
+            using (var message = new MimeMessage())
             {
-                HtmlBody = body
-            };
+                message.From.Add(new MailboxAddress("Teknoloji Tek | RAPOR", Email));
+                message.To.Add(new MailboxAddress("", recipientEmail.Trim()));
+                message.Subject = subject;
 
-            // PDF eklentisi
-            bodyBuilder.Attachments.Add(attachmentName, attachmentStream);
+                var bodyBuilder = new BodyBuilder
+                {
+                    HtmlBody = $@"
+                        <html>
+                            <body>
+                                <h2>Teknoloji Tek Rapor</h2>
+                                <p>{body}</p>
+                                <p>Saygılarımızla,<br>Teknoloji Tek</p>
+                            </body>
+                        </html>"
+                };
 
-            message.Body = bodyBuilder.ToMessageBody();
+                // PDF dosyasını kopyala
+                using (var ms = new MemoryStream())
+                {
+                    await attachmentStream.CopyToAsync(ms);
+                    ms.Position = 0;
+                    bodyBuilder.Attachments.Add(attachmentName, ms);
+                }
 
-            using (var smtp = new SmtpClient())
-            {
-                await smtp.ConnectAsync(SmtpServer, SmtpPort, SecureSocketOptions.SslOnConnect);
-                await smtp.AuthenticateAsync(Email, Password);
-                await smtp.SendAsync(message);
-                await smtp.DisconnectAsync(true);
+                message.Body = bodyBuilder.ToMessageBody();
+
+                using (var smtp = new SmtpClient())
+                {
+                    smtp.ServerCertificateValidationCallback = (s, c, h, e) => true;
+                    await smtp.ConnectAsync(SmtpServer, SmtpPort, SecureSocketOptions.SslOnConnect);
+                    await smtp.AuthenticateAsync(Email, Password);
+                    await smtp.SendAsync(message);
+                    await smtp.DisconnectAsync(true);
+                }
             }
         }
         catch (Exception ex)
         {
-            throw new Exception($"E-posta gönderimi başarısız oldu: {ex.Message}");
+            throw new Exception($"E-posta gönderimi başarısız oldu: {ex.Message}", ex);
         }
     }
-
     public void Dispose()
     {
         // Dispose işlemleri burada yapılabilir. 

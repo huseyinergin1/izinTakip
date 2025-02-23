@@ -17,7 +17,7 @@ public class EmailJob : IJob
 
     public async Task Execute(IJobExecutionContext context)
     {
-        Console.WriteLine("EmailJob tetiklendi."); // Job'ın tetiklendiğini logla
+        Console.WriteLine("EmailJob tetiklendi.");
         try
         {
             var settingsList = db.EmailSettings.ToList();
@@ -27,14 +27,14 @@ public class EmailJob : IJob
 
             // Raporu oluştur
             var reportModel = HareketDegerlendirmeReport(DateTime.Now.AddDays(-1), DateTime.Now);
-            var pdfBytes = GeneratePdfStream(reportModel); // PDF verisini byte[] olarak al
+            var pdfBytes = GeneratePdfStream(reportModel);
 
             using (var pdfStream = new MemoryStream(pdfBytes))
             {
                 foreach (var settings in settingsList)
                 {
                     pdfStream.Position = 0; // Stream'i başa döndür
-                    await emailService.SendEmailWithAttachmentAsync(settings.RecipientEmails, subject, body, pdfStream, "HareketDegerlendirmeRaporu.pdf");
+                    emailService.SendEmailWithAttachmentAsync(settings.RecipientEmails, subject, body, pdfStream, "HareketDegerlendirmeRaporu.pdf");
                 }
             }
         }

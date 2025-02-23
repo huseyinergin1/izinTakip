@@ -19,14 +19,6 @@ namespace yillikizin
             container.RegisterType<EmailController>();
             DependencyResolver.SetResolver(new UnityDependencyResolver(container));
 
-            // Quartz.NET Scheduler'ý baþlat
-            StdSchedulerFactory factory = new StdSchedulerFactory();
-            IScheduler scheduler = factory.GetScheduler().Result;
-            scheduler.Start();
-            Application["Scheduler"] = scheduler;
-
-            Console.WriteLine("Scheduler baþlatýldý ve çalýþýyor."); // Scheduler'ýn baþlatýldýðýný logla
-
             AreaRegistration.RegisterAllAreas();
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);

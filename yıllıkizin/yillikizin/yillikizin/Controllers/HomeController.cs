@@ -155,31 +155,45 @@ namespace yillikizin.Controllers
         }
         public ActionResult PersonelEkle()
         {
-            // Veritabanından departmanları çekiyoruz
-            var departmanlar = db.departman.Select(d => new
+            try
             {
-                departmanID = d.departmanId,
-                departmanName = d.departmanName
-            }).ToList();
+                // Yeni bir personel modeli oluştur
+                var model = new personel();
 
-            // Veritabanından kullanıcı gruplarını çekiyoruz
-            var kullaniciGruplari = db.kullanici_grup.Select(g => new
-            {
-                grupID = g.kullaniciGrupId,
-                grupAdi = g.grupAdi
-            }).ToList();
+                // Veritabanından departmanları çek
+                var departmanlar = db.departman.Select(d => new SelectListItem
+                {
+                    Value = d.departmanId.ToString(),
+                    Text = d.departmanName
+                }).ToList();
 
-            // Vardiyaları hazırlıyoruz
-            var vardiyalar = db.Vardiya.Select(v => new
+                // Veritabanından kullanıcı gruplarını çek
+                var kullaniciGruplari = db.kullanici_grup.Select(g => new SelectListItem
+                {
+                    Value = g.kullaniciGrupId.ToString(),
+                    Text = g.grupAdi
+                }).ToList();
+
+                // Vardiyaları çek
+                var vardiyalar = db.Vardiya.Select(v => new SelectListItem
+                {
+                    Value = v.VardiyaId.ToString(),
+                    Text = v.Ad
+                }).ToList();
+
+                // ViewBag'leri doldur
+                ViewBag.DepartmanList = departmanlar;
+                ViewBag.KullaniciGrupList = kullaniciGruplari;
+                ViewBag.VardiyaList = vardiyalar;
+
+                // Model ile birlikte view'ı döndür
+                return View(model);
+            }
+            catch (Exception ex)
             {
-                vardiyaId = v.VardiyaId,
-                vardiyaAdi = v.Ad
-            }).ToList();
-            // Dropdown listesi için varsayılan "Seçiniz" seçeneği ekliyoruz
-            ViewBag.DepartmanList = new SelectList(departmanlar, "departmanId", "departmanName", null);
-            ViewBag.KullaniciGrupList = new SelectList(kullaniciGruplari, "grupID", "grupAdi", null);
-            ViewBag.VardiyaList = new SelectList(vardiyalar, "vardiyaId", "vardiyaAdi");
-            return View();
+                // Hata durumunda log tutabilir veya hata sayfasına yönlendirebilirsiniz
+                return RedirectToAction("Error", "Home", new { message = ex.Message });
+            }
         }
         [HttpPost]
         public ActionResult PersonelEkle(personel Personel, HttpPostedFileBase File)

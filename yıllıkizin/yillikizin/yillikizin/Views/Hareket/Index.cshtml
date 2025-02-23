@@ -226,6 +226,11 @@ $(document).ready(function () {
     $('input[name="yonToplu"]').change(function () {
         toggleSaatRow();
     });
+    function setKartNo() {
+        if (selectedKartNo) {
+            $('#yeniHareketModal #kartNo').val(selectedKartNo);
+        }
+    }
 
     function toggleYonRow() {
         var islemTuru = $('input[name="islemTuru"]:checked').val();
@@ -258,7 +263,26 @@ $(document).ready(function () {
             $('#saatToplu').attr('required', 'required');
         }
     }
+    $('#yeniHareketModal').on('show.bs.modal', function () {
+        // Seçili personelin kart numarasını set et
+        if (selectedKartNo) {
+            $('#kartNo').val(selectedKartNo);
+        }
 
+        // Bugünün tarihini set et
+        var today = new Date().toISOString().split('T')[0];
+        $('#tarih').val(today);
+
+        // Şimdiki saati set et
+        var now = new Date();
+        var hours = String(now.getHours()).padStart(2, '0');
+        var minutes = String(now.getMinutes()).padStart(2, '0');
+        $('#saat').val(`${hours}:${minutes}`);
+
+        // Varsayılan olarak "Giriş" seçeneğini işaretle
+        $('input[name="yon"][value="01"]').prop('checked', true).parent().addClass('active');
+        $('input[name="yon"][value="02"]').parent().removeClass('active');
+    });
     // Toplu İşlem Kaydetme
     $('#btnTopluIslemKaydet').click(function () {
         $('#popupMessageToplu').hide().removeClass('alert-success alert-danger').text('');
@@ -394,7 +418,6 @@ $(document).ready(function () {
         sortOrder[index] = order === 'asc' ? 'desc' : 'asc';
     });
 
-    // Hareket kaydetme
 // Hareket kaydetme
 $('#btnHareketKaydet').click(function () {
     $('#popupMessage').hide().removeClass('alert-success alert-danger').text('');
@@ -733,7 +756,8 @@ function showMessage(message, type) {
     var alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
     $('#popupMessage').removeClass('alert-success alert-danger').addClass(alertClass).text(message).show();
 }
-    function toggleRowSelection(personelId) {
+
+function toggleRowSelection(personelId) {
         const row = document.querySelector(`tr[onclick="toggleRowSelection(${personelId})"]`);
         const iframe = row.querySelector('.row-checkbox-iframe');
         const checkbox = iframe.contentDocument.getElementById(`checkbox_${personelId}`);
@@ -758,7 +782,7 @@ function showMessage(message, type) {
         updateHiddenInputs();
     }
 
-    function toggleSelectAll() {
+function toggleSelectAll() {
         var table = document.getElementById('personelListesi');
         var rows = Array.from(table.querySelectorAll('.personel-row')); // Sadece personel satırlarını al
         var iframeCheckbox = document.getElementById('selectAllIframe').contentDocument.getElementById('selectAll');
