@@ -7,32 +7,26 @@
     // Tek bir vardiya bilgisi alınıyor
     var vardiya = Model.VardiyaListesi.FirstOrDefault();
 }
-<!-- JQuery Kütüphanesi -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<!-- Üst Menü Gibi Yapı -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 <form id="dateForm" method="post">
     <div class="d-flex align-items-center mb-3">
-        <!-- Başlangıç Tarihi -->
         <div class="mr-3">
             <label for="StartDate" class="mr-2">Başlangıç Tarihi</label>
             <input type="date" name="StartDate" value="@ViewBag.StartDate" class="form-control" />
         </div>
-
-        <!-- Bitiş Tarihi -->
         <div class="mr-3">
             <label for="EndDate" class="mr-2">Bitiş Tarihi</label>
             <input type="date" name="EndDate" value="@ViewBag.EndDate" class="form-control" />
         </div>
-
-        <!-- Güncelle Butonu -->
         <button type="button" class="btn btn-primary" id="updateButton">Güncelle</button>
-
         <div class="export-buttons d-flex justify-content-start mt-3">
             <button type="button" class="btn btn-danger export-btn" id="exportButton">PDF'e Aktar</button>
             <button type="button" class="btn btn-success export-btn" id="exportExcelButton">Excel'e Aktar</button>
         </div>
-
     </div>
 </form>
 
@@ -40,7 +34,6 @@
 <form id="filterForm" method="get">
     <input type="hidden" name="StartDate" value="@ViewBag.StartDate" />
     <input type="hidden" name="EndDate" value="@ViewBag.EndDate" />
-
     <label>
         <input type="radio" id="Erken" name="FilterType" value="Erken"
                onchange="this.form.submit()"
@@ -53,11 +46,21 @@
                @(ViewBag.FilterType == "Geç" ? "checked" : "") />
         <label for="Gec">Geç Gelenler</label>
     </label>
+    <label>
+        <input type="radio" id="Izinliler" name="FilterType" value="Izinliler"
+               onchange="this.form.submit()"
+               @(ViewBag.FilterType == "Izinliler" ? "checked" : "") />
+        <label for="Izinliler">İzinliler</label>
+    </label>
+    <label>
+        <input type="radio" id="Devamsiz" name="FilterType" value="Devamsiz"
+               onchange="this.form.submit()"
+               @(ViewBag.FilterType == "Devamsiz" ? "checked" : "") />
+        <label for="Devamsiz">Devamsızlar</label>
+    </label>
 </form>
 
-<!-- Hareketler Tablosu -->
-
-<table class="table-bordered table-striped table-hover table">
+<table id="personelTable" class="table-bordered table-striped table-hover table">
     <thead>
         <tr>
             <th class="header-column">Tarih</th>
@@ -68,8 +71,8 @@
             <th class="header-column">Giriş</th>
             <th class="header-column">Çıkış</th>
             <th class="header-column">NCS</th>
-            <th class="header-column">Eksikk</th> <!-- DVS sütunu ekledik -->
-            <th class="header-column">Mesai</th> <!-- DVS sütunu ekledik -->
+            <th class="header-column">Eksik</th>
+            <th class="header-column">Mesai</th>
             <th class="header-column">Bilgi</th>
         </tr>
         <tr>
@@ -82,8 +85,8 @@
             <th></th>
             <th></th>
             <th></th>
-            <th></th> <!-- DVS arama sütunu -->
-            <th></th> <!-- DVS arama sütunu -->
+            <th></th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -95,6 +98,9 @@
                 {
                     var hareket = Model.HareketListesi
                         .FirstOrDefault(h => h.Tarih.Date == currentDate && h.PersonelId == personel.id);
+
+                    var izin = Model.IzinListesi
+                        .FirstOrDefault(i => i.Personelıd == personel.id && i.BaslangicTarihi <= currentDate && i.BitisTarihi >= currentDate);
 
                     if (hareket != null)
                     {
@@ -109,7 +115,7 @@
 
                         // Çalışma süresini hesapla
                         TimeSpan calismaSuresi = TimeSpan.Zero;
-                        if (hareket.GirişSaatleri != null && hareket.GirişSaatleri.Count > 0 && hareket.ÇıkışSaatleri != null && hareket.ÇıkışSaatleri.Count > 0)
+                        if (hareket.GirişSaatleri != null && hareket.GirişSaatleri.Count > 0 && hareket.ÇıkışSaatleri.Count > 0)
                         {
                             var girisSaat = hareket.GirişSaatleri.First();
                             var cikisSaat = hareket.ÇıkışSaatleri.First();
@@ -135,7 +141,7 @@
                         // Eksik saatleri hesapla
                         TimeSpan eksikSure = vardiyaSuresi - calismaSuresi;
 
-                        <tr>
+                        <tr data-girisdurumu="@hareket.GirişDurumu">
                             <td style="text-align: left;">
                                 @currentDate.ToString("yyyy-MM-dd") @currentDate.ToString("ddd")
                             </td>
@@ -215,9 +221,27 @@
                             </td>
                         </tr>
                     }
+                    else if (izin != null)
+                    {
+                        <tr>
+                            <td style="text-align: left;">
+                                @currentDate.ToString("yyyy-MM-dd") @currentDate.ToString("ddd")
+                            </td>
+                            <td>@personel.adi</td>
+                            <td>@personel.soyadi</td>
+                            <td>@personel.kartno</td>
+                            <td>@personel.departman</td>
+                            <td class="time-column"></td>
+                            <td class="time-column"></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td class="text-izin"><span>&#127774;</span> @izin.IzinTuru</td>
+                        </tr>
+                    }
                     else
                     {
-                        if (currentDate.DayOfWeek == DayOfWeek.Sunday) // Eğer gün Pazar ise "Hafta Tatili" yaz
+                        if (currentDate.DayOfWeek == DayOfWeek.Sunday)
                         {
                             <tr>
                                 <td style="text-align: left;">
@@ -232,10 +256,10 @@
                                 <td></td>
                                 <td></td>
                                 <td></td>
-                                <td class="text-info"><span>&#127774;</span> HAFTA TATİLİ</td> <!-- Güneş emojisi -->
+                                <td class="text-ht"><span>&#127774;</span> HAFTA TATİLİ</td>
                             </tr>
                         }
-                        else // Diğer günlerde devamsız yaz
+                        else
                         {
                             <tr>
                                 <td style="text-align: left;">
@@ -250,7 +274,7 @@
                                 <td></td>
                                 <td></td>
                                 <td></td>
-                                <td class="text-warning"><span>&#9888;</span> DEVAMSIZ</td> <!-- Uyarı emojisi -->
+                                <td class="text-warning"><span>&#9888;</span> DEVAMSIZ</td>
                             </tr>
                         }
                     }
@@ -266,85 +290,128 @@
     </tbody>
 </table>
 
+
 <script>
-    $(document).ready(function () {
-        // Arama inputları için filtreleme
-        $('.arama').on('keyup', function () {
-            var tarihArama = $('th input[placeholder="Tarih ara..."]').val().toLowerCase();
-            var adiArama = $('th input[placeholder="Adı ara..."]').val().toLowerCase();
-            var soyadiArama = $('th input[placeholder="Soyadı ara..."]').val().toLowerCase();
-            var kartArama = $('th input[placeholder="Kart No ara..."]').val().toLowerCase();
-            var departmanArama = $('th input[placeholder="Departman ara..."]').val().toLowerCase();
+$(document).ready(function () {
+    $('.arama').on('keyup', function () {
+        var tarihArama = $('th input[placeholder="Tarih ara..."]').val().toLowerCase();
+        var adiArama = $('th input[placeholder="Adı ara..."]').val().toLowerCase();
+        var soyadiArama = $('th input[placeholder="Soyadı ara..."]').val().toLowerCase();
+        var kartArama = $('th input[placeholder="Kart No ara..."]').val().toLowerCase();
+        var departmanArama = $('th input[placeholder="Departman ara..."]').val().toLowerCase();
 
-            // Tablodaki satırları filtrele
-            $('tbody tr').filter(function () {
-                var tarih = $(this).find('td').eq(0).text().toLowerCase();
-                var adi = $(this).find('td').eq(1).text().toLowerCase();
-                var soyadi = $(this).find('td').eq(2).text().toLowerCase();
-                var kart = $(this).find('td').eq(3).text().toLowerCase();
-                var departman = $(this).find('td').eq(4).text().toLowerCase();
+        $('tbody tr').filter(function () {
+            var tarih = $(this).find('td').eq(0).text().toLowerCase();
+            var adi = $(this).find('td').eq(1).text().toLowerCase();
+            var soyadi = $(this).find('td').eq(2).text().toLowerCase();
+            var kart = $(this).find('td').eq(3).text().toLowerCase();
+            var departman = $(this).find('td').eq(4).text().toLowerCase();
 
-                // Arama terimlerine göre eşleşmeleri kontrol et
-                var tarihEslesti = tarih.indexOf(tarihArama) > -1;
-                var adiEslesti = adi.indexOf(adiArama) > -1;
-                var soyadiEslesti = soyadi.indexOf(soyadiArama) > -1;
-                var kartEslesti = kart.indexOf(kartArama) > -1;
-                var departmanEslesti = departman.indexOf(departmanArama) > -1;
+            var tarihEslesti = tarih.indexOf(tarihArama) > -1;
+            var adiEslesti = adi.indexOf(adiArama) > -1;
+            var soyadiEslesti = soyadi.indexOf(soyadiArama) > -1;
+            var kartEslesti = kart.indexOf(kartArama) > -1;
+            var departmanEslesti = departman.indexOf(departmanArama) > -1;
 
-                // Tüm kriterlerin eşleşmesi durumunda satırı göster, aksi takdirde gizle
-                $(this).toggle(tarihEslesti && adiEslesti && soyadiEslesti && kartEslesti && departmanEslesti);
-            });
+            $(this).toggle(tarihEslesti && adiEslesti && soyadiEslesti && kartEslesti && departmanEslesti);
         });
     });
 
-  // Filtreleme fonksiyonu
-        function filterResults(filterType = "") {
-            // Tarih değerlerini al
-            var startDate = $("input[name='StartDate']").val();
-            var endDate = $("input[name='EndDate']").val();
+    function loadIzinData(startDate, endDate) {
+        $.ajax({
+            url: '@Url.Action("GetIzinData", "Izin")',
+            type: 'GET',
+            data: {
+                startDate: startDate,
+                endDate: endDate
+            },
+            success: function (izinListesi) {
+                izinListesi.forEach(function (izin) {
+                    $('tbody tr').each(function () {
+                        var personelId = $(this).data('personel-id');
+                        var tarih = $(this).find('td').eq(0).text();
 
-            // AJAX ile verileri gönder
-            $.ajax({
-                url: '@Url.Action("HareketDegerlendirme", "Hareket")',
-                type: "POST",
-                data: {
-                    StartDate: startDate,
-                    EndDate: endDate,
-                    FilterType: filterType
-                },
-                success: function (result) {
-                    // Filtrelenmiş hareketleri view içine yerleştir
-                    $("#filteredResults").html(result);
-                },
-                error: function () {
-                    alert("Bir hata oluştu, lütfen tekrar deneyin.");
-                }
-            });
-        }
-       // Güncelle butonuna tıklanırsa
-    document.getElementById('updateButton').addEventListener('click', function() {
-        var form = document.getElementById('dateForm');
-        var actionUrl = '@Url.Action("HareketDegerlendirme", "Hareket")'; // Güncelleme işlemi için url
-        form.action = actionUrl; // Form action'ını güncelle
-        form.submit(); // Formu gönder
+                        if (personelId == izin.Personelıd &&
+                            new Date(tarih).getTime() >= new Date(izin.BaslangicTarihi).getTime() &&
+                            new Date(tarih).getTime() <= new Date(izin.BitisTarihi).getTime()) {
+                                $(this).find('td').eq(10).html('<span>&#127774;</span> ' + izin.IzinTuru);
+                        }
+                    });
+                });
+            },
+            error: function () {
+                alert('İzin verileri yüklenirken bir hata oluştu.');
+            }
+        });
+    }
+
+    $('#updateButton').on('click', function () {
+        var startDate = $('input[name="StartDate"]').val();
+        var endDate = $('input[name="EndDate"]').val();
+        loadIzinData(startDate, endDate);
     });
-    // Excel'e aktar butonuna tıklanırsa
-document.getElementById('exportExcelButton').addEventListener('click', function () {
-    var form = document.getElementById('dateForm');
-    var actionUrl = '@Url.Action("ExportToExcel", "Hareket")'; // Excel aktarım işlemi için url
-    form.action = actionUrl; // Form action'ını güncelle
-    form.submit(); // Formu gönder
+
+    var initialStartDate = $('input[name="StartDate"]').val();
+    var initialEndDate = $('input[name="EndDate"]').val();
+    loadIzinData(initialStartDate, initialEndDate);
 });
 
-    // PDF'e aktar butonuna tıklanırsa
-    document.getElementById('exportButton').addEventListener('click', function() {
-        var form = document.getElementById('dateForm');
-        var actionUrl = '@Url.Action("ExportToPdf", "Hareket")'; // PDF aktarım işlemi için url
-        form.action = actionUrl; // Form action'ını güncelle
-        form.submit(); // Formu gönder
-    });
-</script>
+function filterResults(filterType = "") {
+    var startDate = $("input[name='StartDate']").val();
+    var endDate = $("input[name='EndDate']").val();
 
+    $.ajax({
+        url: '@Url.Action("HareketDegerlendirme", "Hareket")',
+        type: "POST",
+        data: {
+            StartDate: startDate,
+            EndDate: endDate,
+            FilterType: filterType
+        },
+        success: function (result) {
+            $("#filteredResults").html(result);
+        },
+        error: function () {
+            alert("Bir hata oluştu, lütfen tekrar deneyin.");
+        }
+    });
+}
+
+$('input[name="FilterType"]').on('change', function() {
+    var selectedFilter = $(this).val();
+    $('tbody tr').each(function() {
+        var girisDurumu = $(this).data('girisdurumu');
+        if (selectedFilter === "Izinliler") {
+            $(this).toggle($(this).find('.text-izin').length > 0);
+        } else if (selectedFilter === "Devamsiz") {
+            $(this).toggle($(this).find('.text-warning').length > 0);
+        } else {
+            $(this).toggle(girisDurumu === selectedFilter);
+        }
+    });
+});
+
+document.getElementById('updateButton').addEventListener('click', function() {
+    var form = document.getElementById('dateForm');
+    var actionUrl = '@Url.Action("HareketDegerlendirme", "Hareket")';
+    form.action = actionUrl;
+    form.submit();
+});
+
+document.getElementById('exportExcelButton').addEventListener('click', function () {
+    var form = document.getElementById('dateForm');
+    var actionUrl = '@Url.Action("ExportToExcel", "Hareket")';
+    form.action = actionUrl;
+    form.submit();
+});
+
+document.getElementById('exportButton').addEventListener('click', function() {
+    var form = document.getElementById('dateForm');
+    var actionUrl = '@Url.Action("ExportToPdf", "Hareket")';
+    form.action = actionUrl;
+    form.submit();
+});
+</script>
 <style>
     tr.mavi {
         background-color: #cce5ff;
@@ -368,6 +435,13 @@ document.getElementById('exportExcelButton').addEventListener('click', function 
         border-collapse: collapse; /* Kenarlıkları birleştir */
     }
 
+    .text-izin {
+        background-color: lightgreen;
+    }
+
+    .text-ht {
+        background-color: yellow;
+    }
     /* Başlık hücreleri */
     .header-column {
         background-color: #f2f2f2;

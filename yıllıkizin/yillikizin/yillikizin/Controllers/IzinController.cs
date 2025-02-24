@@ -56,6 +56,22 @@ public class IzinController : Controller
         return View(personelListesi); // Model olarak personel listesini gönderiyoruz
     }
 
+    public JsonResult GetIzinData(DateTime startDate, DateTime endDate)
+    {
+        var izinListesi = db.Izin
+            .Where(i => DbFunctions.TruncateTime(i.BaslangicTarihi) >= startDate.Date &&
+                        DbFunctions.TruncateTime(i.BitisTarihi) <= endDate.Date)
+            .Select(i => new
+            {
+                i.Personelıd,
+                i.BaslangicTarihi,
+                i.BitisTarihi,
+                i.IzinTuru
+            })
+            .ToList();
+
+        return Json(izinListesi, JsonRequestBehavior.AllowGet);
+    }
     [HttpPost]
     [ValidateAntiForgeryToken]
     public JsonResult GuncelleIzin(int personelId, int hakettigi)

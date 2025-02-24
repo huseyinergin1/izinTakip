@@ -12,6 +12,7 @@ namespace yillikizin.Models
         public List<Vardiya> VardiyaListesi { get; set; }
         public List<personel> PersonelListesi { get; set; }
         public List<Hareket> HareketListesi { get; set; }
+        public List<Izin> IzinListesi { get; set; }
         public int? SelectedPersonelId { get; set; }  // Seçilen personel ID
         public int? SelectedPersonelKartNo { get; set; } // Seçilen personelin kart no'su, int türünde
         public DateTime StartDate { get; set; }

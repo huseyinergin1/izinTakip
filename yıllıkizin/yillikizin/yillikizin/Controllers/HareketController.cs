@@ -48,6 +48,7 @@ public class HareketController : Controller
         {
             PersonelListesi = GetPersonelListesi(),
             HareketListesi = GetHareketListesi(),
+            IzinListesi = GetIzinListesi(),
             VardiyaListesi = vardiyaListesi,
             SelectedPersonelId = SelectedPersonelId,
             StartDate = startDate,
@@ -83,7 +84,7 @@ public class HareketController : Controller
                                      .OrderByDescending(h => h.Saat)
                                      .Select(h => h.Saat)
                                      .ToList(),
-                    Bilgi = !g.Any() ? "DEVAMSIZ" : // burda işte bilgiyi hareket yoksa devamsız yaz diyorum
+                    Bilgi = !g.Any() ? "DEVAMSIZ" :
                             g.Any(h => h.IslemTipi == "01") && g.Any(h => h.IslemTipi == "02") ? "OK" :
                             g.Any(h => h.IslemTipi == "01") ? "ÇIKIŞ YOK" :
                             "GİRİŞ YOK",
@@ -128,11 +129,27 @@ public class HareketController : Controller
 
         if (!string.IsNullOrEmpty(FilterType))
         {
-            model.HareketListesi = model.HareketListesi
-                .Where(h => h.GirişDurumu == FilterType || h.Bilgi == FilterType)
-                .ToList();
+            switch (FilterType)
+            {
+                case "Erken":
+                    model.PersonelListesi = model.PersonelListesi
+                        .Where(p => model.HareketListesi.Any(h => h.PersonelId == p.id && h.GirişDurumu == "Erken")).ToList();
+                    break;
+                case "Geç":
+                    model.PersonelListesi = model.PersonelListesi
+                        .Where(p => model.HareketListesi.Any(h => h.PersonelId == p.id && h.GirişDurumu == "Geç")).ToList();
+                    break;
+                case "Izinliler":
+                    model.PersonelListesi = model.PersonelListesi
+                        .Where(p => model.IzinListesi.Any(i => i.Personelıd == p.id && i.BaslangicTarihi <= endDate && i.BitisTarihi >= startDate)).ToList();
+                    break;
+                case "Devamsiz":
+                    model.PersonelListesi = model.PersonelListesi
+                        .Where(p => !model.HareketListesi.Any(h => h.PersonelId == p.id && h.Tarih >= startDate && h.Tarih <= endDate) &&
+                                    !model.IzinListesi.Any(i => i.Personelıd == p.id && i.BaslangicTarihi <= endDate && i.BitisTarihi >= startDate)).ToList();
+                    break;
+            }
         }
-
         ViewBag.StartDate = startDate.ToString("yyyy-MM-dd");
         ViewBag.EndDate = endDate.ToString("yyyy-MM-dd");
         ViewBag.FilterType = FilterType;
@@ -1012,6 +1029,8 @@ public class HareketController : Controller
             return hareketListesi;
         }
     }
+
+
     public ActionResult GetHareketler(int personelId)
     {
         var hareketListesi = GetHareketlerByPersonelId(personelId);
@@ -1079,7 +1098,13 @@ public class HareketController : Controller
             return db.personel.ToList();
         }
     }
-
+    private List<Izin> GetIzinListesi()
+    {
+        using (var db = new YillikizinEntities())
+        {
+            return db.Izin.ToList();
+        }
+    }
     [HttpPost]
     public ActionResult TopluIslem(string islemTuru, DateTime baslangicTarihi, DateTime bitisTarihi, string saat, string yon, List<int> selectedPersonelIds)
     {

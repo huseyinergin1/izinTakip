@@ -33,6 +33,9 @@ namespace yillikizin.Models {
         public string Degerlendirme { get; set; }
         public List<TimeSpan> NCS { get; set; } // Normal Çalışma Süreleri
         public List<TimeSpan> DVS { get; set; }
+        public List<TimeSpan> Eksik { get; set; }
+
+        public List<TimeSpan> Mesai { get; set; }
         public virtual personel Personel { get; set; }
 
     }
