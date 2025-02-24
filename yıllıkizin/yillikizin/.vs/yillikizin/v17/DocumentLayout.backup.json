@@ -1,24 +1,7 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|c:\\users\\huseyin\\desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\views\\hareket\\hareketdegerlendirme.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|solutionrelative:yillikizin\\views\\hareket\\hareketdegerlendirme.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|c:\\users\\huseyin\\desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\controllers\\hareketcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|solutionrelative:yillikizin\\controllers\\hareketcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|c:\\users\\huseyin\\desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|solutionrelative:yillikizin\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|c:\\users\\huseyin\\desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\views\\home\\personelekle.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|solutionrelative:yillikizin\\views\\home\\personelekle.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    }
-  ],
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -26,63 +9,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": -1,
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{0ad07096-bba9-4900-a651-0598d26f6d24}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "HareketDegerlendirme.cshtml",
-              "DocumentMoniker": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Views\\Hareket\\HareketDegerlendirme.cshtml",
-              "RelativeDocumentMoniker": "yillikizin\\Views\\Hareket\\HareketDegerlendirme.cshtml",
-              "ToolTip": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Views\\Hareket\\HareketDegerlendirme.cshtml",
-              "RelativeToolTip": "yillikizin\\Views\\Hareket\\HareketDegerlendirme.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAA4AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-02-23T09:12:25.826Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "PersonelEkle.cshtml",
-              "DocumentMoniker": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Views\\Home\\PersonelEkle.cshtml",
-              "RelativeDocumentMoniker": "yillikizin\\Views\\Home\\PersonelEkle.cshtml",
-              "ToolTip": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Views\\Home\\PersonelEkle.cshtml",
-              "RelativeToolTip": "yillikizin\\Views\\Home\\PersonelEkle.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAZAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-02-23T08:56:28.708Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "HomeController.cs",
-              "DocumentMoniker": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Controllers\\HomeController.cs",
-              "RelativeDocumentMoniker": "yillikizin\\Controllers\\HomeController.cs",
-              "ToolTip": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Controllers\\HomeController.cs",
-              "RelativeToolTip": "yillikizin\\Controllers\\HomeController.cs",
-              "ViewState": "AgIAAKMAAAAAAAAAAAArwKQAAAARAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-02-23T08:56:22.743Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "HareketController.cs",
-              "DocumentMoniker": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Controllers\\HareketController.cs",
-              "RelativeDocumentMoniker": "yillikizin\\Controllers\\HareketController.cs",
-              "ToolTip": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Controllers\\HareketController.cs",
-              "RelativeToolTip": "yillikizin\\Controllers\\HareketController.cs",
-              "ViewState": "AgIAAAsAAAAAAAAAAAAMwBAAAAAfAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-02-23T07:32:20.582Z",
-              "EditorCaption": ""
             }
           ]
         },
