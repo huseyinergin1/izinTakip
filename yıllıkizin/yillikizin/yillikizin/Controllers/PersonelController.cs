@@ -17,10 +17,23 @@ namespace yillikizin.Controllers
         private readonly YillikizinEntities db = new YillikizinEntities(); // Veritabanı bağlantısı
 
         // Personel listesi
-        public ActionResult Index()
+        // Controller
+        public ActionResult Index(bool? calismaDurumu = null) // Varsayılan değeri null yapıyoruz
         {
-            var personelListesi = db.personel.ToList(); // Veritabanından personel listesini çek
-            return View(personelListesi); // Listeyi view'a gönder
+            var personelListesi = db.personel.AsQueryable();
+
+            // calismaDurumu parametresi gönderilmişse filtreleme yap
+            if (calismaDurumu.HasValue)
+            {
+                personelListesi = personelListesi.Where(p => p.calisma == calismaDurumu.Value);
+            }
+
+            // ViewBag'e null durumunu da doğru şekilde geçiriyoruz
+            ViewBag.CalismaDurumu = calismaDurumu.HasValue ?
+                calismaDurumu.Value.ToString().ToLower() :
+                string.Empty; // null yerine empty string kullanıyoruz
+
+            return View(personelListesi.ToList());
         }
 
         // Personel silme işlemi

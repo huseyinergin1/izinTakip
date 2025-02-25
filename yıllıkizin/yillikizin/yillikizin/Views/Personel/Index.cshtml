@@ -22,6 +22,8 @@
                             <th class="sorting" data-type="text">Ünvan</th>
                             <th class="sorting" data-type="text">Vardiya</th>
                             <th class="sorting" data-type="date">İşe Giriş Tarihi</th>
+                            <th class="sorting" data-type="date">Çalışma</th>
+
                             <th>İşlemler</th>
                         </tr>
                         <tr>
@@ -32,7 +34,14 @@
                             <th></th>
                             <th></th>
                             <th></th>
-                            <th></th>
+                            <th>
+                                <select id="calismaFiltre" class="form-control">
+                                    <option value="" @(string.IsNullOrEmpty(ViewBag.CalismaDurumu) ? "selected" : "")>Tümü</option>
+                                    <option value="true" @(ViewBag.CalismaDurumu == "true" ? "selected" : "")>Evet</option>
+                                    <option value="false" @(ViewBag.CalismaDurumu == "false" ? "selected" : "")>Hayır</option>
+                                </select>
+
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -55,6 +64,7 @@
                                 <td class="text-break">@Html.DisplayFor(modelItem => personel.unvan)</td>
                                 <td>@Html.DisplayFor(modelItem => personel.Vardiya.Ad)</td>
                                 <td>@(personel.isegiristarih.HasValue ? personel.isegiristarih.Value.ToString("dd-MM-yyyy") : "Tarih yok")</td>
+                                <td>@Html.DisplayFor(modelItem => personel.calisma)</td>
                                 <td class="action-buttons">
                                     <span class="btn bg-cyan waves-effect" data-toggle="tooltip" title="Detayı Gör" onclick="createModal('@Url.Action("Details", "Personel", new { id = personel.id })')">
                                         <i class="material-icons">folder</i>
@@ -129,6 +139,18 @@
 </div>
 
 <script type="text/javascript">
+    document.getElementById("calismaFiltre").addEventListener("change", function () {
+        var value = this.value;
+        var url = "/Personel/Index";
+
+        if (value !== "") {
+            url += "?calismaDurumu=" + value;
+        }
+
+        window.location.href = url;
+    });
+
+
     document.getElementById('adSoyadSearch').addEventListener('input', function () {
         filterTable(1, this.value);
     });
@@ -156,6 +178,7 @@
     }
 
     $(document).ready(function () {
+
         $('#example').DataTable({
             "lengthMenu": [[25, 50, -1], [25, 50, "Tümü"]],
             "language": {
@@ -198,6 +221,15 @@
                 alert("Bir hata oluştu.");
             }
         });
+    });
+    document.addEventListener("DOMContentLoaded", function () {
+        var select = document.getElementById("calismaFiltre");
+
+        // Eğer sayfada birden fazla varsa fazlalıkları kaldır
+        if (document.querySelectorAll("#calismaFiltre").length > 1) {
+            console.warn("Fazladan dropdown bulundu! Fazlalık kaldırılıyor...");
+            document.querySelectorAll("#calismaFiltre")[1].remove();
+        }
     });
 
     function JavaSend(id) {

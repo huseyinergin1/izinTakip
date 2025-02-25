@@ -1334,16 +1334,13 @@ public class HareketController : Controller
             return Json(new { success = false, message = "Hata oluştu: " + ex.Message });
         }
     }
+
+    // Controller - YeniHareketEkle
     [HttpPost]
-    public ActionResult YeniHareketEkle(string kartNo, string terminalNo, string tarih, string saat, string yon)
+    public ActionResult YeniHareketEkle(int personelId, string terminalNo, string tarih, string saat, string yon)
     {
         try
         {
-            if (string.IsNullOrWhiteSpace(kartNo) || string.IsNullOrWhiteSpace(terminalNo))
-            {
-                return Json(new { success = false, message = "Kart No veya Terminal No boş olamaz." });
-            }
-
             if (!DateTime.TryParseExact(tarih + " " + saat, "yyyy-MM-dd HH:mm", null, DateTimeStyles.None, out DateTime hareketTarihi))
             {
                 return Json(new { success = false, message = "Tarih veya saat formatı geçersiz." });
@@ -1351,16 +1348,16 @@ public class HareketController : Controller
 
             using (var db = new YillikizinEntities())
             {
-                var personel = db.personel.FirstOrDefault(p => p.kartno == kartNo);
+                var personel = db.personel.FirstOrDefault(p => p.id == personelId);
                 if (personel == null)
                 {
-                    return Json(new { success = false, message = "Kart numarası ile eşleşen personel bulunamadı." });
+                    return Json(new { success = false, message = "Personel bulunamadı." });
                 }
 
                 var yeniHareket = new Hareketler
                 {
-                    KartNumarasi = kartNo,
-                    TerminalNo = terminalNo,
+                    KartNumarasi = personel.kartno, // Personelden kart numarasını al
+                    TerminalNo = terminalNo ?? "001",
                     Tarih = hareketTarihi.Date,
                     Saat = hareketTarihi.TimeOfDay,
                     Yon = yon
@@ -1369,17 +1366,7 @@ public class HareketController : Controller
                 db.Hareketler.Add(yeniHareket);
                 db.SaveChanges();
 
-                return Json(new
-                {
-                    success = true,
-                    message = "Hareket başarıyla eklendi.",
-                    id = yeniHareket.Id, // Yeni eklenen hareketin ID'sini dön
-                    kartNo = yeniHareket.KartNumarasi,
-                    tarih = yeniHareket.Tarih, // Doğru kullanım
-                    saat = yeniHareket.Saat, // Doğru kullanım
-                    yon = yeniHareket.Yon
-                });
-
+                return Json(new { success = true });
             }
         }
         catch (Exception ex)
@@ -1387,8 +1374,6 @@ public class HareketController : Controller
             return Json(new { success = false, message = "Hata oluştu: " + ex.Message });
         }
     }
-
-
     // Hareket güncelleme metodu
     [HttpPost]
     public ActionResult UpdateHareket(int id, string kartNo, string tarih, string saat, string yon, bool yonDegistir)

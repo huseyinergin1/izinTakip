@@ -1,4 +1,4 @@
-﻿@model yillikizin.Models.HareketViewModel
+﻿﻿@model yillikizin.Models.HareketViewModel
 
 @{
     ViewBag.Title = "Personel Hareketleri";
@@ -150,6 +150,7 @@
         </div>
     </div>
 </div>
+
 <!-- Yeni Hareket Modal -->
 <div class="modal fade" id="yeniHareketModal" tabindex="-1" role="dialog" aria-labelledby="yeniHareketModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -164,15 +165,18 @@
                 <div id="popupMessage" class="alert" style="display:none;"></div>
                 <form id="yeniHareketForm">
                     <div class="form-row mb-3">
-                        <div class="col-md-4">
-                            <label for="kartNo">Kart Numarası:</label>
-                            <input type="text" class="form-control" id="kartNo" name="kartNo" required />
+                        <div class="col-md-12">
+                            <div class="alert alert-info">
+                                Seçili Personel: <strong id="selectedPersonelInfo"></strong>
+                            </div>
                         </div>
-                        <div class="col-md-4">
+                    </div>
+                    <div class="form-row mb-3">
+                        <div class="col-md-6">
                             <label for="tarih">Tarih:</label>
                             <input type="date" class="form-control" id="tarih" name="tarih" required />
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label for="saat">Saat:</label>
                             <input type="time" class="form-control" id="saat" name="saat" required />
                         </div>
@@ -180,8 +184,8 @@
                     <div class="form-group">
                         <label>Yön Bilgisi</label>
                         <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                            <label class="btn btn-outline-primary active">
-                                <input type="radio" name="yon" value="01" checked> Giriş
+                            <label class="btn btn-outline-primary">
+                                <input type="radio" name="yon" value="01"> Giriş
                             </label>
                             <label class="btn btn-outline-primary">
                                 <input type="radio" name="yon" value="02"> Çıkış
@@ -190,9 +194,7 @@
                     </div>
                     <input type="hidden" id="terminalNo" name="terminalNo" value="001" />
                 </form>
-                <div id="popupMessage" class="alert" style="display: none; margin-top: 10px;"></div>
             </div>
-
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
                 <button type="button" class="btn btn-primary" id="btnHareketKaydet">Kaydet</button>
@@ -226,11 +228,6 @@ $(document).ready(function () {
     $('input[name="yonToplu"]').change(function () {
         toggleSaatRow();
     });
-    function setKartNo() {
-        if (selectedKartNo) {
-            $('#yeniHareketModal #kartNo').val(selectedKartNo);
-        }
-    }
 
     function toggleYonRow() {
         var islemTuru = $('input[name="islemTuru"]:checked').val();
@@ -263,11 +260,45 @@ $(document).ready(function () {
             $('#saatToplu').attr('required', 'required');
         }
     }
+      // Personel satırına tıklandığında
+  $('#personelListesi').on('click', '.personel-row', function () {
+      var personelId = $(this).data('personel-id');
+      selectedKartNo = $(this).find('td').eq(3).text().trim(); // Kart numarasını al ve boşlukları temizle
+      var personelAdi = $(this).find('td').eq(1).text().trim();
+      var personelSoyadi = $(this).find('td').eq(2).text().trim();
+
+      console.log('Seçilen kart no:', selectedKartNo); // Debug için
+
+      getHareketler(personelId);
+      $('#personelListesi .personel-row').removeClass('table-active');
+      $(this).addClass('table-active');
+      sessionStorage.setItem('selectedPersonelId', personelId);
+  });
+  // Yeni hareket butonuna tıklandığında
+  $('#yeniHareket').click(function (e) {
+      var selectedRow = $('.table-active');
+      if (selectedRow.length === 0) {
+          e.preventDefault();
+          alert('Lütfen önce bir personel seçin!');
+          return false;
+      }
+  });
+
+// Modal açıldığında
+    // Modal açıldığında
     $('#yeniHareketModal').on('show.bs.modal', function () {
-        // Seçili personelin kart numarasını set et
-        if (selectedKartNo) {
-            $('#kartNo').val(selectedKartNo);
+        var selectedRow = $('.table-active');
+        if (selectedRow.length === 0) {
+            alert('Lütfen önce bir personel seçin!');
+            return false;
         }
+
+        // Personel bilgilerini al
+        var personelAdi = selectedRow.find('td').eq(1).text().trim();
+        var personelSoyadi = selectedRow.find('td').eq(2).text().trim();
+
+        // Personel bilgilerini göster
+        $('#selectedPersonelInfo').text(personelAdi + ' ' + personelSoyadi);
 
         // Bugünün tarihini set et
         var today = new Date().toISOString().split('T')[0];
@@ -279,12 +310,89 @@ $(document).ready(function () {
         var minutes = String(now.getMinutes()).padStart(2, '0');
         $('#saat').val(`${hours}:${minutes}`);
 
-        // Varsayılan olarak "Giriş" seçeneğini işaretle
-        $('input[name="yon"][value="01"]').prop('checked', true).parent().addClass('active');
-        $('input[name="yon"][value="02"]').parent().removeClass('active');
+        // Eğer hiçbir yön seçili değilse varsayılan olarak giriş seç
+        if (!$('input[name="yon"]:checked').length) {
+            $('input[name="yon"][value="01"]').prop('checked', true).parent().addClass('active');
+            $('input[name="yon"][value="02"]').prop('checked', false).parent().removeClass('active');
+        }
     });
+
+    // Yön seçimi değiştiğinde
+    $('input[name="yon"]').change(function () {
+        // Önce tüm butonların active class'ını kaldır
+        $('.btn-group-toggle label').removeClass('active');
+        // Seçili butona active class ekle
+        $(this).parent().addClass('active');
+
+        // Debug için seçilen değeri konsola yazdır
+        console.log('Seçilen yön:', $(this).val());
+    });
+// Yön radio butonları değiştiğinde
+$('input[name="yon"]').change(function() {
+    // Tüm butonların active class'ını kaldır
+    $('input[name="yon"]').parent().removeClass('active');
+    // Seçili butona active class'ı ekle
+    $(this).parent().addClass('active');
+});
+
+// Hareket kaydetme
+$('#btnHareketKaydet').click(function () {
+    $('#popupMessage').hide().removeClass('alert-success alert-danger').text('');
+
+    var selectedRow = $('.table-active');
+    if (selectedRow.length === 0) {
+        $('#popupMessage').addClass('alert-danger').text('Lütfen önce bir personel seçin.').show();
+        return;
+    }
+
+    var personelId = selectedRow.data('personel-id');
+    var tarih = $('#tarih').val();
+    var saat = $('#saat').val();
+    var yon = $('input[name="yon"]:checked').val();
+    var terminalNo = '001';
+
+    console.log('Seçilen yön:', yon); // Debug için
+
+    if (!tarih || !saat || !yon) {
+        $('#popupMessage').addClass('alert-danger').text('Lütfen tüm alanları doldurun.').show();
+        return;
+    }
+
+    $.ajax({
+        type: 'POST',
+        url: '@Url.Action("YeniHareketEkle", "Hareket")',
+        data: {
+            personelId: personelId,
+            terminalNo: terminalNo,
+            tarih: tarih,
+            saat: saat,
+            yon: yon // "01" veya "02" olarak gönderilecek
+        },
+        success: function (response) {
+            if (response.success) {
+                $('#popupMessage').addClass('alert-success').text('Hareket başarıyla eklendi.').show();
+                $('#yeniHareketModal').modal('hide');
+
+                // Hareket listesini güncelle
+                getHareketler(personelId);
+            } else {
+                $('#popupMessage').addClass('alert-danger').text(response.message || 'Bir hata oluştu.').show();
+            }
+        },
+        error: function (xhr, status, error) {
+            var errorMessage = 'Hata Oluştu: ';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                errorMessage += xhr.responseJSON.message;
+            } else {
+                errorMessage += error;
+            }
+            $('#popupMessage').addClass('alert-danger').text(errorMessage).show();
+        }
+    });
+});
+
     // Toplu İşlem Kaydetme
-    $('#btnTopluIslemKaydet').click(function () {
+$('#btnTopluIslemKaydet').click(function () {
         $('#popupMessageToplu').hide().removeClass('alert-success alert-danger').text('');
 
         var islemTuru = $('#topluIslemlerModal').find('input[name="islemTuru"]:checked').val();
@@ -337,13 +445,15 @@ $(document).ready(function () {
     // Sayfa yüklendiğinde bugünün hareketlerini filtrele
     var today = new Date();
     var day = String(today.getDate()).padStart(2, '0');
-    var month = String(today.getMonth() + 1).padStart(2, '0'); // Aylar 0-11 arasında olduğu için 1 ekliyoruz
+    var month = String(today.getMonth() + 1).padStart(2, '0');
     var year = today.getFullYear();
     var todayDate = year + '-' + month + '-' + day;
 
     $('#baslangicTarihi').val(todayDate);
     $('#bitisTarihi').val(todayDate);
     filterHareketler(todayDate, todayDate);
+
+});
 
     // Filtreleme butonu tıklama olayını yönet
     $('#filtrele').click(function () {
@@ -356,30 +466,6 @@ $(document).ready(function () {
         }
 
         filterHareketler(baslangicTarihi, bitisTarihi);
-    });
-
-    function filterHareketler(baslangicTarihi, bitisTarihi) {
-        var personelId = $('.table-active').data('personel-id'); // Aktif personel ID'sini al
-        $.ajax({
-            url: '@Url.Action("FilterHareketler", "Hareket")',
-            type: 'GET',
-            data: { personelId: personelId, baslangicTarihi: baslangicTarihi, bitisTarihi: bitisTarihi },
-            success: function (data) {
-                $('#hareketListesi').html(data);
-            },
-
-        });
-    }
-
-    // Personel hareketlerini listeleme
-    $('#personelListesi').on('click', '.personel-row', function () {
-        var personelId = $(this).data('personel-id');
-        selectedKartNo = $(this).data('kart-no'); // Seçilen personelin kart numarasını sakla
-        getHareketler(personelId);
-        $('#personelListesi .personel-row').removeClass('table-active');
-        $(this).addClass('table-active');
-        // Seçilen personelin ID'sini sakla
-        sessionStorage.setItem('selectedPersonelId', personelId);
     });
 
     // Her sütun için arama fonksiyonu
@@ -400,7 +486,6 @@ $(document).ready(function () {
         var dataType = $(this).data('sort');
         var order = sortOrder[index] || 'asc';
 
-        // Sıralama işlemi
         rows.sort(function (a, b) {
             var A = $(a).find('td').eq(index).text();
             var B = $(b).find('td').eq(index).text();
@@ -411,80 +496,24 @@ $(document).ready(function () {
             }
         });
 
-        // Yeni sıralanmış satırları tabloya ekleme
         tbody.empty().append(rows);
-
-        // Sıralama yönünü değiştir
         sortOrder[index] = order === 'asc' ? 'desc' : 'asc';
     });
 
-// Hareket kaydetme
-$('#btnHareketKaydet').click(function () {
-    $('#popupMessage').hide().removeClass('alert-success alert-danger').text('');
-
-    var kartNo = $('#yeniHareketModal').find('#kartNo').val().trim();
-    var tarih = $('#yeniHareketModal').find('#tarih').val();
-    var saat = $('#yeniHareketModal').find('#saat').val();
-    var yon = $('#yeniHareketModal').find('input[name="yon"]:checked').val();
-    var terminalNo = $('#yeniHareketModal').find('#terminalNo').val();
-
-    if (!kartNo || !tarih || !saat || !yon) {
-        $('#popupMessage').addClass('alert-danger').text('Lütfen tüm alanları doldurun.').show();
-        return;
-    }
-
+function filterHareketler(baslangicTarihi, bitisTarihi) {
+    var personelId = $('.table-active').data('personel-id');
     $.ajax({
-        type: 'POST',
-        url: '@Url.Action("YeniHareketEkle", "Hareket")',
-        data: { kartNo: kartNo, terminalNo: terminalNo, tarih: tarih, saat: saat, yon: yon },
-        success: function (response) {
-            if (response.success) {
-                $('#popupMessage').addClass('alert-success').text('Hareket başarıyla eklendi.').show();
-
-                // Yeni satırı oluştur
-                var newRow = `
-                    <tr data-id="${response.hareketId}" data-kart-no="${kartNo}" data-tarih="${tarih}" data-saat="${saat}" data-islem-tipi="${yon}">
-                        <td>
-                            ${yon === "01" ?
-                                '<i class="fas fa-sign-in-alt text-success fa-lg"></i>' :
-                                '<i class="fas fa-sign-out-alt text-danger fa-lg"></i>'}
-                        </td>
-                        <td>${terminalNo}</td>
-                        <td>${tarih}</td>
-                        <td>${saat}</td>
-                        <td>
-                            ${yon === "01" ? "Giriş" : "Çıkış"}
-                        </td>
-                        <td>
-                            <button class="btn btn-primary btn-sm btn-duzenle" data-id="${response.hareketId}">Düzenle</button>
-                            <button class="btn btn-danger btn-sm btn-sil" data-id="${response.hareketId}">Sil</button>
-                        </td>
-                    </tr>
-                `;
-
-                // Yeni hareketi tabloya ekle
-                $('#hareketTablosu').prepend(newRow); // Tablonun en üstüne ekler
-
-                // Modal'ı kapat
-                $('#yeniHareketModal').modal('hide');
-
-                // İstediğiniz başka işlemleri ekleyebilirsiniz
-            } else {
-                $('#popupMessage').addClass('alert-danger').text(response.message).show();
-            }
+        url: '@Url.Action("FilterHareketler", "Hareket")',
+        type: 'GET',
+        data: { personelId: personelId, baslangicTarihi: baslangicTarihi, bitisTarihi: bitisTarihi },
+        success: function (data) {
+            $('#hareketListesi').html(data);
         },
-        error: function (xhr, status, error) {
-            var errorMessage = 'Hata Oluştu: ';
-            if (xhr.responseJSON && xhr.responseJSON.message) {
-                errorMessage += xhr.responseJSON.message;
-            } else {
-                errorMessage += error;
-            }
-            $('#popupMessage').addClass('alert-danger').text(errorMessage).show();
+        error: function () {
+            showMessage('Hareketler yüklenirken bir hata oluştu.', 'danger');
         }
     });
-});
-});
+}
 
 function toggleRowSelection(personelId) {
     const row = document.querySelector(`tr[onclick="toggleRowSelection(${personelId})"]`);
@@ -492,18 +521,15 @@ function toggleRowSelection(personelId) {
     const checkbox = iframe.contentDocument.getElementById(`checkbox_${personelId}`);
 
     if (selectedIds.includes(personelId.toString())) {
-        // Eğer seçiliyse, seçimi kaldır
         selectedIds = selectedIds.filter(id => id !== personelId.toString());
-        row.style.backgroundColor = ""; // Arka plan rengini sıfırla
-        checkbox.checked = false; // Checkbox'u işaretsiz yap
+        row.style.backgroundColor = "";
+        checkbox.checked = false;
     } else {
-        // Eğer seçili değilse, seç
         selectedIds.push(personelId.toString());
-        row.style.backgroundColor = "#c8e6c9"; // Seçili personel için yeşil arka plan
-        checkbox.checked = true; // Checkbox'u işaretli yap
+        row.style.backgroundColor = "#c8e6c9";
+        checkbox.checked = true;
     }
 
-    // Tüm satırlar seçili mi kontrol et ve iframe checkbox'unu güncelle
     const allSelected = Array.from(document.querySelectorAll('.personel-item')).every(row => selectedIds.includes(row.getAttribute('onclick').match(/\d+/)[0]));
     const selectAllCheckbox = document.getElementById('selectAllIframe').contentDocument.getElementById('selectAll');
     selectAllCheckbox.checked = allSelected;
@@ -513,7 +539,7 @@ function toggleRowSelection(personelId) {
 
 function toggleSelectAll() {
     var table = document.getElementById('personelListesi');
-    var rows = Array.from(table.querySelectorAll('.personel-row')); // Sadece personel satırlarını al
+    var rows = Array.from(table.querySelectorAll('.personel-row'));
     var iframeCheckbox = document.getElementById('selectAllIframe').contentDocument.getElementById('selectAll');
     var allSelected = rows.every(row => selectedIds.includes(row.getAttribute('data-personel-id')));
 
@@ -523,31 +549,24 @@ function toggleSelectAll() {
         const rowCheckbox = rowIframe.contentDocument.getElementById(`checkbox_${personelId}`);
 
         if (allSelected) {
-            // Zaten tümü seçiliyse, tümünü kaldır
             selectedIds = selectedIds.filter(id => id !== personelId);
-            row.style.backgroundColor = ""; // Arka plan rengini sıfırla
-            rowCheckbox.checked = false; // Checkbox'u işaretsiz yap
+            row.style.backgroundColor = "";
+            rowCheckbox.checked = false;
         } else {
-            // Aksi takdirde tümünü seç
             if (!selectedIds.includes(personelId)) {
-                selectedIds.push(personelId);
+                                selectedIds.push(personelId);
             }
-            row.style.backgroundColor = "#c8e6c9"; // Seçili personel için yeşil arka plan
-            rowCheckbox.checked = true; // Checkbox'u işaretli yap
+            row.style.backgroundColor = "#c8e6c9";
+            rowCheckbox.checked = true;
         }
     });
 
-    // iframe checkbox'unu güncelle
     iframeCheckbox.checked = !allSelected;
-
     updateHiddenInputs();
 }
 
 function updateHiddenInputs() {
-    // Öncelikle mevcut gizli inputları temizle
     document.querySelectorAll('input[name="selectedPersonelIds"]').forEach(input => input.remove());
-
-    // Seçilen personel ID'lerini yeni gizli input olarak ekle
     const form = document.forms[0];
     selectedIds.forEach(id => {
         const input = document.createElement('input');
@@ -567,7 +586,7 @@ function getHareketler(personelId) {
             $('#hareketListesi').html(data);
         },
         error: function () {
-            // Hata durumu
+            showMessage('Hareketler yüklenirken bir hata oluştu.', 'danger');
         }
     });
 }
@@ -576,277 +595,4 @@ function showMessage(message, type) {
     var alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
     $('#popupMessage').removeClass('alert-success alert-danger').addClass(alertClass).text(message).show();
 }
-function toggleRowSelection(personelId) {
-    const row = document.querySelector(`tr[onclick="toggleRowSelection(${personelId})"]`);
-    const iframe = row.querySelector('.row-checkbox-iframe');
-    const checkbox = iframe.contentDocument.getElementById(`checkbox_${personelId}`);
-
-    if (selectedIds.includes(personelId.toString())) {
-        // Eğer seçiliyse, seçimi kaldır
-        selectedIds = selectedIds.filter(id => id !== personelId.toString());
-        row.style.backgroundColor = ""; // Arka plan rengini sıfırla
-        checkbox.checked = false; // Checkbox'u işaretsiz yap
-    } else {
-        // Eğer seçili değilse, seç
-        selectedIds.push(personelId.toString());
-        row.style.backgroundColor = "#c8e6c9"; // Seçili personel için yeşil arka plan
-        checkbox.checked = true; // Checkbox'u işaretli yap
-    }
-
-    // Tüm satırlar seçili mi kontrol et ve iframe checkbox'unu güncelle
-    const allSelected = Array.from(document.querySelectorAll('.personel-item')).every(row => selectedIds.includes(row.getAttribute('onclick').match(/\d+/)[0]));
-    const selectAllCheckbox = document.getElementById('selectAllIframe').contentDocument.getElementById('selectAll');
-    selectAllCheckbox.checked = allSelected;
-
-    updateHiddenInputs();
-}
-
-function toggleSelectAll() {
-    var table = document.getElementById('personelListesi');
-    var rows = Array.from(table.querySelectorAll('.personel-row')); // Sadece personel satırlarını al
-    var iframeCheckbox = document.getElementById('selectAllIframe').contentDocument.getElementById('selectAll');
-    var allSelected = rows.every(row => selectedIds.includes(row.getAttribute('data-personel-id')));
-
-    rows.forEach(function (row) {
-        var personelId = row.getAttribute('data-personel-id');
-        const rowIframe = row.querySelector('.row-checkbox-iframe');
-        const rowCheckbox = rowIframe.contentDocument.getElementById(`checkbox_${personelId}`);
-
-        if (allSelected) {
-            // Zaten tümü seçiliyse, tümünü kaldır
-            selectedIds = selectedIds.filter(id => id !== personelId);
-            row.style.backgroundColor = ""; // Arka plan rengini sıfırla
-            rowCheckbox.checked = false; // Checkbox'u işaretsiz yap
-        } else {
-            // Aksi takdirde tümünü seç
-            if (!selectedIds.includes(personelId)) {
-                selectedIds.push(personelId);
-            }
-            row.style.backgroundColor = "#c8e6c9"; // Seçili personel için yeşil arka plan
-            rowCheckbox.checked = true; // Checkbox'u işaretli yap
-        }
-    });
-
-    // iframe checkbox'unu güncelle
-    iframeCheckbox.checked = !allSelected;
-
-    updateHiddenInputs();
-}
-
-function updateHiddenInputs() {
-    // Öncelikle mevcut gizli inputları temizle
-    document.querySelectorAll('input[name="selectedPersonelIds"]').forEach(input => input.remove());
-
-    // Seçilen personel ID'lerini yeni gizli input olarak ekle
-    const form = document.forms[0];
-    selectedIds.forEach(id => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'selectedPersonelIds';
-        input.value = id;
-        form.appendChild(input);
-    });
-}
-
-function getHareketler(personelId) {
-    $.ajax({
-        url: '@Url.Action("GetHareketler", "Hareket")',
-        type: 'GET',
-        data: { personelId: personelId },
-        success: function (data) {
-            $('#hareketListesi').html(data);
-        },
-        error: function () {
-            // Hata durumu
-        }
-    });
-}
-
-function showMessage(message, type) {
-    var alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
-    $('#popupMessage').removeClass('alert-success alert-danger').addClass(alertClass).text(message).show();
-}
-function toggleRowSelection(personelId) {
-    const row = document.querySelector(`tr[onclick="toggleRowSelection(${personelId})"]`);
-    const iframe = row.querySelector('.row-checkbox-iframe');
-    const checkbox = iframe.contentDocument.getElementById(`checkbox_${personelId}`);
-
-    if (selectedIds.includes(personelId.toString())) {
-        // Eğer seçiliyse, seçimi kaldır
-        selectedIds = selectedIds.filter(id => id !== personelId.toString());
-        row.style.backgroundColor = ""; // Arka plan rengini sıfırla
-        checkbox.checked = false; // Checkbox'u işaretsiz yap
-    } else {
-        // Eğer seçili değilse, seç
-        selectedIds.push(personelId.toString());
-        row.style.backgroundColor = "#c8e6c9"; // Seçili personel için yeşil arka plan
-        checkbox.checked = true; // Checkbox'u işaretli yap
-    }
-
-    // Tüm satırlar seçili mi kontrol et ve iframe checkbox'unu güncelle
-    const allSelected = Array.from(document.querySelectorAll('.personel-item')).every(row => selectedIds.includes(row.getAttribute('onclick').match(/\d+/)[0]));
-    const selectAllCheckbox = document.getElementById('selectAllIframe').contentDocument.getElementById('selectAll');
-    selectAllCheckbox.checked = allSelected;
-
-    updateHiddenInputs();
-}
-
-function toggleSelectAll() {
-    var table = document.getElementById('personelListesi');
-    var rows = Array.from(table.querySelectorAll('.personel-row')); // Sadece personel satırlarını al
-    var iframeCheckbox = document.getElementById('selectAllIframe').contentDocument.getElementById('selectAll');
-    var allSelected = rows.every(row => selectedIds.includes(row.getAttribute('data-personel-id')));
-
-    rows.forEach(function (row) {
-        var personelId = row.getAttribute('data-personel-id');
-        const rowIframe = row.querySelector('.row-checkbox-iframe');
-        const rowCheckbox = rowIframe.contentDocument.getElementById(`checkbox_${personelId}`);
-
-        if (allSelected) {
-            // Zaten tümü seçiliyse, tümünü kaldır
-            selectedIds = selectedIds.filter(id => id !== personelId);
-            row.style.backgroundColor = ""; // Arka plan rengini sıfırla
-            rowCheckbox.checked = false; // Checkbox'u işaretsiz yap
-        } else {
-            // Aksi takdirde tümünü seç
-            if (!selectedIds.includes(personelId)) {
-                selectedIds.push(personelId);
-            }
-            row.style.backgroundColor = "#c8e6c9"; // Seçili personel için yeşil arka plan
-            rowCheckbox.checked = true; // Checkbox'u işaretli yap
-        }
-    });
-
-    // iframe checkbox'unu güncelle
-    iframeCheckbox.checked = !allSelected;
-
-    updateHiddenInputs();
-}
-
-function updateHiddenInputs() {
-    // Öncelikle mevcut gizli inputları temizle
-    document.querySelectorAll('input[name="selectedPersonelIds"]').forEach(input => input.remove());
-
-    // Seçilen personel ID'lerini yeni gizli input olarak ekle
-    const form = document.forms[0];
-    selectedIds.forEach(id => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'selectedPersonelIds';
-        input.value = id;
-        form.appendChild(input);
-    });
-}
-
-function getHareketler(personelId) {
-    $.ajax({
-        url: '@Url.Action("GetHareketler", "Hareket")',
-        type: 'GET',
-        data: { personelId: personelId },
-        success: function (data) {
-            $('#hareketListesi').html(data);
-        },
-        error: function () {
-            // Hata durumu
-        }
-    });
-}
-
-function showMessage(message, type) {
-    var alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
-    $('#popupMessage').removeClass('alert-success alert-danger').addClass(alertClass).text(message).show();
-}
-
-function toggleRowSelection(personelId) {
-        const row = document.querySelector(`tr[onclick="toggleRowSelection(${personelId})"]`);
-        const iframe = row.querySelector('.row-checkbox-iframe');
-        const checkbox = iframe.contentDocument.getElementById(`checkbox_${personelId}`);
-
-        if (selectedIds.includes(personelId.toString())) {
-            // Eğer seçiliyse, seçimi kaldır
-            selectedIds = selectedIds.filter(id => id !== personelId.toString());
-            row.style.backgroundColor = ""; // Arka plan rengini sıfırla
-            checkbox.checked = false; // Checkbox'u işaretsiz yap
-        } else {
-            // Eğer seçili değilse, seç
-            selectedIds.push(personelId.toString());
-            row.style.backgroundColor = "#c8e6c9"; // Seçili personel için yeşil arka plan
-            checkbox.checked = true; // Checkbox'u işaretli yap
-        }
-
-        // Tüm satırlar seçili mi kontrol et ve iframe checkbox'unu güncelle
-        const allSelected = Array.from(document.querySelectorAll('.personel-item')).every(row => selectedIds.includes(row.getAttribute('onclick').match(/\d+/)[0]));
-        const selectAllCheckbox = document.getElementById('selectAllIframe').contentDocument.getElementById('selectAll');
-        selectAllCheckbox.checked = allSelected;
-
-        updateHiddenInputs();
-    }
-
-function toggleSelectAll() {
-        var table = document.getElementById('personelListesi');
-        var rows = Array.from(table.querySelectorAll('.personel-row')); // Sadece personel satırlarını al
-        var iframeCheckbox = document.getElementById('selectAllIframe').contentDocument.getElementById('selectAll');
-        var allSelected = rows.every(row => selectedIds.includes(row.getAttribute('data-personel-id')));
-
-        rows.forEach(function (row) {
-            var personelId = row.getAttribute('data-personel-id');
-            const rowIframe = row.querySelector('.row-checkbox-iframe');
-            const rowCheckbox = rowIframe.contentDocument.getElementById(`checkbox_${personelId}`);
-
-            if (allSelected) {
-                // Zaten tümü seçiliyse, tümünü kaldır
-                selectedIds = selectedIds.filter(id => id !== personelId);
-                row.style.backgroundColor = ""; // Arka plan rengini sıfırla
-                rowCheckbox.checked = false; // Checkbox'u işaretsiz yap
-            } else {
-                // Aksi takdirde tümünü seç
-                if (!selectedIds.includes(personelId)) {
-                    selectedIds.push(personelId);
-                }
-                row.style.backgroundColor = "#c8e6c9"; // Seçili personel için yeşil arka plan
-                rowCheckbox.checked = true; // Checkbox'u işaretli yap
-            }
-        });
-
-        // iframe checkbox'unu güncelle
-        iframeCheckbox.checked = !allSelected;
-
-        updateHiddenInputs();
-    }
-
-    function updateHiddenInputs() {
-        // Öncelikle mevcut gizli inputları temizle
-        document.querySelectorAll('input[name="selectedPersonelIds"]').forEach(input => input.remove());
-
-        // Seçilen personel ID'lerini yeni gizli input olarak ekle
-        const form = document.forms[0];
-        selectedIds.forEach(id => {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'selectedPersonelIds';
-            input.value = id;
-            form.appendChild(input);
-        });
-    }
-
-    function getHareketler(personelId) {
-        $.ajax({
-            url: '@Url.Action("GetHareketler", "Hareket")',
-            type: 'GET',
-            data: { personelId: personelId },
-            success: function (data) {
-                $('#hareketListesi').html(data);
-            },
-            error: function () {
-                // Hata durumu
-            }
-        });
-    }
-
-    function showMessage(message, type) {
-        var alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
-        $('#popupMessage').removeClass('alert-success alert-danger').addClass(alertClass).text(message).show();
-    }
 </script>
-
-
