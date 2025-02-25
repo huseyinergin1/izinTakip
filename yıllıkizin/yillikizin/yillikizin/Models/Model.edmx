@@ -63,6 +63,7 @@
           <Property Name="Saat" Type="time" Precision="7" />
           <Property Name="PersonelId" Type="int" />
           <Property Name="Bilgi" Type="nvarchar(max)" />
+          <Property Name="TerminalAdi" Type="nvarchar" MaxLength="50" />
         </EntityType>
         <EntityType Name="Izin">
           <Key>
@@ -115,6 +116,26 @@
           <Property Name="kullaniciGrupId" Type="int" />
           <Property Name="kullaniciGrupAdi" Type="nvarchar" MaxLength="50" />
           <Property Name="VardiyaId" Type="int" />
+          <Property Name="kan" Type="nvarchar" MaxLength="20" />
+          <Property Name="ayakkabino" Type="nvarchar" MaxLength="20" />
+          <Property Name="beden" Type="nvarchar" MaxLength="20" />
+          <Property Name="adres" Type="nvarchar" MaxLength="50" />
+          <Property Name="gsm" Type="nvarchar" MaxLength="20" />
+          <Property Name="iscikistarih" Type="date" />
+          <Property Name="calisma" Type="bit" />
+        </EntityType>
+        <EntityType Name="PersonelTransaction">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Yon" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="KartNumarasi" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="TerminalNo" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Tarih" Type="date" Nullable="false" />
+          <Property Name="Saat" Type="time" Precision="7" Nullable="false" />
+          <Property Name="PersonelId" Type="int" Nullable="false" />
+          <Property Name="Bilgi" Type="nvarchar(max)" />
         </EntityType>
         <EntityType Name="sysdiagrams">
           <Key>
@@ -244,6 +265,7 @@
           <EntitySet Name="IzinTuru" EntityType="Self.IzinTuru" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="kullanici_grup" EntityType="Self.kullanici_grup" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="personel" EntityType="Self.personel" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PersonelTransaction" EntityType="Self.PersonelTransaction" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Vardiya" EntityType="Self.Vardiya" Schema="dbo" store:Type="Tables" />
           <AssociationSet Name="FK_belge_personel" Association="Self.FK_belge_personel">
@@ -334,6 +356,7 @@
             <End Role="personel" EntitySet="personel" />
           </AssociationSet>
           <EntitySet Name="EmailSettings" EntityType="YillikizinModel.EmailSettings" />
+          <EntitySet Name="PersonelTransaction" EntityType="YillikizinModel.PersonelTransaction" />
           </EntityContainer>
         <ComplexType Name="sp_helpdiagramdefinition_Result">
           <Property Type="Int32" Name="version" Nullable="true" />
@@ -398,6 +421,7 @@
           <Property Name="PersonelId" Type="Int32" />
           <Property Name="Bilgi" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="personel" Relationship="YillikizinModel.FK_Hareketler_Personel" FromRole="Hareketler" ToRole="personel" />
+          <Property Name="TerminalAdi" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="Izin">
           <Key>
@@ -457,6 +481,13 @@
           <NavigationProperty Name="Hareketler" Relationship="YillikizinModel.FK_Hareketler_Personel" FromRole="personel" ToRole="Hareketler" />
           <NavigationProperty Name="Izin" Relationship="YillikizinModel.FK_personel_izin" FromRole="personel" ToRole="Izin" />
           <NavigationProperty Name="Vardiya" Relationship="YillikizinModel.FK_Personel_Vardiya" FromRole="personel" ToRole="Vardiya" />
+          <Property Name="kan" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="ayakkabino" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="beden" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="adres" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="gsm" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="iscikistarih" Type="DateTime" Precision="0" />
+          <Property Name="calisma" Type="Boolean" />
         </EntityType>
         <EntityType Name="sysdiagrams">
           <Key>
@@ -553,6 +584,19 @@
           <Property Name="RecipientEmails" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="SendTime" Type="Time" Precision="7" />
         </EntityType>
+        <EntityType Name="PersonelTransaction">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Yon" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="KartNumarasi" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="TerminalNo" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Tarih" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="Saat" Type="Time" Nullable="false" Precision="7" />
+          <Property Name="PersonelId" Type="Int32" Nullable="false" />
+          <Property Name="Bilgi" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -628,6 +672,7 @@
           <EntitySetMapping Name="Hareketler">
             <EntityTypeMapping TypeName="YillikizinModel.Hareketler">
               <MappingFragment StoreEntitySet="Hareketler">
+                <ScalarProperty Name="TerminalAdi" ColumnName="TerminalAdi" />
                 <ScalarProperty Name="Bilgi" ColumnName="Bilgi" />
                 <ScalarProperty Name="PersonelId" ColumnName="PersonelId" />
                 <ScalarProperty Name="Saat" ColumnName="Saat" />
@@ -673,6 +718,13 @@
           <EntitySetMapping Name="personel">
             <EntityTypeMapping TypeName="YillikizinModel.personel">
               <MappingFragment StoreEntitySet="personel">
+                <ScalarProperty Name="calisma" ColumnName="calisma" />
+                <ScalarProperty Name="iscikistarih" ColumnName="iscikistarih" />
+                <ScalarProperty Name="gsm" ColumnName="gsm" />
+                <ScalarProperty Name="adres" ColumnName="adres" />
+                <ScalarProperty Name="beden" ColumnName="beden" />
+                <ScalarProperty Name="ayakkabino" ColumnName="ayakkabino" />
+                <ScalarProperty Name="kan" ColumnName="kan" />
                 <ScalarProperty Name="VardiyaId" ColumnName="VardiyaId" />
                 <ScalarProperty Name="kullaniciGrupAdi" ColumnName="kullaniciGrupAdi" />
                 <ScalarProperty Name="kullaniciGrupId" ColumnName="kullaniciGrupId" />
@@ -728,6 +780,20 @@
               <MappingFragment StoreEntitySet="EmailSettings">
                 <ScalarProperty Name="SendTime" ColumnName="SendTime" />
                 <ScalarProperty Name="RecipientEmails" ColumnName="RecipientEmails" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PersonelTransaction">
+            <EntityTypeMapping TypeName="YillikizinModel.PersonelTransaction">
+              <MappingFragment StoreEntitySet="PersonelTransaction">
+                <ScalarProperty Name="Bilgi" ColumnName="Bilgi" />
+                <ScalarProperty Name="PersonelId" ColumnName="PersonelId" />
+                <ScalarProperty Name="Saat" ColumnName="Saat" />
+                <ScalarProperty Name="Tarih" ColumnName="Tarih" />
+                <ScalarProperty Name="TerminalNo" ColumnName="TerminalNo" />
+                <ScalarProperty Name="KartNumarasi" ColumnName="KartNumarasi" />
+                <ScalarProperty Name="Yon" ColumnName="Yon" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>

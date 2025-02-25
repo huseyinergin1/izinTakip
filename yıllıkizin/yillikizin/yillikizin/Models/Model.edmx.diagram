@@ -22,6 +22,7 @@
         <AssociationConnector Association="YillikizinModel.FK_personel_izin" />
         <AssociationConnector Association="YillikizinModel.FK_Personel_Vardiya" />
         <EntityTypeShape EntityType="YillikizinModel.EmailSettings" Width="1.5" PointX="10.375" PointY="3.75" />
+        <EntityTypeShape EntityType="YillikizinModel.PersonelTransaction" Width="1.5" PointX="10.375" PointY="6.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

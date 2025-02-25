@@ -41,7 +41,15 @@ namespace yillikizin.Models
         public Nullable<int> kullaniciGrupId { get; set; }
         public string kullaniciGrupAdi { get; set; }
         public Nullable<int> VardiyaId { get; set; }
-    
+        public string kan { get; set; }
+        public string ayakkabino { get; set; }
+        public string beden { get; set; }
+        public string adres { get; set; }
+        public string gsm { get; set; }
+        public Nullable<System.DateTime> iscikistarih { get; set; }
+        public bool calisma { get; set; } = true; // Default deðer true olarak ayarlandý
+                                                  // 
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<belge> belge { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

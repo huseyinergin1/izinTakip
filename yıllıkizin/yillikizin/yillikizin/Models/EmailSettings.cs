@@ -11,7 +11,7 @@ namespace yillikizin.Models
 {
     using System;
     using System.Collections.Generic;
-    
+
     public partial class EmailSettings
     {
         public int Id { get; set; }

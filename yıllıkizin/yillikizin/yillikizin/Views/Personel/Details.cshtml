@@ -8,9 +8,10 @@
             }
             else
             {
-                <img src="@Model.resim" width="100"  class="profile-image22" />
+                <img src="@Model.resim" width="100" class="profile-image22" />
             }
         </td>
+
         <tr>
             <td>Adı</td>
             <td>
@@ -54,6 +55,36 @@
             </td>
         </tr>
         <tr>
+            <td>Kan Grubu</td>
+            <td>
+                @Model.kan
+            </td>
+        </tr>
+        <tr>
+            <td>Ayakkabı Numarası</td>
+            <td>
+                @Model.ayakkabino
+            </td>
+        </tr>
+        <tr>
+            <td>Beden</td>
+            <td>
+                @Model.beden
+            </td>
+        </tr>
+        <tr>
+            <td>Adres</td>
+            <td>
+                @Model.adres
+            </td>
+        </tr>
+        <tr>
+            <td>Telefon Numarası</td>
+            <td>
+                @Model.gsm
+            </td>
+        </tr>
+        <tr>
             <td>Doğum Tarihi</td>
             <td>
                 @(Model.dogumtarih.HasValue ? Model.dogumtarih.Value.ToString("dd/MM/yyyy") : "Tarih yok")
@@ -63,6 +94,12 @@
             <td>İşe Giriş Tarihi</td>
             <td>
                 @(Model.isegiristarih.HasValue ? Model.isegiristarih.Value.ToString("dd/MM/yyyy") : "Tarih yok")
+            </td>
+        </tr>
+        <tr>
+            <td>İşten Çıkış Tarihi</td>
+            <td>
+                @(Model.iscikistarih.HasValue ? Model.iscikistarih.Value.ToString("dd/MM/yyyy") : "Devam Ediyor...")
             </td>
         </tr>
         <tr>

@@ -11,6 +11,7 @@ using yillikizin.Models;
 using OfficeOpenXml;
 using yillikizin.Filters;
 using System.Drawing;
+using OfficeOpenXml.Style;
 
 
 [CustomAuthorize]
@@ -55,10 +56,12 @@ public class HareketController : Controller
             EndDate = endDate
         };
 
+        // Apply date filter first
         model.HareketListesi = model.HareketListesi
             .Where(h => h.Tarih >= startDate && h.Tarih <= endDate)
             .ToList();
 
+        // Apply personel filter if necessary
         if (SelectedPersonelId.HasValue)
         {
             model.HareketListesi = model.HareketListesi
@@ -66,6 +69,7 @@ public class HareketController : Controller
                 .ToList();
         }
 
+        // Group and process the hareket list
         model.HareketListesi = model.HareketListesi
             .GroupBy(h => new { h.Tarih, h.kartno })
             .Select(g =>
@@ -127,34 +131,494 @@ public class HareketController : Controller
             })
             .ToList();
 
+
+        ViewBag.StartDate = startDate.ToString("yyyy-MM-dd");
+        ViewBag.EndDate = endDate.ToString("yyyy-MM-dd");
+
+        return View(model);
+    }
+    public ActionResult ExportToPdf(DateTime? StartDate, DateTime? EndDate, int? SelectedPersonelId, string FilterType)
+    {
+        // Varsayılan tarih aralığını alalım
+        DateTime startDate = StartDate ?? DateTime.Now.Date;
+        DateTime endDate = EndDate ?? DateTime.Now.Date;
+
+        // EndDate'e 23:59:59.999 ekleyelim
+        endDate = endDate.AddHours(23).AddMinutes(59).AddSeconds(59).AddMilliseconds(999);
+
+        // Tüm personel ve hareket listelerini alalım
+        var personelListesi = GetPersonelListesi();
+        var hareketListesi = GetHareketListesi();
+        var vardiyaListesi = GetVardiyaListesi(); // Vardiya listesi
+
+        // Seçilen tarih aralığındaki tüm günleri listeleyelim
+        var allDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
+                                 .Select(offset => startDate.AddDays(offset))
+                                 .ToList();
+
+        // Hareket verilerini filtrele
+        hareketListesi = hareketListesi
+            .Where(h => h.Tarih >= startDate && h.Tarih <= endDate)
+            .ToList();
+
+        if (SelectedPersonelId.HasValue)
+        {
+            hareketListesi = hareketListesi
+                .Where(h => h.PersonelId == SelectedPersonelId.Value)
+                .ToList();
+        }
+
         if (!string.IsNullOrEmpty(FilterType))
         {
             switch (FilterType)
             {
                 case "Erken":
-                    model.PersonelListesi = model.PersonelListesi
-                        .Where(p => model.HareketListesi.Any(h => h.PersonelId == p.id && h.GirişDurumu == "Erken")).ToList();
+                    hareketListesi = hareketListesi
+                        .Where(h => h.GirişDurumu == "Erken")
+                        .ToList();
                     break;
                 case "Geç":
-                    model.PersonelListesi = model.PersonelListesi
-                        .Where(p => model.HareketListesi.Any(h => h.PersonelId == p.id && h.GirişDurumu == "Geç")).ToList();
+                    hareketListesi = hareketListesi
+                        .Where(h => h.GirişDurumu == "Geç")
+                        .ToList();
                     break;
                 case "Izinliler":
-                    model.PersonelListesi = model.PersonelListesi
-                        .Where(p => model.IzinListesi.Any(i => i.Personelıd == p.id && i.BaslangicTarihi <= endDate && i.BitisTarihi >= startDate)).ToList();
+                    var izinListesi = GetIzinListesi();
+                    hareketListesi = hareketListesi
+                        .Where(h => izinListesi.Any(i => i.Personelıd == h.PersonelId && i.BaslangicTarihi <= endDate && i.BitisTarihi >= startDate))
+                        .ToList();
                     break;
                 case "Devamsiz":
-                    model.PersonelListesi = model.PersonelListesi
-                        .Where(p => !model.HareketListesi.Any(h => h.PersonelId == p.id && h.Tarih >= startDate && h.Tarih <= endDate) &&
-                                    !model.IzinListesi.Any(i => i.Personelıd == p.id && i.BaslangicTarihi <= endDate && i.BitisTarihi >= startDate)).ToList();
+                    hareketListesi = hareketListesi
+                        .Where(h => h.Bilgi == "DEVAMSIZ")
+                        .ToList();
                     break;
             }
         }
-        ViewBag.StartDate = startDate.ToString("yyyy-MM-dd");
-        ViewBag.EndDate = endDate.ToString("yyyy-MM-dd");
-        ViewBag.FilterType = FilterType;
+        var izinListesi2 = GetIzinListesi();
 
-        return View(model);
+        var hareketData = from personel in personelListesi
+                          from tarih in allDates
+                          let hareketler = hareketListesi.Where(h => h.Tarih.Date == tarih.Date && h.kartno == personel.kartno).ToList()
+                          let izinVarMi = izinListesi2.Any(i => i.Personelıd == personel.id && i.BaslangicTarihi <= tarih && i.BitisTarihi >= tarih)
+                          select new
+                          {
+                              Tarih = tarih,
+                              PersonelId = personel.id,
+                              personelAdi = personel.adi,
+                              personelSoyadi = personel.soyadi,
+                              kartno = personel.kartno, // kartno alanı eklendi
+                              GirişSaatleri = hareketler.Where(h => h.IslemTipi == "01").OrderBy(h => h.Saat).Select(h => h.Saat).ToList(),
+                              ÇıkışSaatleri = hareketler.Where(h => h.IslemTipi == "02").OrderByDescending(h => h.Saat).Select(h => h.Saat).ToList(),
+                              Bilgi = tarih.DayOfWeek == DayOfWeek.Sunday ? "HAFTA TATİLİ" : // Pazar günleri "HAFTA TATİLİ" yaz
+       izinVarMi ? "İZİNLİ" :
+       !hareketler.Any() ? "DEVAMSIZ" :
+       hareketler.Any(h => h.IslemTipi == "01") && hareketler.Any(h => h.IslemTipi == "02") ? "OK" :
+       hareketler.Any(h => h.IslemTipi == "01") ? "ÇIKIŞ YOK" :
+       "GİRİŞ YOK",
+
+                              Vardiya = vardiyaListesi.FirstOrDefault(v => v.VardiyaId == personel.VardiyaId) // Vardiya bilgileri
+                          };
+
+        using (var stream = new MemoryStream())
+        {
+            var pdfDoc = new PdfDocument();
+            var page = pdfDoc.AddPage();
+            var gfx = XGraphics.FromPdfPage(page);
+            var font = new XFont("Verdana", 9);
+            var boldFont = new XFont("Verdana", 9);
+            var headerBrush = new XSolidBrush(XColors.LightGray);
+            var borderPen = new XPen(XColors.Black);
+
+            double margin = 20;
+            double yPoint = 40;
+            double tableWidth = page.Width - 2 * margin;
+
+            // Başlık
+            gfx.DrawString("Hareket Değerlendirme", boldFont, XBrushes.Black, new XRect(margin, yPoint, tableWidth, page.Height), XStringFormats.TopLeft);
+            yPoint += 30;
+
+            // Tarih aralığı
+            gfx.DrawString($"{startDate:dd-MM-yyyy} - {endDate:dd-MM-yyyy}", font, XBrushes.Black, new XRect(margin, yPoint, tableWidth, page.Height), XStringFormats.TopLeft);
+            yPoint += 40;
+
+            double[] columnWidths = { 0.15 * tableWidth, 0.1 * tableWidth, 0.1 * tableWidth, 0.13 * tableWidth, 0.13 * tableWidth, 0.15 * tableWidth, 0.14 * tableWidth, 0.12 * tableWidth };
+            string[] headers = { "Tarih", "Ad", "Soyad", "Giriş Saatleri", "Çıkış Saatleri", "Çalışma Süresi", "Eksik Çalışma", "Fazla Mesai" };
+
+            // Başlık satırı
+            for (int i = 0; i < headers.Length; i++)
+            {
+                double xPoint = i == 0 ? margin : margin + columnWidths.Take(i).Sum();
+                gfx.DrawRectangle(headerBrush, new XRect(xPoint, yPoint, columnWidths[i], 20));
+                gfx.DrawRectangle(borderPen, new XRect(xPoint, yPoint, columnWidths[i], 20));
+                gfx.DrawString(headers[i], boldFont, XBrushes.Black, new XRect(xPoint, yPoint, columnWidths[i], 20), XStringFormats.Center);
+            }
+
+            yPoint += 20;
+
+            // Veri satırları
+            foreach (var data in hareketData)
+            {
+                double xPoint = margin;
+
+                gfx.DrawRectangle(borderPen, new XRect(xPoint, yPoint, columnWidths[0], 20));
+                gfx.DrawString(data.Tarih.ToString("dd-MM-yyyy ddd"), font, XBrushes.Black, new XRect(xPoint, yPoint, columnWidths[0], 20), XStringFormats.TopLeft);
+                xPoint += columnWidths[0];
+
+                gfx.DrawRectangle(borderPen, new XRect(xPoint, yPoint, columnWidths[1], 20));
+                gfx.DrawString(data.personelAdi ?? "Bilinmiyor", font, XBrushes.Black, new XRect(xPoint, yPoint, columnWidths[1], 20), XStringFormats.Center);
+                xPoint += columnWidths[1];
+
+                gfx.DrawRectangle(borderPen, new XRect(xPoint, yPoint, columnWidths[2], 20));
+                gfx.DrawString(data.personelSoyadi ?? "Bilinmiyor", font, XBrushes.Black, new XRect(xPoint, yPoint, columnWidths[2], 20), XStringFormats.Center);
+                xPoint += columnWidths[2];
+
+                string girisSaatleri = data.GirişSaatleri.Any()
+                    ? string.Join(", ", data.GirişSaatleri)
+                    : "Giriş Yok";
+
+                gfx.DrawRectangle(borderPen, new XRect(xPoint, yPoint, columnWidths[3], 20));
+                gfx.DrawString(girisSaatleri, font, XBrushes.Black, new XRect(xPoint, yPoint, columnWidths[3], 20), XStringFormats.Center);
+                xPoint += columnWidths[3];
+
+                string cikisSaatleri = data.ÇıkışSaatleri.Any()
+                    ? string.Join(", ", data.ÇıkışSaatleri)
+                    : "Çıkış Yok";
+
+                gfx.DrawRectangle(borderPen, new XRect(xPoint, yPoint, columnWidths[4], 20));
+                gfx.DrawString(cikisSaatleri, font, XBrushes.Black, new XRect(xPoint, yPoint, columnWidths[4], 20), XStringFormats.Center);
+                xPoint += columnWidths[4];
+
+                string calismaSuresi = "Veri Eksik";
+                string eksikSureText = "00:00";
+                string fazlaMesaiText = "00:00";
+
+                if (data.Bilgi == "DEVAMSIZ")
+                {
+                    calismaSuresi = "DEVAMSIZ";
+                }
+                else if (data.Bilgi == "İZİNLİ")
+                {
+                    // İzinli personelin izin türünü almak için izinListesi2'yi kontrol ediyoruz
+                    var izin = izinListesi2.FirstOrDefault(i => i.Personelıd == data.PersonelId && i.BaslangicTarihi <= data.Tarih && i.BitisTarihi >= data.Tarih);
+
+                    if (izin != null)
+                    {
+                        calismaSuresi = izin.IzinTuru ?? "İzin Türü Bilinmiyor"; // İzin türünü yazıyoruz, eğer izin türü yoksa "İzin Türü Bilinmiyor" yazılacak
+                    }
+                    else
+                    {
+                        calismaSuresi = "İZİNLİ";
+                    }
+                }
+                else if (data.Bilgi == "HAFTA TATİLİ")
+                {
+                    calismaSuresi = "HAFTA TATİLİ";
+                }
+                else if (data.GirişSaatleri.Any() && data.ÇıkışSaatleri.Any())
+                {
+                    var girisSaat = data.GirişSaatleri.First();
+                    var cikisSaat = data.ÇıkışSaatleri.First();
+
+                    if (girisSaat != null && cikisSaat != null)
+                    {
+                        var calismaSuresiTimeSpan = cikisSaat - girisSaat;
+                        calismaSuresi = calismaSuresiTimeSpan.ToString(@"hh\:mm");
+
+                        var vardiyaSuresi = TimeSpan.Zero;
+                        var vardiya = data.Vardiya;
+                        if (vardiya != null)
+                        {
+                            vardiyaSuresi = vardiya.CalismaBitis - vardiya.CalismaBaslangic;
+                        }
+
+                        if (vardiyaSuresi > calismaSuresiTimeSpan)
+                        {
+                            var eksikSure = vardiyaSuresi - calismaSuresiTimeSpan;
+                            eksikSureText = eksikSure.ToString(@"hh\:mm");
+                        }
+
+                        if (calismaSuresiTimeSpan > vardiyaSuresi)
+                        {
+                            var fazlaMesai = calismaSuresiTimeSpan - vardiyaSuresi;
+                            fazlaMesaiText = fazlaMesai.ToString(@"hh\:mm");
+                        }
+                    }
+                }
+
+                gfx.DrawRectangle(borderPen, new XRect(xPoint, yPoint, columnWidths[5], 20));
+                gfx.DrawString(calismaSuresi, font, XBrushes.Black, new XRect(xPoint, yPoint, columnWidths[5], 20), XStringFormats.Center);
+                xPoint += columnWidths[5];
+
+                gfx.DrawRectangle(borderPen, new XRect(xPoint, yPoint, columnWidths[6], 20));
+                gfx.DrawString(eksikSureText, font, XBrushes.Black, new XRect(xPoint, yPoint, columnWidths[6], 20), XStringFormats.Center);
+                xPoint += columnWidths[6];
+
+                gfx.DrawRectangle(borderPen, new XRect(xPoint, yPoint, columnWidths[7], 20));
+                gfx.DrawString(fazlaMesaiText, font, XBrushes.Black, new XRect(xPoint, yPoint, columnWidths[7], 20), XStringFormats.Center);
+
+                yPoint += 20;
+            }
+
+            pdfDoc.Save(stream, false);
+
+            return File(stream.ToArray(), "application/pdf", "Hareketler.pdf");
+        }
+    }
+
+    public ActionResult ExportToExcel(DateTime? StartDate, DateTime? EndDate, int? SelectedPersonelId, string FilterType)
+    {
+        // Arama değerlerini al
+        var tarihArama = Request.QueryString["tarihArama"]?.ToLower() ?? "";
+        var adiArama = Request.QueryString["adiArama"]?.ToLower() ?? "";
+        var soyadiArama = Request.QueryString["soyadiArama"]?.ToLower() ?? "";
+        var kartArama = Request.QueryString["kartArama"]?.ToLower() ?? "";
+        var departmanArama = Request.QueryString["departmanArama"]?.ToLower() ?? "";
+
+        DateTime startDate = StartDate ?? DateTime.Now.Date;
+        DateTime endDate = EndDate ?? DateTime.Now.Date;
+        endDate = endDate.AddHours(23).AddMinutes(59).AddSeconds(59).AddMilliseconds(999);
+
+        var personelListesi = GetPersonelListesi();
+        var hareketListesi = GetHareketListesi();
+        var vardiyaListesi = GetVardiyaListesi();
+        var izinListesi = GetIzinListesi();
+
+        var allDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
+                                .Select(offset => startDate.AddDays(offset))
+                                .ToList();
+
+        var filteredData = from personel in personelListesi
+                           from tarih in allDates
+                           let hareketler = hareketListesi.Where(h => h.Tarih.Date == tarih.Date && h.kartno == personel.kartno).ToList()
+                           let izin = izinListesi.FirstOrDefault(i => i.Personelıd == personel.id &&
+                                                                     i.BaslangicTarihi <= tarih &&
+                                                                     i.BitisTarihi >= tarih)
+                           let vardiya = vardiyaListesi.FirstOrDefault(v => v.VardiyaId == personel.VardiyaId)
+                           where (string.IsNullOrEmpty(adiArama) || personel.adi.ToLower().Contains(adiArama)) &&
+                                 (string.IsNullOrEmpty(soyadiArama) || personel.soyadi.ToLower().Contains(soyadiArama)) &&
+                                 (string.IsNullOrEmpty(kartArama) || personel.kartno.ToLower().Contains(kartArama)) &&
+                                 (string.IsNullOrEmpty(departmanArama) || personel.departman.ToLower().Contains(departmanArama)) &&
+                                 (string.IsNullOrEmpty(tarihArama) || tarih.ToString("yyyy-MM-dd ddd").ToLower().Contains(tarihArama))
+                           select new
+                           {
+                               Tarih = tarih,
+                               PersonelId = personel.id,
+                               Adi = personel.adi,
+                               Soyadi = personel.soyadi,
+                               KartNo = personel.kartno,
+                               Departman = personel.departman,
+                               GirişSaatleri = hareketler.Where(h => h.IslemTipi == "01")
+                             .OrderBy(h => h.Saat)
+                             .Select(h => h.Saat)
+                             .ToList(),
+                               ÇıkışSaatleri = hareketler.Where(h => h.IslemTipi == "02")
+                             .OrderByDescending(h => h.Saat)
+                             .Select(h => h.Saat)
+                             .ToList(),
+                               Bilgi = tarih.DayOfWeek == DayOfWeek.Sunday ? "HAFTA TATİLİ" :
+           izin != null ? izin.IzinTuru :
+           !hareketler.Any() ? "DEVAMSIZ" :
+           hareketler.Any(h => h.IslemTipi == "01") && hareketler.Any(h => h.IslemTipi == "02") ? "OK" :
+           hareketler.Any(h => h.IslemTipi == "01") ? "ÇIKIŞ YOK" : "GİRİŞ YOK",
+                               GirişDurumu = !hareketler.Any(h => h.IslemTipi == "01") ? "" :
+                  vardiya == null ? "" :
+                  hareketler.Where(h => h.IslemTipi == "01")
+                           .OrderBy(h => h.Saat)
+                           .Select(h => h.Saat)
+                           .FirstOrDefault() < vardiya.ErkenGelme ? "Erken" :
+                  hareketler.Where(h => h.IslemTipi == "01")
+                           .OrderBy(h => h.Saat)
+                           .Select(h => h.Saat)
+                           .FirstOrDefault() > vardiya.GecGelme ? "Geç" : "OK",
+                               Vardiya = vardiya,
+                               IsPazar = tarih.DayOfWeek == DayOfWeek.Sunday,
+                               Izin = izin
+                           };
+
+        if (!string.IsNullOrEmpty(FilterType))
+        {
+            switch (FilterType)
+            {
+                case "Erken":
+                    filteredData = filteredData.Where(d =>
+                        d.GirişSaatleri.Any() && // Giriş kaydı var mı?
+                        d.GirişDurumu == "Erken" && // Giriş durumu "Erken" mi?
+                        d.Bilgi != "DEVAMSIZ" && // Devamsız değil mi?
+                        d.Bilgi != "HAFTA TATİLİ" && // Hafta tatili değil mi?
+                        d.Izin == null // İzinli değil mi?
+                    );
+                    break;
+                case "Geç":
+                    filteredData = filteredData.Where(d =>
+                        d.GirişSaatleri.Any() &&
+                        d.GirişDurumu == "Geç" &&
+                        d.Bilgi != "DEVAMSIZ" &&
+                        d.Bilgi != "HAFTA TATİLİ" &&
+                        d.Izin == null
+                    );
+                    break;
+                case "Izinliler":
+                    filteredData = filteredData.Where(d => d.Izin != null);
+                    break;
+                case "Devamsiz":
+                    filteredData = filteredData.Where(d => d.Bilgi == "DEVAMSIZ");
+                    break;
+            }
+        }
+        using (var package = new ExcelPackage())
+        {
+            var worksheet = package.Workbook.Worksheets.Add("Hareketler");
+            // Başlıklardan önce ekleyin
+            if (!string.IsNullOrEmpty(FilterType))
+            {
+                worksheet.Cells[1, 1].Value = "Filtre:";
+                worksheet.Cells[1, 2].Value = FilterType switch
+                {
+                    "Erken" => "Erken Gelenler",
+                    "Geç" => "Geç Gelenler",
+                    "Izinliler" => "İzinliler",
+                    "Devamsiz" => "Devamsızlar",
+                    _ => FilterType
+                };
+
+                // Stil ayarları
+                worksheet.Cells[1, 1].Style.Font.Bold = true;
+                worksheet.Cells[1, 1, 1, 2].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                worksheet.Cells[1, 1, 1, 2].Style.Fill.BackgroundColor.SetColor(Color.LightBlue);
+
+            }
+            // Başlıklar
+            var headers = new[] { "Tarih", "Adı", "Soyadı", "Kart No", "Departman", "Giriş", "Çıkış",
+                            "NCS", "Eksik", "Mesai", "Bilgi" };
+            for (int i = 0; i < headers.Length; i++)
+            {
+                worksheet.Cells[1, i + 1].Value = headers[i];
+                worksheet.Cells[1, i + 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                worksheet.Cells[1, i + 1].Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                worksheet.Cells[1, i + 1].Style.Font.Bold = true;
+            }
+
+            int row = 2;
+            foreach (var data in filteredData)
+            {
+                var currentRow = worksheet.Cells[row, 1, row, 11];
+
+                // Temel bilgiler
+                worksheet.Cells[row, 1].Value = data.Tarih.ToString("yyyy-MM-dd ddd");
+                worksheet.Cells[row, 2].Value = data.Adi;
+                worksheet.Cells[row, 3].Value = data.Soyadi;
+                worksheet.Cells[row, 4].Value = data.KartNo;
+                worksheet.Cells[row, 5].Value = data.Departman;
+
+                // Giriş saatleri
+                string girisSaatleri = data.GirişSaatleri.Any() ?
+                    string.Join(", ", data.GirişSaatleri.Select(s => s.ToString(@"hh\:mm"))) : "00:00";
+                worksheet.Cells[row, 6].Value = girisSaatleri;
+                if (!string.IsNullOrEmpty(girisSaatleri))
+                {
+                    if (data.GirişDurumu == "Erken")
+                        worksheet.Cells[row, 6].Style.Font.Color.SetColor(Color.Blue);
+                    else if (data.GirişDurumu == "Geç")
+                        worksheet.Cells[row, 6].Style.Font.Color.SetColor(Color.Red);
+                }
+
+                // Çıkış saatleri
+                worksheet.Cells[row, 7].Value = data.ÇıkışSaatleri.Any() ?
+                    string.Join(", ", data.ÇıkışSaatleri.Select(s => s.ToString(@"hh\:mm"))) : "00:00";
+
+                // NCS (Normal Çalışma Süresi) hesaplama
+                TimeSpan calismaSuresi = TimeSpan.Zero;
+                if (data.GirişSaatleri.Any() && data.ÇıkışSaatleri.Any())
+                {
+                    calismaSuresi = data.ÇıkışSaatleri.First() - data.GirişSaatleri.First();
+                    worksheet.Cells[row, 8].Value = calismaSuresi.ToString(@"hh\:mm");
+                }
+                else
+                {
+                    worksheet.Cells[row, 8].Value = "00:00";
+                }
+
+                // Vardiya süresi ve eksik/fazla mesai hesaplama
+                if (data.Vardiya != null && calismaSuresi != TimeSpan.Zero)
+                {
+                    var vardiyaSuresi = data.Vardiya.CalismaBitis - data.Vardiya.CalismaBaslangic;
+
+                    // Eksik çalışma
+                    if (vardiyaSuresi > calismaSuresi)
+                    {
+                        var eksikSure = vardiyaSuresi - calismaSuresi;
+                        worksheet.Cells[row, 9].Value = eksikSure.ToString(@"hh\:mm");
+                    }
+                    else
+                    {
+                        worksheet.Cells[row, 9].Value = "00:00";
+                    }
+
+                    // Fazla mesai
+                    if (calismaSuresi > vardiyaSuresi)
+                    {
+                        var fazlaMesai = calismaSuresi - vardiyaSuresi;
+                        worksheet.Cells[row, 10].Value = fazlaMesai.ToString(@"hh\:mm");
+                    }
+                    else
+                    {
+                        worksheet.Cells[row, 10].Value = "00:00";
+                    }
+                }
+                else
+                {
+                    worksheet.Cells[row, 9].Value = "00:00";
+                    worksheet.Cells[row, 10].Value = "00:00";
+                }
+
+                // Bilgi ve satır renklendirme
+                worksheet.Cells[row, 11].Value = data.Bilgi;
+
+                // Satır arkaplan rengi
+                if (data.IsPazar)
+                {
+                    currentRow.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    currentRow.Style.Fill.BackgroundColor.SetColor(Color.LightYellow);
+                }
+                else if (data.Izin != null)
+                {
+                    currentRow.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    currentRow.Style.Fill.BackgroundColor.SetColor(Color.LightGreen);
+                }
+                else if (data.Bilgi == "DEVAMSIZ")
+                {
+                    currentRow.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    currentRow.Style.Fill.BackgroundColor.SetColor(Color.LightPink);
+                }
+
+                // Hücre kenarlıkları
+                currentRow.Style.Border.Top.Style = currentRow.Style.Border.Bottom.Style =
+                currentRow.Style.Border.Left.Style = currentRow.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+
+                row++;
+            }
+
+
+            // Sütun genişliklerini ayarla
+            worksheet.Column(1).Width = 20;  // Tarih
+            worksheet.Column(2).Width = 15;  // Ad
+            worksheet.Column(3).Width = 15;  // Soyad
+            worksheet.Column(4).Width = 15;  // Kart No
+            worksheet.Column(5).Width = 15;  // Departman
+            worksheet.Column(6).Width = 12;  // Giriş
+            worksheet.Column(7).Width = 12;  // Çıkış
+            worksheet.Column(8).Width = 10;  // NCS
+            worksheet.Column(9).Width = 10;  // Eksik
+            worksheet.Column(10).Width = 10; // Mesai
+            worksheet.Column(11).Width = 15; // Bilgi
+
+            return File(
+                package.GetAsByteArray(),
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                $"Hareketler_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx"
+            );
+        }
     }
     private Vardiya GetVardiyaById(int? vardiyaId)
     {
@@ -254,7 +718,6 @@ public class HareketController : Controller
         return View(model);
     }
 
-
     public ActionResult ExportIcmalExcel(DateTime? StartDate, DateTime? EndDate, int? SelectedPersonelId)
     {
         DateTime startDate = StartDate ?? DateTime.Now.Date;
@@ -340,178 +803,6 @@ public class HareketController : Controller
         }
     }
 
-    public ActionResult ExportToPdf(DateTime? StartDate, DateTime? EndDate, int? SelectedPersonelId)
-    {
-        // Varsayılan tarih aralığını alalım
-        DateTime startDate = StartDate ?? DateTime.Now.Date;
-        DateTime endDate = EndDate ?? DateTime.Now.Date;
-
-        // EndDate'e 23:59:59.999 ekleyelim
-        endDate = endDate.AddHours(23).AddMinutes(59).AddSeconds(59).AddMilliseconds(999);
-
-        // Tüm personel ve hareket listelerini alalım
-        var personelListesi = GetPersonelListesi();
-        var hareketListesi = GetHareketListesi();
-        var vardiyaListesi = GetVardiyaListesi(); // Vardiya listesi
-
-        // Eğer bir personel seçilmişse, hareketleri filtrele
-        if (SelectedPersonelId.HasValue)
-        {
-            hareketListesi = hareketListesi.Where(h => h.PersonelId == SelectedPersonelId.Value).ToList();
-            personelListesi = personelListesi.Where(p => p.id == SelectedPersonelId.Value).ToList();
-        }
-
-        // Seçilen tarih aralığındaki tüm günleri listeleyelim
-        var allDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
-                                 .Select(offset => startDate.AddDays(offset))
-                                 .ToList();
-
-        var hareketData = from personel in personelListesi
-                          from tarih in allDates
-                          let hareketler = hareketListesi.Where(h => h.Tarih.Date == tarih.Date && h.kartno == personel.kartno).ToList()
-                          select new
-                          {
-                              Tarih = tarih,
-                              PersonelId = personel.id,
-                              personelAdi = personel.adi,
-                              personelSoyadi = personel.soyadi,
-                              kartno = personel.kartno, // kartno alanı eklendi
-                              GirişSaatleri = hareketler.Where(h => h.IslemTipi == "01").OrderBy(h => h.Saat).Select(h => h.Saat).ToList(),
-                              ÇıkışSaatleri = hareketler.Where(h => h.IslemTipi == "02").OrderByDescending(h => h.Saat).Select(h => h.Saat).ToList(),
-                              Bilgi = !hareketler.Any() ? "DEVAMSIZ" :
-                                      hareketler.Any(h => h.IslemTipi == "01") && hareketler.Any(h => h.IslemTipi == "02") ? "OK" :
-                                      hareketler.Any(h => h.IslemTipi == "01") ? "ÇIKIŞ YOK" :
-                                      "GİRİŞ YOK",
-                              Vardiya = vardiyaListesi.FirstOrDefault(v => v.VardiyaId == personel.VardiyaId) // Vardiya bilgileri
-                          };
-
-        using (var stream = new MemoryStream())
-        {
-            var pdfDoc = new PdfDocument();
-            var page = pdfDoc.AddPage();
-            var gfx = XGraphics.FromPdfPage(page);
-            var font = new XFont("Verdana", 9);
-            var boldFont = new XFont("Verdana", 9);
-            var headerBrush = new XSolidBrush(XColors.LightGray);
-            var borderPen = new XPen(XColors.Black);
-
-            double margin = 20;
-            double yPoint = 40;
-            double tableWidth = page.Width - 2 * margin;
-
-            // Başlık
-            gfx.DrawString("Hareket Değerlendirme", boldFont, XBrushes.Black, new XRect(margin, yPoint, tableWidth, page.Height), XStringFormats.TopLeft);
-            yPoint += 30;
-
-            // Tarih aralığı
-            gfx.DrawString($"{startDate:dd-MM-yyyy} - {endDate:dd-MM-yyyy}", font, XBrushes.Black, new XRect(margin, yPoint, tableWidth, page.Height), XStringFormats.TopLeft);
-            yPoint += 40;
-
-            double[] columnWidths = { 0.15 * tableWidth, 0.1 * tableWidth, 0.1 * tableWidth, 0.13 * tableWidth, 0.13 * tableWidth, 0.15 * tableWidth, 0.14 * tableWidth, 0.12 * tableWidth };
-            string[] headers = { "Tarih", "Ad", "Soyad", "Giriş Saatleri", "Çıkış Saatleri", "Çalışma Süresi", "Eksik Çalışma", "Fazla Mesai" };
-
-            // Başlık satırı
-            for (int i = 0; i < headers.Length; i++)
-            {
-                double xPoint = i == 0 ? margin : margin + columnWidths.Take(i).Sum();
-                gfx.DrawRectangle(headerBrush, new XRect(xPoint, yPoint, columnWidths[i], 20));
-                gfx.DrawRectangle(borderPen, new XRect(xPoint, yPoint, columnWidths[i], 20));
-                gfx.DrawString(headers[i], boldFont, XBrushes.Black, new XRect(xPoint, yPoint, columnWidths[i], 20), XStringFormats.Center);
-            }
-
-            yPoint += 20;
-
-            // Veri satırları
-            foreach (var data in hareketData)
-            {
-                double xPoint = margin;
-
-                gfx.DrawRectangle(borderPen, new XRect(xPoint, yPoint, columnWidths[0], 20));
-                gfx.DrawString(data.Tarih.ToString("dd-MM-yyyy ddd"), font, XBrushes.Black, new XRect(xPoint, yPoint, columnWidths[0], 20), XStringFormats.TopLeft);
-                xPoint += columnWidths[0];
-
-                gfx.DrawRectangle(borderPen, new XRect(xPoint, yPoint, columnWidths[1], 20));
-                gfx.DrawString(data.personelAdi ?? "Bilinmiyor", font, XBrushes.Black, new XRect(xPoint, yPoint, columnWidths[1], 20), XStringFormats.Center);
-                xPoint += columnWidths[1];
-
-                gfx.DrawRectangle(borderPen, new XRect(xPoint, yPoint, columnWidths[2], 20));
-                gfx.DrawString(data.personelSoyadi ?? "Bilinmiyor", font, XBrushes.Black, new XRect(xPoint, yPoint, columnWidths[2], 20), XStringFormats.Center);
-                xPoint += columnWidths[2];
-
-                string girisSaatleri = data.GirişSaatleri.Any()
-                    ? string.Join(", ", data.GirişSaatleri)
-                    : "Giriş Yok";
-
-                gfx.DrawRectangle(borderPen, new XRect(xPoint, yPoint, columnWidths[3], 20));
-                gfx.DrawString(girisSaatleri, font, XBrushes.Black, new XRect(xPoint, yPoint, columnWidths[3], 20), XStringFormats.Center);
-                xPoint += columnWidths[3];
-
-                string cikisSaatleri = data.ÇıkışSaatleri.Any()
-                    ? string.Join(", ", data.ÇıkışSaatleri)
-                    : "Çıkış Yok";
-
-                gfx.DrawRectangle(borderPen, new XRect(xPoint, yPoint, columnWidths[4], 20));
-                gfx.DrawString(cikisSaatleri, font, XBrushes.Black, new XRect(xPoint, yPoint, columnWidths[4], 20), XStringFormats.Center);
-                xPoint += columnWidths[4];
-
-                string calismaSuresi = "Veri Eksik";
-                string eksikSureText = "00:00";
-                string fazlaMesaiText = "00:00";
-
-                if (data.Bilgi == "DEVAMSIZ")
-                {
-                    calismaSuresi = "Devamsız";
-                }
-                else if (data.GirişSaatleri.Any() && data.ÇıkışSaatleri.Any())
-                {
-                    var girisSaat = data.GirişSaatleri.First();
-                    var cikisSaat = data.ÇıkışSaatleri.First();
-
-                    if (girisSaat != null && cikisSaat != null)
-                    {
-                        var calismaSuresiTimeSpan = cikisSaat - girisSaat;
-                        calismaSuresi = calismaSuresiTimeSpan.ToString(@"hh\:mm");
-
-                        var vardiyaSuresi = TimeSpan.Zero;
-                        var vardiya = data.Vardiya;
-                        if (vardiya != null)
-                        {
-                            vardiyaSuresi = vardiya.CalismaBitis - vardiya.CalismaBaslangic;
-                        }
-
-                        if (vardiyaSuresi > calismaSuresiTimeSpan)
-                        {
-                            var eksikSure = vardiyaSuresi - calismaSuresiTimeSpan;
-                            eksikSureText = eksikSure.ToString(@"hh\:mm");
-                        }
-
-                        if (calismaSuresiTimeSpan > vardiyaSuresi)
-                        {
-                            var fazlaMesai = calismaSuresiTimeSpan - vardiyaSuresi;
-                            fazlaMesaiText = fazlaMesai.ToString(@"hh\:mm");
-                        }
-                    }
-                }
-
-                gfx.DrawRectangle(borderPen, new XRect(xPoint, yPoint, columnWidths[5], 20));
-                gfx.DrawString(calismaSuresi, font, XBrushes.Black, new XRect(xPoint, yPoint, columnWidths[5], 20), XStringFormats.Center);
-                xPoint += columnWidths[5];
-
-                gfx.DrawRectangle(borderPen, new XRect(xPoint, yPoint, columnWidths[6], 20));
-                gfx.DrawString(eksikSureText, font, XBrushes.Black, new XRect(xPoint, yPoint, columnWidths[6], 20), XStringFormats.Center);
-                xPoint += columnWidths[6];
-
-                gfx.DrawRectangle(borderPen, new XRect(xPoint, yPoint, columnWidths[7], 20));
-                gfx.DrawString(fazlaMesaiText, font, XBrushes.Black, new XRect(xPoint, yPoint, columnWidths[7], 20), XStringFormats.Center);
-
-                yPoint += 20;
-            }
-
-            pdfDoc.Save(stream, false);
-
-            return File(stream.ToArray(), "application/pdf", "Hareketler.pdf");
-        }
-    }
     public ActionResult ExportToPdf2(DateTime? StartDate, DateTime? EndDate, int? SelectedPersonelId)
     {
         DateTime startDate = StartDate ?? DateTime.Now.Date;
@@ -773,134 +1064,6 @@ public class HareketController : Controller
         return daysList;
     }
     [HttpPost]
-    public ActionResult ExportToExcel(DateTime? StartDate, DateTime? EndDate, int? SelectedPersonelId)
-    {
-        // Varsayılan tarih aralığını alalım
-        DateTime startDate = StartDate ?? DateTime.Now.Date;
-        DateTime endDate = EndDate ?? DateTime.Now.Date;
-
-        // EndDate'e 23:59:59.999 ekleyelim
-        endDate = endDate.AddHours(23).AddMinutes(59).AddSeconds(59).AddMilliseconds(999);
-
-        // Tüm personel ve hareket listelerini alalım
-        var personelListesi = GetPersonelListesi();
-        var hareketListesi = GetHareketListesi();
-        var vardiyaListesi = GetVardiyaListesi(); // Vardiya listesi
-
-        // Eğer bir personel seçilmişse, hareketleri filtrele
-        if (SelectedPersonelId.HasValue)
-        {
-            hareketListesi = hareketListesi.Where(h => h.PersonelId == SelectedPersonelId.Value).ToList();
-            personelListesi = personelListesi.Where(p => p.id == SelectedPersonelId.Value).ToList();
-        }
-
-        // Seçilen tarih aralığındaki tüm günleri listeleyelim
-        var allDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
-                                 .Select(offset => startDate.AddDays(offset))
-                                 .ToList();
-
-        var hareketData = from personel in personelListesi
-                          from tarih in allDates
-                          let hareketler = hareketListesi.Where(h => h.Tarih.Date == tarih.Date && h.kartno == personel.kartno).ToList()
-                          select new
-                          {
-                              Tarih = tarih,
-                              PersonelId = personel.id,
-                              personelAdi = personel.adi,
-                              personelSoyadi = personel.soyadi,
-                              kartno = personel.kartno,
-                              GirişSaatleri = hareketler.Where(h => h.IslemTipi == "01").OrderBy(h => h.Saat).Select(h => h.Saat).ToList(),
-                              ÇıkışSaatleri = hareketler.Where(h => h.IslemTipi == "02").OrderByDescending(h => h.Saat).Select(h => h.Saat).ToList(),
-                              Bilgi = !hareketler.Any() ? "DEVAMSIZ" :
-                                      hareketler.Any(h => h.IslemTipi == "01") && hareketler.Any(h => h.IslemTipi == "02") ? "OK" :
-                                      hareketler.Any(h => h.IslemTipi == "01") ? "ÇIKIŞ YOK" :
-                                      "GİRİŞ YOK",
-                              Vardiya = vardiyaListesi.FirstOrDefault(v => v.VardiyaId == personel.VardiyaId)
-                          };
-
-        using (var package = new ExcelPackage())
-        {
-            var worksheet = package.Workbook.Worksheets.Add("Hareketler");
-
-            // Başlıklar
-            worksheet.Cells[1, 1].Value = "Tarih";
-            worksheet.Cells[1, 2].Value = "Ad";
-            worksheet.Cells[1, 3].Value = "Soyad";
-            worksheet.Cells[1, 4].Value = "Giriş Saatleri";
-            worksheet.Cells[1, 5].Value = "Çıkış Saatleri";
-            worksheet.Cells[1, 6].Value = "Çalışma Süresi";
-            worksheet.Cells[1, 7].Value = "Eksik Çalışma";
-            worksheet.Cells[1, 8].Value = "Fazla Mesai";
-
-            int row = 2;
-            foreach (var data in hareketData)
-            {
-                worksheet.Cells[row, 1].Value = data.Tarih.ToString("dd-MM-yyyy ddd");
-                worksheet.Cells[row, 2].Value = data.personelAdi ?? "Bilinmiyor";
-                worksheet.Cells[row, 3].Value = data.personelSoyadi ?? "Bilinmiyor";
-
-                string girisSaatleri = data.GirişSaatleri.Any()
-                    ? string.Join(", ", data.GirişSaatleri)
-                    : "Giriş Yok";
-                worksheet.Cells[row, 4].Value = girisSaatleri;
-
-                string cikisSaatleri = data.ÇıkışSaatleri.Any()
-                    ? string.Join(", ", data.ÇıkışSaatleri)
-                    : "Çıkış Yok";
-                worksheet.Cells[row, 5].Value = cikisSaatleri;
-
-                string calismaSuresi = "Veri Eksik";
-                string eksikSureText = "00:00";
-                string fazlaMesaiText = "00:00";
-
-                if (data.Bilgi == "DEVAMSIZ")
-                {
-                    calismaSuresi = "Devamsız";
-                }
-                else if (data.GirişSaatleri.Any() && data.ÇıkışSaatleri.Any())
-                {
-                    var girisSaat = data.GirişSaatleri.First();
-                    var cikisSaat = data.ÇıkışSaatleri.First();
-
-                    if (girisSaat != null && cikisSaat != null)
-                    {
-                        var calismaSuresiTimeSpan = cikisSaat - girisSaat;
-                        calismaSuresi = calismaSuresiTimeSpan.ToString(@"hh\:mm");
-
-                        var vardiyaSuresi = TimeSpan.Zero;
-                        var vardiya = data.Vardiya;
-                        if (vardiya != null)
-                        {
-                            vardiyaSuresi = vardiya.CalismaBitis - vardiya.CalismaBaslangic;
-                        }
-
-                        if (vardiyaSuresi > calismaSuresiTimeSpan)
-                        {
-                            var eksikSure = vardiyaSuresi - calismaSuresiTimeSpan;
-                            eksikSureText = eksikSure.ToString(@"hh\:mm");
-                        }
-
-                        if (calismaSuresiTimeSpan > vardiyaSuresi)
-                        {
-                            var fazlaMesai = calismaSuresiTimeSpan - vardiyaSuresi;
-                            fazlaMesaiText = fazlaMesai.ToString(@"hh\:mm");
-                        }
-                    }
-                }
-
-                worksheet.Cells[row, 6].Value = calismaSuresi;
-                worksheet.Cells[row, 7].Value = eksikSureText;
-                worksheet.Cells[row, 8].Value = fazlaMesaiText;
-
-                row++;
-            }
-
-            var stream = new MemoryStream();
-            package.SaveAs(stream);
-            var content = stream.ToArray();
-            return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Hareketler.xlsx");
-        }
-    }
     public List<HareketRaporu> GetHareketRaporu()
     {
         using (var context = new YillikizinEntities()) // Veritabanı bağlamı

@@ -39,6 +39,7 @@ namespace yillikizin.Models
         public virtual DbSet<sysdiagrams> sysdiagrams { get; set; }
         public virtual DbSet<Vardiya> Vardiya { get; set; }
         public virtual DbSet<EmailSettings> EmailSettings { get; set; }
+        public virtual DbSet<PersonelTransaction> PersonelTransaction { get; set; }
     
         public virtual int sp_alterdiagram(string diagramname, Nullable<int> owner_id, Nullable<int> version, byte[] definition)
         {

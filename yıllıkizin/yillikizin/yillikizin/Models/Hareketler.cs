@@ -22,6 +22,7 @@ namespace yillikizin.Models
         public Nullable<System.TimeSpan> Saat { get; set; }
         public Nullable<int> PersonelId { get; set; }
         public string Bilgi { get; set; }
+        public string TerminalAdi { get; set; }
     
         public virtual personel personel { get; set; }
     }

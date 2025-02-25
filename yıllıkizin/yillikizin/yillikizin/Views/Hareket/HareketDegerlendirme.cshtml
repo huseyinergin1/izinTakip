@@ -9,8 +9,7 @@
 }
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 
 <form id="dateForm" method="post">
     <div class="d-flex align-items-center mb-3">
@@ -36,28 +35,29 @@
     <input type="hidden" name="EndDate" value="@ViewBag.EndDate" />
     <label>
         <input type="radio" id="Erken" name="FilterType" value="Erken"
-               onchange="this.form.submit()"
+               onchange="filterData()"
                @(ViewBag.FilterType == "Erken" ? "checked" : "") />
         <label for="Erken">Erken Gelenler</label>
     </label>
     <label>
         <input type="radio" id="Gec" name="FilterType" value="Geç"
-               onchange="this.form.submit()"
+               onchange="filterData()"
                @(ViewBag.FilterType == "Geç" ? "checked" : "") />
         <label for="Gec">Geç Gelenler</label>
     </label>
     <label>
         <input type="radio" id="Izinliler" name="FilterType" value="Izinliler"
-               onchange="this.form.submit()"
+               onchange="filterData()"
                @(ViewBag.FilterType == "Izinliler" ? "checked" : "") />
         <label for="Izinliler">İzinliler</label>
     </label>
     <label>
         <input type="radio" id="Devamsiz" name="FilterType" value="Devamsiz"
-               onchange="this.form.submit()"
+               onchange="filterData()"
                @(ViewBag.FilterType == "Devamsiz" ? "checked" : "") />
         <label for="Devamsiz">Devamsızlar</label>
     </label>
+
 </form>
 
 <table id="personelTable" class="table-bordered table-striped table-hover table">
@@ -356,40 +356,21 @@ $(document).ready(function () {
     loadIzinData(initialStartDate, initialEndDate);
 });
 
-function filterResults(filterType = "") {
-    var startDate = $("input[name='StartDate']").val();
-    var endDate = $("input[name='EndDate']").val();
 
-    $.ajax({
-        url: '@Url.Action("HareketDegerlendirme", "Hareket")',
-        type: "POST",
-        data: {
-            StartDate: startDate,
-            EndDate: endDate,
-            FilterType: filterType
-        },
-        success: function (result) {
-            $("#filteredResults").html(result);
-        },
-        error: function () {
-            alert("Bir hata oluştu, lütfen tekrar deneyin.");
-        }
-    });
-}
+    function filterData() {
+        var selectedFilter = $('input[name="FilterType"]:checked').val();
+        $('tbody tr').each(function () {
+            var girisDurumu = $(this).data('girisdurumu');
+            if (selectedFilter === "Izinliler") {
+                $(this).toggle($(this).find('.text-izin').length > 0);
+            } else if (selectedFilter === "Devamsiz") {
+                $(this).toggle($(this).find('.text-warning').length > 0);
+            } else {
+                $(this).toggle(girisDurumu === selectedFilter);
+            }
+        });
+    }
 
-$('input[name="FilterType"]').on('change', function() {
-    var selectedFilter = $(this).val();
-    $('tbody tr').each(function() {
-        var girisDurumu = $(this).data('girisdurumu');
-        if (selectedFilter === "Izinliler") {
-            $(this).toggle($(this).find('.text-izin').length > 0);
-        } else if (selectedFilter === "Devamsiz") {
-            $(this).toggle($(this).find('.text-warning').length > 0);
-        } else {
-            $(this).toggle(girisDurumu === selectedFilter);
-        }
-    });
-});
 
 document.getElementById('updateButton').addEventListener('click', function() {
     var form = document.getElementById('dateForm');
@@ -398,11 +379,29 @@ document.getElementById('updateButton').addEventListener('click', function() {
     form.submit();
 });
 
-document.getElementById('exportExcelButton').addEventListener('click', function () {
-    var form = document.getElementById('dateForm');
-    var actionUrl = '@Url.Action("ExportToExcel", "Hareket")';
-    form.action = actionUrl;
-    form.submit();
+$('#exportExcelButton').on('click', function(e) {
+    e.preventDefault();
+
+    // Arama değerlerini al
+    var tarihArama = $('th input[placeholder="Tarih ara..."]').val();
+    var adiArama = $('th input[placeholder="Adı ara..."]').val();
+    var soyadiArama = $('th input[placeholder="Soyadı ara..."]').val();
+    var kartArama = $('th input[placeholder="Kart No ara..."]').val();
+    var departmanArama = $('th input[placeholder="Departman ara..."]').val();
+
+    // URL oluştur
+    var url = '@Url.Action("ExportToExcel", "Hareket")' +
+              '?StartDate=' + $('input[name="StartDate"]').val() +
+              '&EndDate=' + $('input[name="EndDate"]').val() +
+              '&tarihArama=' + encodeURIComponent(tarihArama) +
+              '&adiArama=' + encodeURIComponent(adiArama) +
+              '&soyadiArama=' + encodeURIComponent(soyadiArama) +
+              '&kartArama=' + encodeURIComponent(kartArama) +
+              '&departmanArama=' + encodeURIComponent(departmanArama) +
+              '&FilterType=' + $('input[name="FilterType"]:checked').val();
+
+    // Yeni sayfada aç
+    window.location.href = url;
 });
 
 document.getElementById('exportButton').addEventListener('click', function() {

@@ -22,6 +22,7 @@ namespace yillikizin.Controllers
         {
             return View();
         }
+
         public ActionResult Eposta()
         {
             // Veritabanından mevcut e-posta ayarlarını al

@@ -58,6 +58,7 @@
     <Property Name="Saat" Type="time" Precision="7" />
     <Property Name="PersonelId" Type="int" />
     <Property Name="Bilgi" Type="nvarchar(max)" />
+    <Property Name="TerminalAdi" Type="nvarchar" MaxLength="50" />
   </EntityType>
   <EntityType Name="Izin">
     <Key>
@@ -110,6 +111,26 @@
     <Property Name="kullaniciGrupId" Type="int" />
     <Property Name="kullaniciGrupAdi" Type="nvarchar" MaxLength="50" />
     <Property Name="VardiyaId" Type="int" />
+    <Property Name="kan" Type="nvarchar" MaxLength="20" />
+    <Property Name="ayakkabino" Type="nvarchar" MaxLength="20" />
+    <Property Name="beden" Type="nvarchar" MaxLength="20" />
+    <Property Name="adres" Type="nvarchar" MaxLength="50" />
+    <Property Name="gsm" Type="nvarchar" MaxLength="20" />
+    <Property Name="iscikistarih" Type="date" />
+    <Property Name="calisma" Type="bit" />
+  </EntityType>
+  <EntityType Name="PersonelTransaction">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Yon" Type="nvarchar" MaxLength="50" Nullable="false" />
+    <Property Name="KartNumarasi" Type="nvarchar" MaxLength="50" Nullable="false" />
+    <Property Name="TerminalNo" Type="nvarchar" MaxLength="50" Nullable="false" />
+    <Property Name="Tarih" Type="date" Nullable="false" />
+    <Property Name="Saat" Type="time" Precision="7" Nullable="false" />
+    <Property Name="PersonelId" Type="int" Nullable="false" />
+    <Property Name="Bilgi" Type="nvarchar(max)" />
   </EntityType>
   <EntityType Name="sysdiagrams">
     <Key>
@@ -239,6 +260,7 @@
     <EntitySet Name="IzinTuru" EntityType="Self.IzinTuru" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="kullanici_grup" EntityType="Self.kullanici_grup" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="personel" EntityType="Self.personel" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="PersonelTransaction" EntityType="Self.PersonelTransaction" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="Vardiya" EntityType="Self.Vardiya" Schema="dbo" store:Type="Tables" />
     <AssociationSet Name="FK_belge_personel" Association="Self.FK_belge_personel">

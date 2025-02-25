@@ -1,132 +1,244 @@
 ﻿@model yillikizin.Models.personel
 
-<form id="editForm" method="post" action="@Url.Action("Edit", "Personel")" enctype="multipart/form-data">
-    @Html.AntiForgeryToken()
-    @Html.HiddenFor(model => model.id)
-    <div class="form-group">
-        <label>Kullanıcı Adı</label>
-        @Html.TextBoxFor(model => model.kullaniciadi, new { @class = "form-control" })
-    </div>
-    <div class="form-group">
-        <label>Şifre</label>
-        @Html.TextBoxFor(model => model.sifre, new { @class = "form-control" })
-    </div>
-    <div class="form-group">
-        <label>Adı</label>
-        @Html.TextBoxFor(model => model.adi, new { @class = "form-control" })
-    </div>
-    <div class="form-group">
-        <label>Soyadı</label>
-        @Html.TextBoxFor(model => model.soyadi, new { @class = "form-control" })
-    </div>
-    <div class="form-group">
-        <label>Doğum Tarihi</label>
-        @Html.TextBoxFor(model => model.dogumtarih, new { @class = "form-control", @type = "date", @Value = Model.dogumtarih?.ToString("yyyy-MM-dd") })
-    </div>
-    <div class="form-group">
-        <label>Kart No</label>
-        @Html.TextBoxFor(model => model.kartno, new { @class = "form-control" })
-    </div>
-    <div class="form-group">
-        <label>Sicil No</label>
-        @Html.TextBoxFor(model => model.sicilno, new { @class = "form-control" })
-    </div>
-    <div class="form-group">
-        <label>Ünvan</label>
-        @Html.TextBoxFor(model => model.unvan, new { @class = "form-control" })
-    </div>
-    <div class="form-group">
-        <label>Departman</label>
-        @Html.DropDownListFor(model => model.departmanId, ViewBag.DepartmanList as SelectList, "Departman Seçin", new { @class = "form-control", @required = "required" })
-    </div>
-    <div class="form-group">
-        <label>Vardiya</label>
-        @Html.DropDownListFor(model => model.VardiyaId, ViewBag.VardiyaList as SelectList, "Vardiya Seçin", new { @class = "form-control", @required = "required" })
-    </div>
-    <div class="form-group">
-        <label>Mevcut Fotoğraf</label>
-        <div>
-            <img id="mevcutFoto" src="@Url.Content(Model.resim)" alt="Mevcut Fotoğraf" style="max-width: 150px; max-height: 150px;" />
-        </div>
-    </div>
-    <div class="form-group">
-        <label>Yeni Fotoğraf Yükle</label>
-        <input type="file" name="resimDosya" class="form-control" id="resimDosya" />
-    </div>
-    <button type="submit" class="btn btn-primary">Kaydet</button>
-</form>
-
 <style>
-    .form-group {
+    .edit-form {
+        padding: 20px;
+        background: #fff;
+    }
+
+    .form-row {
         margin-bottom: 15px;
-        border-bottom: 3px solid #ced4da;
-    }
-
-    .form-control {
-        border: 1px solid #ced4da;
-        border-radius: 4px;
         padding: 10px;
-        transition: border-color 0.3s ease-in-out;
+        border-bottom: 1px solid #eee;
     }
 
-        .form-control:focus {
-            border-color: #80bdff;
-            outline: none;
-            box-shadow: 0 0 5px rgba(128, 189, 255, 0.5);
+        .form-row label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
         }
 
-    /* Tablo stili */
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        border: 6px solid #ced4da;
-    }
-
-        table th, table td {
-            border: 1px solid #dee2e6;
+        .form-row input[type="text"],
+        .form-row input[type="date"],
+        .form-row input[type="tel"],
+        .form-row textarea,
+        .form-row select {
+            width: 100%;
             padding: 8px;
-            text-align: left;
-            border: 6px solid #ced4da;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
 
-        table th {
-            background-color: #f8f9fa;
-        }
-
-        table tr:hover {
-            background-color: #f1f1f1;
-        }
-
-    /* Profil resmi stili */
-    .profile-image {
-        border-radius: 50%;
-        object-fit: cover;
+    .radio-group {
+        display: flex;
+        gap: 20px;
+        margin-top: 5px;
     }
 
-    /* İşlem butonları stili */
-    .action-buttons {
+    .radio-item {
         display: flex;
+        align-items: center;
         gap: 5px;
     }
 
-        .action-buttons .btn {
-            margin: 0;
+    .photo-preview {
+        max-width: 150px;
+        margin-top: 10px;
+        border: 1px solid #ddd;
+        padding: 5px;
+    }
+
+    .save-button {
+        background: #007bff;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 20px;
+    }
+
+        .save-button:hover {
+            background: #0056b3;
         }
 </style>
 
+<form id="editForm" method="post" action="@Url.Action("Edit", "Personel")" enctype="multipart/form-data" class="edit-form">
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.id)
+
+    <div class="form-row">
+        <label>Fotoğraf</label>
+        <div class="photo-preview">
+            <img id="mevcutFoto" src="@Url.Content(Model.resim ?? "~/images/default.png")" style="max-width: 100%" />
+        </div>
+        <input type="file" name="resimDosya" id="resimDosya" accept="image/*" />
+    </div>
+
+    <div class="form-row">
+        <div style="display: flex; gap: 10px;">
+            <div style="flex: 1;">
+                <label>Kullanıcı Adı</label>
+                @Html.TextBoxFor(model => model.kullaniciadi)
+            </div>
+            <div style="flex: 1;">
+                <label>Şifre</label>
+                @Html.TextBoxFor(model => model.sifre)
+            </div>
+        </div>
+    </div>
+    <div class="form-row">
+        <div style="display: flex; gap: 10px;">
+            <div style="flex: 1;">
+                <label>Ad</label>
+                @Html.TextBoxFor(model => model.adi)
+            </div>
+            <div style="flex: 1;">
+                <label>Soyad</label>
+                @Html.TextBoxFor(model => model.soyadi)
+            </div>
+        </div>
+    </div>
+
+
+    <div class="form-row">
+        <label>İletişim Bilgileri</label>
+        <div class="form-row">
+            <div style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label>Telefon</label>
+                    @Html.TextBoxFor(model => model.gsm, new { placeholder = "Telefon", type = "tel", maxlength = "10" })
+                </div>
+                <div style="flex: 1;">
+                    <label>Adres</label>
+                    @Html.TextAreaFor(model => model.adres, new { placeholder = "Adres", rows = "3" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <label>Tarih Bilgileri</label>
+
+        <div class="form-row">
+            <div style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label>Doğum Tarihi</label>
+                    @Html.TextBoxFor(model => model.dogumtarih, new { @class = "form-control", @type = "date", @Value = Model.dogumtarih?.ToString("yyyy-MM-dd") })
+                </div>
+                <div style="flex: 1;">
+                    <label>İşe Giriş Tarihi</label>
+                    @Html.TextBoxFor(model => model.isegiristarih, new { @class = "form-control", @type = "date", @Value = Model.isegiristarih?.ToString("yyyy-MM-dd") })
+                </div>
+                <div style="flex: 1;">
+                    <label>İşten Çıkış Tarihi</label>
+
+                    @Html.TextBoxFor(model => model.iscikistarih, new
+                    {
+                        @class = "form-control",
+                        @type = "date",
+                        @Value = Model.iscikistarih?.ToString("yyyy-MM-dd"),
+                        @id = "iscikistarih",
+                        @disabled = "disabled"
+                    })
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    @Html.RadioButtonFor(model => model.calisma, true, new
+                    {
+                        id = "calisiyor",
+                        @checked = "checked",
+                        onchange = "toggleIscikisTarih()"
+                    })
+                    <label for="calisiyor">Çalışıyor</label>
+
+                    @Html.RadioButtonFor(model => model.calisma, false, new
+                    {
+                        id = "calismiyor",
+                        onchange = "toggleIscikisTarih()"
+                    })
+                    <label for="calismiyor">Çalışmıyor</label>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+
+    <div class="form-row">
+        <label>Kişisel Bilgiler</label>
+        <div class="form-row">
+            <div style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label>Kart Numarası</label>
+                    @Html.TextBoxFor(model => model.kartno, new { placeholder = "Kart No" })
+                </div>
+                <div style="flex: 1;">
+                    <label>Sicil Numarası</label>
+                    @Html.TextBoxFor(model => model.sicilno, new { placeholder = "Sicil No" })
+                </div>
+                <div style="flex: 1;">
+                    <label>Kan Grubu</label>
+                    @Html.TextBoxFor(model => model.kan, new { placeholder = "Kan Grubu" })
+                </div>
+                <div style="flex: 1;">
+                    <label>Beden</label>
+                    @Html.TextBoxFor(model => model.beden, new { placeholder = "Beden" })
+                </div>
+                <div style="flex: 1;">
+                    <label>Ayakkabı Numarası</label>
+                    @Html.TextBoxFor(model => model.ayakkabino, new { placeholder = "Ayakkabı No" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <label>Departman Bilgileri</label>
+        <div class="form-row">
+            <div style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label>Ünvan</label>
+                    @Html.TextBoxFor(model => model.unvan, new { placeholder = "Ünvan" })
+                </div>
+                <div style="flex: 1;">
+                    <label>Departman</label>
+                    @Html.DropDownListFor(model => model.departmanId, ViewBag.DepartmanList as SelectList, "Departman Seçin")
+                </div>
+                <div style="flex: 1;">
+                    <label>Vardiya</label>
+                    @Html.DropDownListFor(model => model.VardiyaId, ViewBag.VardiyaList as SelectList, "Vardiya Seçin")
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <button type="submit" class="save-button">Kaydet</button>
+</form>
+
 <script>
-    document.getElementById('resimDosya').addEventListener('change', function (event) {
-        var input = event.target;
-
-        if (input.files && input.files[0]) {
+    // Fotoğraf önizleme için mevcut kod
+    document.getElementById('resimDosya').addEventListener('change', function (e) {
+        if (e.target.files && e.target.files[0]) {
             var reader = new FileReader();
-
             reader.onload = function (e) {
-                var mevcutFoto = document.getElementById('mevcutFoto');
-                mevcutFoto.src = e.target.result;
-            };
-
-            reader.readAsDataURL(input.files[0]);
+                document.getElementById('mevcutFoto').src = e.target.result;
+            }
+            reader.readAsDataURL(e.target.files[0]);
         }
+    });
+    function toggleIscikisTarih() {
+        var isCalisiyor = document.getElementById("calisiyor").checked;
+        var iscikisTarih = document.getElementById("iscikistarih");
+
+        iscikisTarih.disabled = isCalisiyor; // Çalışıyorsa devre dışı, çalışmıyorsa aktif
+        if (isCalisiyor) {
+            iscikisTarih.value = ""; // Çalışıyorsa çıkış tarihini sıfırla
+        }
+    }
+    // Sayfa yüklendiğinde mevcut değere göre kontrol et
+    document.addEventListener("DOMContentLoaded", function () {
+        toggleIscikisTarih();
     });
 </script>

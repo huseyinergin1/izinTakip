@@ -109,7 +109,18 @@ namespace yillikizin.Controllers
                     {
                         return HttpNotFound();
                     }
+                    // Çalışma durumu güncelleme - bu kısmı ekleyin
+                    existingPersonel.calisma = personel.calisma;
 
+                    // Çalışma durumuna göre işten çıkış tarihini güncelle - bu kısmı ekleyin
+                    if (!personel.calisma) // Eğer çalışmıyorsa
+                    {
+                        existingPersonel.iscikistarih = personel.iscikistarih;
+                    }
+                    else // Eğer çalışıyorsa
+                    {
+                        existingPersonel.iscikistarih = null; // Çıkış tarihini temizle
+                    }
                     // Personel bilgilerini güncelle
                     existingPersonel.kullaniciadi = personel.kullaniciadi;
                     existingPersonel.sifre = personel.sifre;
@@ -118,6 +129,13 @@ namespace yillikizin.Controllers
                     existingPersonel.dogumtarih = personel.dogumtarih;
                     existingPersonel.kartno = personel.kartno;
                     existingPersonel.sicilno = personel.sicilno;
+                    existingPersonel.kan = personel.kan;
+                    existingPersonel.ayakkabino = personel.ayakkabino;
+                    existingPersonel.adres = personel.adres;
+                    existingPersonel.gsm = personel.gsm;
+                    existingPersonel.beden = personel.beden;
+                    existingPersonel.iscikistarih = personel.iscikistarih;
+                    existingPersonel.isegiristarih = personel.isegiristarih;
                     existingPersonel.unvan = personel.unvan;
                     existingPersonel.departmanId = personel.departmanId;
                     existingPersonel.VardiyaId = personel.VardiyaId;
@@ -170,6 +188,7 @@ namespace yillikizin.Controllers
                             ModelState.AddModelError("", "Dosya yükleme sırasında bir hata oluştu: " + ex.Message);
                             return View(existingPersonel);
                         }
+
                     }
                     db.SaveChanges();
 

@@ -244,6 +244,8 @@ C:\Users\huseyin\Desktop\kişisel\yıllıkizin\yillikizin\yillikizin\obj\Debug\y
 C:\Users\huseyin\Desktop\kişisel\yıllıkizin\yillikizin\yillikizin\obj\Debug\yillikizin.csproj.Up2Date
 C:\Users\huseyin\Desktop\kişisel\yıllıkizin\yillikizin\yillikizin\obj\Debug\yillikizin.dll
 C:\Users\huseyin\Desktop\kişisel\yıllıkizin\yillikizin\yillikizin\obj\Debug\yillikizin.pdb
+C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\obj\Debug\yillikizin.csproj.AssemblyReference.cache
+C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\obj\Debug\yillikizin.csproj.CoreCompileInputs.cache
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\yillikizin.dll.config
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\yillikizin.dll
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\yillikizin.pdb
@@ -335,6 +337,7 @@ C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\MigraDoc
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\MigraDoc.RtfRendering.dll
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\MimeKit.dll
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\Moq.dll
+C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\Newtonsoft.Json.Bson.dll
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\Newtonsoft.Json.dll
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\Owin.dll
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\PdfSharp.Charting.dll
@@ -356,6 +359,7 @@ C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\System.D
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\System.Formats.Asn1.dll
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\System.IO.Packaging.dll
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\System.Memory.dll
+C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\System.Net.Http.Formatting.dll
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\System.Numerics.Vectors.dll
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\System.Reflection.TypeExtensions.dll
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\System.Runtime.CompilerServices.Unsafe.dll
@@ -363,6 +367,7 @@ C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\System.T
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\System.Threading.Tasks.Extensions.dll
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\System.ValueTuple.dll
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\System.Web.Helpers.dll
+C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\System.Web.Http.dll
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\System.Web.Mvc.dll
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\System.Web.Optimization.dll
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\System.Web.Razor.dll
@@ -418,6 +423,8 @@ C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\MigraDoc
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\MimeKit.pdb
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\MimeKit.xml
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\Newtonsoft.Json.xml
+C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\Newtonsoft.Json.Bson.pdb
+C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\Newtonsoft.Json.Bson.xml
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\PdfSharp.pdb
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\PdfSharp.xml
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\PdfSharp.Charting.pdb
@@ -441,11 +448,13 @@ C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\System.D
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\System.Formats.Asn1.xml
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\System.IO.Packaging.xml
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\System.Memory.xml
+C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\System.Net.Http.Formatting.xml
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\System.Numerics.Vectors.xml
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\System.Runtime.CompilerServices.Unsafe.xml
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\System.Threading.Tasks.Extensions.xml
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\System.ValueTuple.xml
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\System.Web.Helpers.xml
+C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\System.Web.Http.xml
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\System.Web.Mvc.xml
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\System.Web.Optimization.xml
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\System.Web.Razor.xml
@@ -468,8 +477,6 @@ C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\tr\Syste
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\tr\System.Web.WebPages.resources.dll
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\tr\System.Web.WebPages.Deployment.resources.dll
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\bin\tr\System.Web.WebPages.Razor.resources.dll
-C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\obj\Debug\yillikizin.csproj.AssemblyReference.cache
-C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\obj\Debug\yillikizin.csproj.CoreCompileInputs.cache
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\obj\Debug\yillikizin.csproj.Up2Date
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\obj\Debug\yillikizin.dll
 C:\Users\huseyin\Desktop\kisisel\yıllıkizin\yillikizin\yillikizin\obj\Debug\yillikizin.pdb
