@@ -22,7 +22,7 @@
             <div class="alert alert-danger">
                 @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
                 {
-                    <p  stlye="color:white">@error.ErrorMessage</p>
+                    <p  style="color:gray">@error.ErrorMessage</p>
                 }
             </div> 
         }

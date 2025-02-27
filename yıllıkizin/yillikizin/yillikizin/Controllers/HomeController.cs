@@ -11,7 +11,7 @@ using System.Data.Entity;
 
 namespace yillikizin.Controllers
 {
-    [CustomAuthorize]
+    [OzelYetki]
     public class HomeController : Controller
     {
         YillikizinEntities db = new YillikizinEntities();
@@ -110,14 +110,16 @@ namespace yillikizin.Controllers
         {
             var devamsizPersonel = new List<personel>();
 
-            // Veritabanındaki hareketleri al
+            // Bugünkü hareketleri al
             var hareketler = db.Hareketler
                 .Where(h => h.Tarih == today)
                 .Select(h => h.KartNumarasi)
                 .ToList();
 
-            // Bugün hareketi olmayan personelleri al
-            var tumPersoneller = db.personel.ToList();
+            // Sadece çalışma durumu 'true' olan personelleri getir
+            var tumPersoneller = db.personel
+                .Where(p => p.calisma == true) // Çalışanları filtrele
+                .ToList();
 
             foreach (var personel in tumPersoneller)
             {
@@ -225,7 +227,7 @@ namespace yillikizin.Controllers
                 ViewBag.KullaniciGrupList = new SelectList(kullaniciGruplari, "kullaniciGrupId", "grupAdi");
                 
                 var vardiyalar = db.Vardiya.ToList();
-                ViewBag.VardiyaList = new SelectList(db.Vardiya, "vardiyaId", "vardiyaAdi");
+                ViewBag.VardiyaList = new SelectList(db.Vardiya, "vardiyaId", "Ad");
                 return View(Personel);
             }
 

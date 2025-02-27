@@ -8,10 +8,11 @@ using yillikizin.Models;
 
 namespace yillikizin.Controllers
 {
+    [OzelYetki]
     public class CihazController : Controller
     {
         private YillikizinEntities db = new YillikizinEntities();
-
+        
         public ActionResult Index()
         {
             var cihazlar = db.Cihazlar.ToList();

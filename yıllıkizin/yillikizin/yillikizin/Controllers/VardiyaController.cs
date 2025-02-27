@@ -5,6 +5,7 @@ using yillikizin.Models;
 
 namespace yillikizin.Controllers
 {
+    [OzelYetki]
     public class VardiyaController : Controller
     {
         private readonly YillikizinEntities _context;

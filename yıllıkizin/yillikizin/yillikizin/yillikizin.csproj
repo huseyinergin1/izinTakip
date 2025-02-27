@@ -525,6 +525,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Model.edmx</DependentUpon>
     </Compile>
+    <Compile Include="Models\OzelYetkiAttribute.cs" />
     <Compile Include="Models\personel.cs">
       <DependentUpon>Model.tt</DependentUpon>
     </Compile>
@@ -4269,6 +4270,7 @@
     <Content Include="Views\Email\HareketDegerlendirmeReport.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Email\Eposta.cshtml" />
+    <Content Include="Views\Shared\YetkiHatasi.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

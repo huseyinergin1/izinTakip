@@ -7,9 +7,11 @@ using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Web.Mvc;
+using yillikizin.Controllers;
 using yillikizin.Filters;
 using yillikizin.Models;
-[CustomAuthorize]
+
+[OzelYetki]
 public class IzinController : Controller
 {
     private YillikizinEntities db = new YillikizinEntities(); // Veritabanı bağlantısı

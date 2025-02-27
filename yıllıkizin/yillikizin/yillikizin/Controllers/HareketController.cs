@@ -12,9 +12,10 @@ using OfficeOpenXml;
 using yillikizin.Filters;
 using System.Drawing;
 using OfficeOpenXml.Style;
+using yillikizin.Controllers;
 
 
-[CustomAuthorize]
+[OzelYetki]
 public class HareketController : Controller
 {
     private YillikizinEntities db = new YillikizinEntities();
@@ -36,6 +37,7 @@ public class HareketController : Controller
         // VardiyaListesi'ni veritabanından alın
         return db.Vardiya.ToList();
     }
+    [OzelYetki]
     public ActionResult HareketDegerlendirme(DateTime? StartDate, DateTime? EndDate, int? SelectedPersonelId, string FilterType)
     {
         // VardiyaListesi'ni al
@@ -45,9 +47,12 @@ public class HareketController : Controller
         DateTime endDate = EndDate ?? DateTime.Now.Date;
         endDate = endDate.AddHours(23).AddMinutes(59).AddSeconds(59).AddMilliseconds(999);
 
+        // Sadece çalışma durumu true olan personelleri al
+        var aktifPersoneller = GetPersonelListesi().Where(p => p.calisma == true).ToList();
+
         var model = new HareketViewModel
         {
-            PersonelListesi = GetPersonelListesi(),
+            PersonelListesi = aktifPersoneller,
             HareketListesi = GetHareketListesi(),
             IzinListesi = GetIzinListesi(),
             VardiyaListesi = vardiyaListesi,
@@ -56,12 +61,17 @@ public class HareketController : Controller
             EndDate = endDate
         };
 
-        // Apply date filter first
+        // Tarih filtresi uygula
         model.HareketListesi = model.HareketListesi
             .Where(h => h.Tarih >= startDate && h.Tarih <= endDate)
             .ToList();
 
-        // Apply personel filter if necessary
+        // Sadece aktif personellerin hareketlerini filtrele
+        model.HareketListesi = model.HareketListesi
+            .Where(h => aktifPersoneller.Any(p => p.kartno == h.kartno))
+            .ToList();
+
+        // Personel filtresi uygula
         if (SelectedPersonelId.HasValue)
         {
             model.HareketListesi = model.HareketListesi
@@ -69,7 +79,7 @@ public class HareketController : Controller
                 .ToList();
         }
 
-        // Group and process the hareket list
+        // Hareketleri grupla ve işle
         model.HareketListesi = model.HareketListesi
             .GroupBy(h => new { h.Tarih, h.kartno })
             .Select(g =>
@@ -91,38 +101,85 @@ public class HareketController : Controller
                     Bilgi = !g.Any() ? "DEVAMSIZ" :
                             g.Any(h => h.IslemTipi == "01") && g.Any(h => h.IslemTipi == "02") ? "OK" :
                             g.Any(h => h.IslemTipi == "01") ? "ÇIKIŞ YOK" :
-                            "GİRİŞ YOK",
-                    GirişDurumu = ""
+                            "GİRİŞ YOK"
                 };
 
-                var personel = model.PersonelListesi.FirstOrDefault(p => p.kartno == hareket.kartno);
+                var personel = aktifPersoneller.FirstOrDefault(p => p.kartno == hareket.kartno);
                 if (personel != null)
                 {
                     hareket.PersonelId = personel.id;
                     var vardiya = GetVardiyaById(personel.VardiyaId);
                     if (vardiya != null)
                     {
-                        TimeSpan erkenGelmeSaati = vardiya.ErkenGelme;
-                        TimeSpan gecGelmeSaati = vardiya.GecGelme;
                         var girisSaati = hareket.GirişSaatleri.FirstOrDefault();
+                        var cikisSaati = hareket.ÇıkışSaatleri?.FirstOrDefault();
+
+                        // Giriş durumu kontrolü
                         if (girisSaati != null && girisSaati.Hours > 0)
                         {
-                            if (girisSaati < erkenGelmeSaati)
+                            if (hareket.Bilgi == "DEVAMSIZ")
+                            {
+                                hareket.GirişDurumu = "DEVAMSIZ";
+                            }
+                            else if (girisSaati < vardiya.ErkenGelme)
                             {
                                 hareket.GirişDurumu = "Erken";
                             }
-                            else if (girisSaati > gecGelmeSaati)
+                            else if (girisSaati > vardiya.GecGelme)
                             {
                                 hareket.GirişDurumu = "Geç";
-                            }
-                            else if (hareket.Bilgi == "DEVAMSIZ")
-                            {
-                                hareket.GirişDurumu = "DEVAMSIZ";
                             }
                             else
                             {
                                 hareket.GirişDurumu = "OK";
                             }
+                        }
+
+                        // Çıkış durumu kontrolü
+                        if (cikisSaati != null)
+                        {
+                            if (cikisSaati < vardiya.ErkenCikma)
+                            {
+                                hareket.ÇıkışDurumu = "ErkenÇıkma";
+                            }
+                            else
+                            {
+                                hareket.ÇıkışDurumu = "Normal";
+                            }
+                        }
+
+                        // Çalışma süresi ve fazla mesai hesaplama
+                        if (girisSaati != null && cikisSaati != null)
+                        {
+                            var vardiyaBaslangic = vardiya.CalismaBaslangic;
+                            var vardiyaBitis = vardiya.CalismaBitis;
+
+                            // Normal çalışma süresi hesaplama
+                            TimeSpan girisSaatiValue = (TimeSpan)girisSaati;
+                            TimeSpan cikisSaatiValue = (TimeSpan)cikisSaati;
+
+                            // Başlangıç saatini vardiya başlangıcından erken ise vardiya başlangıcı olarak al
+                            var baslangicSaati = girisSaatiValue < vardiyaBaslangic ? vardiyaBaslangic : girisSaatiValue;
+                            hareket.CalismaSuresi = cikisSaatiValue - baslangicSaati;
+
+                            // Fazla mesai hesaplama
+                            TimeSpan fazlaMesai = TimeSpan.Zero;
+                            TimeSpan MCS = TimeSpan.Zero;
+
+                            MCS = vardiyaBaslangic - vardiyaBitis;
+                            // Vardiya sonrası fazla mesai (sadece vardiya bitişinden sonraki süreyi hesapla)
+                            if (cikisSaatiValue > vardiyaBitis)
+                            {
+                                fazlaMesai = cikisSaatiValue - vardiyaBitis;
+                            }
+
+                            hareket.FazlaMesai = fazlaMesai;
+                            hareket.MCS = MCS;
+                            // Eksik süre hesaplama
+                            var vardiyaSuresi = vardiyaBitis - vardiyaBaslangic;
+                            var normalCalismaSuresi = hareket.CalismaSuresi - fazlaMesai;
+                            hareket.EksikSure = normalCalismaSuresi < vardiyaSuresi ?
+                                vardiyaSuresi - normalCalismaSuresi : TimeSpan.Zero;
                         }
                     }
                 }
@@ -131,9 +188,9 @@ public class HareketController : Controller
             })
             .ToList();
 
-
         ViewBag.StartDate = startDate.ToString("yyyy-MM-dd");
         ViewBag.EndDate = endDate.ToString("yyyy-MM-dd");
+        ViewBag.FilterType = FilterType; // Filtreleme için ViewBag'e eklendi
 
         return View(model);
     }
@@ -147,8 +204,7 @@ public class HareketController : Controller
         endDate = endDate.AddHours(23).AddMinutes(59).AddSeconds(59).AddMilliseconds(999);
 
         // Tüm personel ve hareket listelerini alalım
-        var personelListesi = GetPersonelListesi();
-        var hareketListesi = GetHareketListesi();
+        var personelListesi = GetPersonelListesi().Where(p => p.calisma == true).ToList(); var hareketListesi = GetHareketListesi();
         var vardiyaListesi = GetVardiyaListesi(); // Vardiya listesi
 
         // Seçilen tarih aralığındaki tüm günleri listeleyelim
@@ -175,6 +231,11 @@ public class HareketController : Controller
                 case "Erken":
                     hareketListesi = hareketListesi
                         .Where(h => h.GirişDurumu == "Erken")
+                        .ToList();
+                    break;
+                case "ErkenCikma":
+                    hareketListesi = hareketListesi
+                        .Where(h => h.ÇıkışDurumu == "ErkenCikma")
                         .ToList();
                     break;
                 case "Geç":
@@ -379,8 +440,7 @@ public class HareketController : Controller
         DateTime endDate = EndDate ?? DateTime.Now.Date;
         endDate = endDate.AddHours(23).AddMinutes(59).AddSeconds(59).AddMilliseconds(999);
 
-        var personelListesi = GetPersonelListesi();
-        var hareketListesi = GetHareketListesi();
+        var personelListesi = GetPersonelListesi().Where(p => p.calisma == true).ToList(); var hareketListesi = GetHareketListesi();
         var vardiyaListesi = GetVardiyaListesi();
         var izinListesi = GetIzinListesi();
 
@@ -527,6 +587,15 @@ public class HareketController : Controller
                 worksheet.Cells[row, 7].Value = data.ÇıkışSaatleri.Any() ?
                     string.Join(", ", data.ÇıkışSaatleri.Select(s => s.ToString(@"hh\:mm"))) : "00:00";
 
+                // Geç çıkışları kırmızıya boyama
+                if (data.ÇıkışSaatleri.Any() && data.Vardiya != null)
+                {
+                    var enSonCikis = data.ÇıkışSaatleri.First();
+                    if (enSonCikis > data.Vardiya.GecCikma)
+                    {
+                        worksheet.Cells[row, 7].Style.Font.Color.SetColor(Color.Red);
+                    }
+                }
                 // NCS (Normal Çalışma Süresi) hesaplama
                 TimeSpan calismaSuresi = TimeSpan.Zero;
                 if (data.GirişSaatleri.Any() && data.ÇıkışSaatleri.Any())
@@ -1341,6 +1410,18 @@ public class HareketController : Controller
     {
         try
         {
+            // Eğer tarih ve saat boşsa, mevcut tarih ve saat kullanılsın
+            if (string.IsNullOrEmpty(tarih))
+            {
+                tarih = DateTime.Now.ToString("yyyy-MM-dd");
+            }
+
+            if (string.IsNullOrEmpty(saat))
+            {
+                saat = DateTime.Now.ToString("HH:mm");
+            }
+
+            // Gelen tarih ve saat verisini HH:mm formatında olduğundan emin ol
             if (!DateTime.TryParseExact(tarih + " " + saat, "yyyy-MM-dd HH:mm", null, DateTimeStyles.None, out DateTime hareketTarihi))
             {
                 return Json(new { success = false, message = "Tarih veya saat formatı geçersiz." });
@@ -1356,10 +1437,10 @@ public class HareketController : Controller
 
                 var yeniHareket = new Hareketler
                 {
-                    KartNumarasi = personel.kartno, // Personelden kart numarasını al
-                    TerminalNo = terminalNo ?? "001",
+                    KartNumarasi = personel.kartno,
+                    TerminalNo = terminalNo ?? "001",  // Varsayılan terminal numarası "001"
                     Tarih = hareketTarihi.Date,
-                    Saat = hareketTarihi.TimeOfDay,
+                    Saat = hareketTarihi.TimeOfDay,  // TimeSpan olarak saat bilgisi
                     Yon = yon
                 };
 
@@ -1374,7 +1455,6 @@ public class HareketController : Controller
             return Json(new { success = false, message = "Hata oluştu: " + ex.Message });
         }
     }
-    // Hareket güncelleme metodu
     [HttpPost]
     public ActionResult UpdateHareket(int id, string kartNo, string tarih, string saat, string yon, bool yonDegistir)
     {

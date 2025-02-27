@@ -284,8 +284,7 @@ $(document).ready(function () {
       }
   });
 
-// Modal açıldığında
-    // Modal açıldığında
+    // Modal açıldığında çalışacak kod
     $('#yeniHareketModal').on('show.bs.modal', function () {
         var selectedRow = $('.table-active');
         if (selectedRow.length === 0) {
@@ -296,25 +295,27 @@ $(document).ready(function () {
         // Personel bilgilerini al
         var personelAdi = selectedRow.find('td').eq(1).text().trim();
         var personelSoyadi = selectedRow.find('td').eq(2).text().trim();
-
-        // Personel bilgilerini göster
         $('#selectedPersonelInfo').text(personelAdi + ' ' + personelSoyadi);
 
-        // Bugünün tarihini set et
-        var today = new Date().toISOString().split('T')[0];
-        $('#tarih').val(today);
-
-        // Şimdiki saati set et
+        // Türkiye saati için offset ayarla (UTC+3)
         var now = new Date();
-        var hours = String(now.getHours()).padStart(2, '0');
-        var minutes = String(now.getMinutes()).padStart(2, '0');
+        var localDate = new Date(now.getTime() + (3 * 60 * 60 * 1000));
+
+        // Tarihi YYYY-MM-DD formatında ayarla
+        var year = localDate.getFullYear();
+        var month = String(localDate.getMonth() + 1).padStart(2, '0');
+        var day = String(localDate.getDate()).padStart(2, '0');
+        var formattedDate = `${year}-${month}-${day}`;
+        $('#tarih').val(formattedDate);
+
+        // Saati HH:mm formatında ayarla
+        var hours = String(localDate.getHours()).padStart(2, '0');
+        var minutes = String(localDate.getMinutes()).padStart(2, '0');
         $('#saat').val(`${hours}:${minutes}`);
 
-        // Eğer hiçbir yön seçili değilse varsayılan olarak giriş seç
-        if (!$('input[name="yon"]:checked').length) {
-            $('input[name="yon"][value="01"]').prop('checked', true).parent().addClass('active');
-            $('input[name="yon"][value="02"]').prop('checked', false).parent().removeClass('active');
-        }
+        // Varsayılan olarak giriş seç
+        $('input[name="yon"]').prop('checked', false).parent().removeClass('active');
+        $('input[name="yon"][value="01"]').prop('checked', true).parent().addClass('active');
     });
 
     // Yön seçimi değiştiğinde
@@ -335,7 +336,7 @@ $('input[name="yon"]').change(function() {
     $(this).parent().addClass('active');
 });
 
-// Hareket kaydetme
+// Kaydet butonuna tıklandığında
 $('#btnHareketKaydet').click(function () {
     $('#popupMessage').hide().removeClass('alert-success alert-danger').text('');
 
@@ -346,49 +347,60 @@ $('#btnHareketKaydet').click(function () {
     }
 
     var personelId = selectedRow.data('personel-id');
-    var tarih = $('#tarih').val();
-    var saat = $('#saat').val();
+    var tarih = $('#tarih').val(); // YYYY-MM-DD formatında
+    var saat = $('#saat').val(); // HH:mm formatında
     var yon = $('input[name="yon"]:checked').val();
-    var terminalNo = '001';
 
-    console.log('Seçilen yön:', yon); // Debug için
-
+    // Form validasyonu
     if (!tarih || !saat || !yon) {
         $('#popupMessage').addClass('alert-danger').text('Lütfen tüm alanları doldurun.').show();
         return;
     }
 
+    // Saati HH:mm formatına çevir
+    saat = saat.substring(0, 5);
+
+    // Debug için konsola yazdır
+    console.log('Gönderilen değerler:', {
+        personelId: personelId,
+        tarih: tarih,
+        saat: saat,
+        yon: yon
+    });
+
     $.ajax({
         type: 'POST',
-        url: '@Url.Action("YeniHareketEkle", "Hareket")',
+        url: '/Hareket/YeniHareketEkle', // URL'yi tam yol olarak belirt
         data: {
             personelId: personelId,
-            terminalNo: terminalNo,
+            terminalNo: '001',
             tarih: tarih,
             saat: saat,
-            yon: yon // "01" veya "02" olarak gönderilecek
+            yon: yon
         },
         success: function (response) {
             if (response.success) {
                 $('#popupMessage').addClass('alert-success').text('Hareket başarıyla eklendi.').show();
-                $('#yeniHareketModal').modal('hide');
-
-                // Hareket listesini güncelle
-                getHareketler(personelId);
+                setTimeout(function() {
+                    $('#yeniHareketModal').modal('hide');
+                    // Sayfayı yenile veya listeyi güncelle
+                    window.location.reload();
+                }, 1500);
             } else {
                 $('#popupMessage').addClass('alert-danger').text(response.message || 'Bir hata oluştu.').show();
             }
         },
         error: function (xhr, status, error) {
-            var errorMessage = 'Hata Oluştu: ';
-            if (xhr.responseJSON && xhr.responseJSON.message) {
-                errorMessage += xhr.responseJSON.message;
-            } else {
-                errorMessage += error;
-            }
+            var errorMessage = xhr.responseJSON ? xhr.responseJSON.message : 'Bir hata oluştu: ' + error;
             $('#popupMessage').addClass('alert-danger').text(errorMessage).show();
         }
     });
+});
+
+// Modal kapandığında formu resetle
+$('#yeniHareketModal').on('hidden.bs.modal', function () {
+    $('#yeniHareketForm')[0].reset();
+    $('#popupMessage').hide().removeClass('alert-success alert-danger').text('');
 });
 
     // Toplu İşlem Kaydetme
@@ -509,9 +521,7 @@ function filterHareketler(baslangicTarihi, bitisTarihi) {
         success: function (data) {
             $('#hareketListesi').html(data);
         },
-        error: function () {
-            showMessage('Hareketler yüklenirken bir hata oluştu.', 'danger');
-        }
+
     });
 }
 

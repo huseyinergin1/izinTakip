@@ -11,7 +11,7 @@ using DocumentFormat.OpenXml.EMMA;
 
 namespace yillikizin.Controllers
 {
-    [CustomAuthorize]
+    [OzelYetki]
     public class PersonelController : Controller
     {
         private readonly YillikizinEntities db = new YillikizinEntities(); // Veritabanı bağlantısı

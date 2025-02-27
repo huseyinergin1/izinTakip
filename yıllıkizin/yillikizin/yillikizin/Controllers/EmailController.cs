@@ -14,7 +14,7 @@ using DocumentFormat.OpenXml.Drawing;
 
 namespace yillikizin.Controllers
 {
-    [CustomAuthorize]
+    [OzelYetki]
     public class EmailController : Controller
     {
         private YillikizinEntities db = new YillikizinEntities();

@@ -29,15 +29,18 @@ namespace yillikizin.Models {
 
         // Yeni eklenen özellik
         public string GirişDurumu { get; set; }
+        public string ÇıkışDurumu { get; set; }
         public string Renk { get; set; } // Bu özelliği ekledik
         public string Degerlendirme { get; set; }
         public List<TimeSpan> NCS { get; set; } // Normal Çalışma Süreleri
         public List<TimeSpan> DVS { get; set; }
         public List<TimeSpan> Eksik { get; set; }
-
         public List<TimeSpan> Mesai { get; set; }
         public virtual personel Personel { get; set; }
-
+        public TimeSpan CalismaSuresi { get; set; }
+        public TimeSpan FazlaMesai { get; set; }
+        public TimeSpan EksikSure { get; set; }
+        public TimeSpan MCS { get; set; }
     }
 
 }

@@ -7,7 +7,7 @@ using yillikizin.Filters;
 
 namespace yillikizin.Controllers
 {
-    [CustomAuthorize]
+    [OzelYetki]
     public class AboutController : Controller
     {
         public ActionResult Index()

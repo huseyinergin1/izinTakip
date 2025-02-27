@@ -63,6 +63,7 @@
       <End Role="personel" EntitySet="personel" />
     </AssociationSet>
     <EntitySet Name="EmailSettings" EntityType="YillikizinModel.EmailSettings" />
+    <EntitySet Name="PersonelTransaction" EntityType="YillikizinModel.PersonelTransaction" />
   </EntityContainer>
   <ComplexType Name="sp_helpdiagramdefinition_Result">
     <Property Type="Int32" Name="version" Nullable="true" />
@@ -127,6 +128,7 @@
     <Property Name="PersonelId" Type="Int32" />
     <Property Name="Bilgi" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
     <NavigationProperty Name="personel" Relationship="YillikizinModel.FK_Hareketler_Personel" FromRole="Hareketler" ToRole="personel" />
+    <Property Name="TerminalAdi" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
   </EntityType>
   <EntityType Name="Izin">
     <Key>
@@ -186,6 +188,13 @@
     <NavigationProperty Name="Hareketler" Relationship="YillikizinModel.FK_Hareketler_Personel" FromRole="personel" ToRole="Hareketler" />
     <NavigationProperty Name="Izin" Relationship="YillikizinModel.FK_personel_izin" FromRole="personel" ToRole="Izin" />
     <NavigationProperty Name="Vardiya" Relationship="YillikizinModel.FK_Personel_Vardiya" FromRole="personel" ToRole="Vardiya" />
+    <Property Name="kan" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+    <Property Name="ayakkabino" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+    <Property Name="beden" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+    <Property Name="adres" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="gsm" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+    <Property Name="iscikistarih" Type="DateTime" Precision="0" />
+    <Property Name="calisma" Type="Boolean" />
   </EntityType>
   <EntityType Name="sysdiagrams">
     <Key>
@@ -281,5 +290,18 @@
     <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
     <Property Name="RecipientEmails" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
     <Property Name="SendTime" Type="Time" Precision="7" />
+  </EntityType>
+  <EntityType Name="PersonelTransaction">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="Yon" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="KartNumarasi" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="TerminalNo" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="Tarih" Type="DateTime" Nullable="false" Precision="0" />
+    <Property Name="Saat" Type="Time" Nullable="false" Precision="7" />
+    <Property Name="PersonelId" Type="Int32" Nullable="false" />
+    <Property Name="Bilgi" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
   </EntityType>
 </Schema>

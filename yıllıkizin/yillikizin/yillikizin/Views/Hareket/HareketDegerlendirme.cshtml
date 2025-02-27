@@ -71,6 +71,7 @@
             <th class="header-column">Giriş</th>
             <th class="header-column">Çıkış</th>
             <th class="header-column">NCS</th>
+            <th class="header-column">MCS</th>
             <th class="header-column">Eksik</th>
             <th class="header-column">Mesai</th>
             <th class="header-column">Bilgi</th>
@@ -81,6 +82,7 @@
             <th><input type="text" class="form-control arama" placeholder="Soyadı ara..." /></th>
             <th><input type="text" class="form-control arama" placeholder="Kart No ara..." /></th>
             <th><input type="text" class="form-control arama" placeholder="Departman ara..." /></th>
+            <th></th>
             <th></th>
             <th></th>
             <th></th>
@@ -107,39 +109,11 @@
                         // Bilgiye göre renk ve simge belirleme
                         string bilgiClass = hareket.Bilgi == "OK" ? "text-success"
                             : hareket.Bilgi == "DEVAMSIZ" ? "text-warning"
-                            : "text-danger"; // Kırmızı
+                            : "text-danger";
 
                         string bilgiIcon = hareket.Bilgi == "OK" ? "&#9989;"
                             : hareket.Bilgi == "DEVAMSIZ" ? "&#9888;"
-                            : "&#9940;"; // Çarpı işareti (Hata)
-
-                        // Çalışma süresini hesapla
-                        TimeSpan calismaSuresi = TimeSpan.Zero;
-                        if (hareket.GirişSaatleri != null && hareket.GirişSaatleri.Count > 0 && hareket.ÇıkışSaatleri.Count > 0)
-                        {
-                            var girisSaat = hareket.GirişSaatleri.First();
-                            var cikisSaat = hareket.ÇıkışSaatleri.First();
-                            calismaSuresi = cikisSaat - girisSaat;
-                        }
-
-                        // Vardiya süresini hesapla
-                        TimeSpan vardiyaSuresi = TimeSpan.Zero;
-                        if (vardiya != null)
-                        {
-                            var vardiyaBaslangic = vardiya.CalismaBaslangic;
-                            var vardiyaBitis = vardiya.CalismaBitis;
-                            vardiyaSuresi = vardiyaBitis - vardiyaBaslangic;
-                        }
-
-                        // Fazla mesai hesapla
-                        TimeSpan fazlaMesai = TimeSpan.Zero;
-                        if (calismaSuresi > vardiyaSuresi)
-                        {
-                            fazlaMesai = calismaSuresi - vardiyaSuresi;
-                        }
-
-                        // Eksik saatleri hesapla
-                        TimeSpan eksikSure = vardiyaSuresi - calismaSuresi;
+                            : "&#9940;";
 
                         <tr data-girisdurumu="@hareket.GirişDurumu">
                             <td style="text-align: left;">
@@ -149,7 +123,7 @@
                             <td>@personel.soyadi</td>
                             <td>@personel.kartno</td>
                             <td>@personel.departman</td>
-                            <td class="time-column">
+                            <td>
                                 @if (hareket.GirişSaatleri != null && hareket.GirişSaatleri.Count > 0)
                                 {
                                     foreach (var girişSaati in hareket.GirişSaatleri)
@@ -173,12 +147,19 @@
                                     <span style="color: red;">&#9888;</span>
                                 }
                             </td>
-                            <td class="time-column">
+                            <td>
                                 @if (hareket.ÇıkışSaatleri != null && hareket.ÇıkışSaatleri.Count > 0)
                                 {
                                     foreach (var çıkışSaati in hareket.ÇıkışSaatleri)
                                     {
-                                        <div>@çıkışSaati.ToString(@"hh\:mm")</div>
+                                        if (hareket.ÇıkışDurumu == "ErkenÇıkma")
+                                        {
+                                            <div style="color: purple;">@çıkışSaati.ToString(@"hh\:mm")</div>
+                                        }
+                                        else
+                                        {
+                                            <div>@çıkışSaati.ToString(@"hh\:mm")</div>
+                                        }
                                     }
                                 }
                                 else
@@ -187,9 +168,13 @@
                                 }
                             </td>
                             <td>
-                                @if (calismaSuresi != TimeSpan.Zero)
+                                @hareket.MCS.ToString(@"hh\:mm")
+
+                            </td>
+                            <td>
+                                @if (hareket.CalismaSuresi != TimeSpan.Zero)
                                 {
-                                    @calismaSuresi.ToString(@"hh\:mm")
+                                    @hareket.CalismaSuresi.ToString(@"hh\:mm")
                                 }
                                 else
                                 {
@@ -197,9 +182,9 @@
                                 }
                             </td>
                             <td>
-                                @if (eksikSure > TimeSpan.Zero)
+                                @if (hareket.EksikSure > TimeSpan.Zero)
                                 {
-                                    @eksikSure.ToString(@"hh\:mm")
+                                    <div style="color: red;">@hareket.EksikSure.ToString(@"hh\:mm")</div>
                                 }
                                 else
                                 {
@@ -207,9 +192,9 @@
                                 }
                             </td>
                             <td>
-                                @if (fazlaMesai > TimeSpan.Zero)
+                                @if (hareket.FazlaMesai > TimeSpan.Zero)
                                 {
-                                    @fazlaMesai.ToString(@"hh\:mm")
+                                    <div style="font-weight: bold;">@hareket.FazlaMesai.ToString(@"hh\:mm")</div>
                                 }
                                 else
                                 {
@@ -231,8 +216,8 @@
                             <td>@personel.soyadi</td>
                             <td>@personel.kartno</td>
                             <td>@personel.departman</td>
-                            <td class="time-column"></td>
-                            <td class="time-column"></td>
+                            <td></td>
+                            <td></td>
                             <td></td>
                             <td></td>
                             <td></td>
@@ -251,8 +236,8 @@
                                 <td>@personel.soyadi</td>
                                 <td>@personel.kartno</td>
                                 <td>@personel.departman</td>
-                                <td class="time-column"></td>
-                                <td class="time-column"></td>
+                                <td></td>
+                                <td></td>
                                 <td></td>
                                 <td></td>
                                 <td></td>
@@ -269,11 +254,12 @@
                                 <td>@personel.soyadi</td>
                                 <td>@personel.kartno</td>
                                 <td>@personel.departman</td>
-                                <td class="time-column"></td>
-                                <td class="time-column"></td>
                                 <td></td>
                                 <td></td>
                                 <td></td>
+                                <td></td>
+                                <td></td>
+                                  <td></td>
                                 <td class="text-warning"><span>&#9888;</span> DEVAMSIZ</td>
                             </tr>
                         }

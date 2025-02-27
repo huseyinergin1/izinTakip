@@ -6,7 +6,7 @@ using yillikizin.Models;
 
 namespace yillikizin.Controllers
 {
-    [CustomAuthorize]
+    [OzelYetki]
     public class KullaniciGruplariController : Controller
     {
         private YillikizinEntities db = new YillikizinEntities();

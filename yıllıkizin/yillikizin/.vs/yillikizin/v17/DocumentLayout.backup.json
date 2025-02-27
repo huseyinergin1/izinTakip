@@ -3,16 +3,16 @@
   "WorkspaceRootPath": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|c:\\users\\huseyin\\desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\controllers\\personelcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|solutionrelative:yillikizin\\controllers\\personelcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\controllers\\hareketcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|solutionrelative:yillikizin\\controllers\\hareketcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|c:\\users\\huseyin\\desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\views\\personel\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|solutionrelative:yillikizin\\views\\personel\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|c:\\users\\huseyin\\desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\views\\hareket\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|solutionrelative:yillikizin\\views\\hareket\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|c:\\users\\huseyin\\desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\views\\personel\\_editpersonel.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|solutionrelative:yillikizin\\views\\personel\\_editpersonel.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|c:\\users\\huseyin\\desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\models\\hareket.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|solutionrelative:yillikizin\\models\\hareket.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -25,61 +25,43 @@
           "SelectedChildIndex": 2,
           "Children": [
             {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{0ad07096-bba9-4900-a651-0598d26f6d24}"
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Views\\Hareket\\Index.cshtml",
+              "RelativeDocumentMoniker": "yillikizin\\Views\\Hareket\\Index.cshtml",
+              "ToolTip": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Views\\Hareket\\Index.cshtml",
+              "RelativeToolTip": "yillikizin\\Views\\Hareket\\Index.cshtml",
+              "ViewState": "AgIAABUBAAAAAAAAAAAgwD4BAAAHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-02-27T06:25:38.214Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "_EditPersonel.cshtml",
-              "DocumentMoniker": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Views\\Personel\\_EditPersonel.cshtml",
-              "RelativeDocumentMoniker": "yillikizin\\Views\\Personel\\_EditPersonel.cshtml",
-              "ToolTip": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Views\\Personel\\_EditPersonel.cshtml",
-              "RelativeToolTip": "yillikizin\\Views\\Personel\\_EditPersonel.cshtml",
-              "ViewState": "AgIAALkAAAAAAAAAAAAAAMsAAAAPAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-02-25T23:33:35.536Z",
+              "Title": "Hareket.cs",
+              "DocumentMoniker": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Models\\Hareket.cs",
+              "RelativeDocumentMoniker": "yillikizin\\Models\\Hareket.cs",
+              "ToolTip": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Models\\Hareket.cs",
+              "RelativeToolTip": "yillikizin\\Models\\Hareket.cs",
+              "ViewState": "AgIAACEAAAAAAAAAAAA1wCkAAAAvAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-27T06:09:38.07Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "PersonelController.cs",
-              "DocumentMoniker": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Controllers\\PersonelController.cs",
-              "RelativeDocumentMoniker": "yillikizin\\Controllers\\PersonelController.cs",
-              "ToolTip": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Controllers\\PersonelController.cs",
-              "RelativeToolTip": "yillikizin\\Controllers\\PersonelController.cs",
-              "ViewState": "AgIAAA0AAAAAAAAAAAAiwBQAAAAHAAAAAAAAAA==",
+              "Title": "HareketController.cs",
+              "DocumentMoniker": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Controllers\\HareketController.cs",
+              "RelativeDocumentMoniker": "yillikizin\\Controllers\\HareketController.cs",
+              "ToolTip": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Controllers\\HareketController.cs",
+              "RelativeToolTip": "yillikizin\\Controllers\\HareketController.cs",
+              "ViewState": "AgIAAAIFAAAAAAAAAAAUwLEFAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-02-25T21:26:36.682Z",
+              "WhenOpened": "2025-02-26T12:06:17.918Z",
               "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Index.cshtml",
-              "DocumentMoniker": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Views\\Personel\\Index.cshtml",
-              "RelativeDocumentMoniker": "yillikizin\\Views\\Personel\\Index.cshtml",
-              "ToolTip": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Views\\Personel\\Index.cshtml",
-              "RelativeToolTip": "yillikizin\\Views\\Personel\\Index.cshtml",
-              "ViewState": "AgIAABIAAAAAAAAAAAAQwCQAAAAVAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-02-25T19:59:26.692Z",
-              "EditorCaption": ""
-            }
-          ]
-        },
-        {
-          "DockedWidth": 200,
-          "SelectedChildIndex": -1,
-          "Children": [
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
             }
           ]
         }

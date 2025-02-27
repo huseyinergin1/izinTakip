@@ -8,7 +8,7 @@ using yillikizin.Models;
 
 namespace yillikizin.Controllers
 {
-    [CustomAuthorize]
+    [OzelYetki]
     public class BelgeController : Controller
     {
         private YillikizinEntities db = new YillikizinEntities(); // MSSQL bağlamınız

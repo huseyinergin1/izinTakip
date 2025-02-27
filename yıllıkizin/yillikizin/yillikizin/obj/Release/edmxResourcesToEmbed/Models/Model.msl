@@ -70,6 +70,7 @@
     <EntitySetMapping Name="Hareketler">
       <EntityTypeMapping TypeName="YillikizinModel.Hareketler">
         <MappingFragment StoreEntitySet="Hareketler">
+          <ScalarProperty Name="TerminalAdi" ColumnName="TerminalAdi" />
           <ScalarProperty Name="Bilgi" ColumnName="Bilgi" />
           <ScalarProperty Name="PersonelId" ColumnName="PersonelId" />
           <ScalarProperty Name="Saat" ColumnName="Saat" />
@@ -115,6 +116,13 @@
     <EntitySetMapping Name="personel">
       <EntityTypeMapping TypeName="YillikizinModel.personel">
         <MappingFragment StoreEntitySet="personel">
+          <ScalarProperty Name="calisma" ColumnName="calisma" />
+          <ScalarProperty Name="iscikistarih" ColumnName="iscikistarih" />
+          <ScalarProperty Name="gsm" ColumnName="gsm" />
+          <ScalarProperty Name="adres" ColumnName="adres" />
+          <ScalarProperty Name="beden" ColumnName="beden" />
+          <ScalarProperty Name="ayakkabino" ColumnName="ayakkabino" />
+          <ScalarProperty Name="kan" ColumnName="kan" />
           <ScalarProperty Name="VardiyaId" ColumnName="VardiyaId" />
           <ScalarProperty Name="kullaniciGrupAdi" ColumnName="kullaniciGrupAdi" />
           <ScalarProperty Name="kullaniciGrupId" ColumnName="kullaniciGrupId" />
@@ -170,6 +178,20 @@
         <MappingFragment StoreEntitySet="EmailSettings">
           <ScalarProperty Name="SendTime" ColumnName="SendTime" />
           <ScalarProperty Name="RecipientEmails" ColumnName="RecipientEmails" />
+          <ScalarProperty Name="Id" ColumnName="Id" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="PersonelTransaction">
+      <EntityTypeMapping TypeName="YillikizinModel.PersonelTransaction">
+        <MappingFragment StoreEntitySet="PersonelTransaction">
+          <ScalarProperty Name="Bilgi" ColumnName="Bilgi" />
+          <ScalarProperty Name="PersonelId" ColumnName="PersonelId" />
+          <ScalarProperty Name="Saat" ColumnName="Saat" />
+          <ScalarProperty Name="Tarih" ColumnName="Tarih" />
+          <ScalarProperty Name="TerminalNo" ColumnName="TerminalNo" />
+          <ScalarProperty Name="KartNumarasi" ColumnName="KartNumarasi" />
+          <ScalarProperty Name="Yon" ColumnName="Yon" />
           <ScalarProperty Name="Id" ColumnName="Id" />
         </MappingFragment>
       </EntityTypeMapping>

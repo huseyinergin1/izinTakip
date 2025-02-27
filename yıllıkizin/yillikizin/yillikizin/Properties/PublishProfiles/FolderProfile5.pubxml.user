@@ -5,7 +5,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
 <Project>
   <PropertyGroup>
     <_PublishTargetUrl>C:\APDKS</_PublishTargetUrl>
-    <History>True|2025-02-15T08:44:33.3062905Z||;True|2025-02-15T11:09:03.9589727+03:00||;True|2025-01-29T11:38:43.3737245+03:00||;True|2025-01-29T08:13:32.8737441+03:00||;True|2025-01-21T11:49:39.1983668+03:00||;True|2025-01-21T11:04:45.3150294+03:00||;True|2025-01-20T16:22:06.3584879+03:00||;True|2025-01-20T12:08:46.7399244+03:00||;True|2025-01-19T16:35:28.4165737+03:00||;True|2025-01-18T17:51:00.1074238+03:00||;</History>
+    <History>True|2025-02-26T10:39:11.8908612Z||;True|2025-02-26T10:37:18.4542211+03:00||;True|2025-02-15T11:44:33.3062905+03:00||;True|2025-02-15T11:09:03.9589727+03:00||;True|2025-01-29T11:38:43.3737245+03:00||;True|2025-01-29T08:13:32.8737441+03:00||;True|2025-01-21T11:49:39.1983668+03:00||;True|2025-01-21T11:04:45.3150294+03:00||;True|2025-01-20T16:22:06.3584879+03:00||;True|2025-01-20T12:08:46.7399244+03:00||;True|2025-01-19T16:35:28.4165737+03:00||;True|2025-01-18T17:51:00.1074238+03:00||;</History>
     <LastFailureDetails />
   </PropertyGroup>
   <ItemGroup>
@@ -35,6 +35,21 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
     </File>
     <File Include="bin/ClosedXML.pdb">
       <publishTime>11/15/2024 03:26:40</publishTime>
+    </File>
+    <File Include="bin/de/MigraDoc.DocumentObjectModel.resources.dll">
+      <publishTime>07/01/2024 10:31:32</publishTime>
+    </File>
+    <File Include="bin/de/MigraDoc.Rendering.resources.dll">
+      <publishTime>07/01/2024 10:31:52</publishTime>
+    </File>
+    <File Include="bin/de/MigraDoc.RtfRendering.resources.dll">
+      <publishTime>07/01/2024 10:31:50</publishTime>
+    </File>
+    <File Include="bin/de/PdfSharp.Charting.resources.dll">
+      <publishTime>07/01/2024 10:31:46</publishTime>
+    </File>
+    <File Include="bin/de/PdfSharp.resources.dll">
+      <publishTime>07/01/2024 10:31:44</publishTime>
     </File>
     <File Include="bin/DinkToPdf.dll">
       <publishTime>04/18/2017 22:16:24</publishTime>
@@ -78,14 +93,41 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
     <File Include="bin/MailKit.pdb">
       <publishTime>01/27/2025 02:42:48</publishTime>
     </File>
+    <File Include="bin/Microsoft.Bcl.AsyncInterfaces.dll">
+      <publishTime>10/23/2021 02:42:08</publishTime>
+    </File>
     <File Include="bin/Microsoft.Bcl.HashCode.dll">
       <publishTime>11/17/2020 00:15:16</publishTime>
     </File>
     <File Include="bin/Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll">
       <publishTime>09/05/2018 16:10:50</publishTime>
     </File>
+    <File Include="bin/Microsoft.Extensions.Configuration.Abstractions.dll">
+      <publishTime>06/07/2018 03:27:02</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Extensions.DependencyInjection.Abstractions.dll">
+      <publishTime>10/23/2021 02:48:04</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Extensions.DependencyInjection.dll">
+      <publishTime>10/23/2021 02:48:22</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Extensions.FileProviders.Abstractions.dll">
+      <publishTime>06/07/2018 03:27:02</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Extensions.Hosting.Abstractions.dll">
+      <publishTime>06/07/2018 03:27:02</publishTime>
+    </File>
     <File Include="bin/Microsoft.Extensions.Logging.Abstractions.dll">
-      <publishTime>06/07/2018 03:26:54</publishTime>
+      <publishTime>10/23/2021 02:51:24</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Extensions.Logging.dll">
+      <publishTime>10/23/2021 02:52:28</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Extensions.Options.dll">
+      <publishTime>10/23/2021 02:48:14</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Extensions.Primitives.dll">
+      <publishTime>10/23/2021 02:47:28</publishTime>
     </File>
     <File Include="bin/Microsoft.IO.RecyclableMemoryStream.dll">
       <publishTime>06/11/2024 23:23:46</publishTime>
@@ -102,6 +144,24 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
     <File Include="bin/Microsoft.Web.Infrastructure.dll">
       <publishTime>04/11/2022 19:09:46</publishTime>
     </File>
+    <File Include="bin/MigraDoc.DocumentObjectModel.dll">
+      <publishTime>07/01/2024 10:31:30</publishTime>
+    </File>
+    <File Include="bin/MigraDoc.DocumentObjectModel.pdb">
+      <publishTime>07/01/2024 10:31:28</publishTime>
+    </File>
+    <File Include="bin/MigraDoc.Rendering.dll">
+      <publishTime>07/01/2024 10:31:52</publishTime>
+    </File>
+    <File Include="bin/MigraDoc.Rendering.pdb">
+      <publishTime>07/01/2024 10:31:52</publishTime>
+    </File>
+    <File Include="bin/MigraDoc.RtfRendering.dll">
+      <publishTime>07/01/2024 10:31:50</publishTime>
+    </File>
+    <File Include="bin/MigraDoc.RtfRendering.pdb">
+      <publishTime>07/01/2024 10:31:50</publishTime>
+    </File>
     <File Include="bin/MimeKit.dll">
       <publishTime>01/27/2025 02:11:30</publishTime>
     </File>
@@ -111,14 +171,62 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
     <File Include="bin/Moq.dll">
       <publishTime>09/07/2024 04:36:26</publishTime>
     </File>
+    <File Include="bin/Newtonsoft.Json.Bson.dll">
+      <publishTime>11/28/2018 02:10:18</publishTime>
+    </File>
+    <File Include="bin/Newtonsoft.Json.Bson.pdb">
+      <publishTime>11/28/2018 02:07:54</publishTime>
+    </File>
     <File Include="bin/Newtonsoft.Json.dll">
       <publishTime>03/08/2023 07:09:56</publishTime>
     </File>
     <File Include="bin/Owin.dll">
       <publishTime>11/13/2012 14:19:34</publishTime>
     </File>
+    <File Include="bin/PdfSharp.Charting.dll">
+      <publishTime>07/01/2024 10:31:46</publishTime>
+    </File>
+    <File Include="bin/PdfSharp.Charting.pdb">
+      <publishTime>07/01/2024 10:31:46</publishTime>
+    </File>
+    <File Include="bin/PdfSharp.dll">
+      <publishTime>07/01/2024 10:31:44</publishTime>
+    </File>
+    <File Include="bin/PdfSharp.pdb">
+      <publishTime>07/01/2024 10:31:42</publishTime>
+    </File>
+    <File Include="bin/PdfSharp.Quality.dll">
+      <publishTime>07/01/2024 10:31:54</publishTime>
+    </File>
+    <File Include="bin/PdfSharp.Quality.pdb">
+      <publishTime>07/01/2024 10:31:54</publishTime>
+    </File>
+    <File Include="bin/PdfSharp.Snippets.dll">
+      <publishTime>07/01/2024 10:31:58</publishTime>
+    </File>
+    <File Include="bin/PdfSharp.Snippets.pdb">
+      <publishTime>07/01/2024 10:31:58</publishTime>
+    </File>
+    <File Include="bin/PdfSharp.System.dll">
+      <publishTime>07/01/2024 10:31:24</publishTime>
+    </File>
+    <File Include="bin/PdfSharp.System.pdb">
+      <publishTime>07/01/2024 10:31:24</publishTime>
+    </File>
+    <File Include="bin/PdfSharp.WPFonts.dll">
+      <publishTime>07/01/2024 10:31:24</publishTime>
+    </File>
+    <File Include="bin/PdfSharp.WPFonts.pdb">
+      <publishTime>07/01/2024 10:31:24</publishTime>
+    </File>
     <File Include="bin/Quartz.dll">
       <publishTime>11/02/2024 12:57:28</publishTime>
+    </File>
+    <File Include="bin/Quartz.Extensions.DependencyInjection.dll">
+      <publishTime>11/02/2024 12:57:38</publishTime>
+    </File>
+    <File Include="bin/Quartz.Extensions.Hosting.dll">
+      <publishTime>11/02/2024 12:57:40</publishTime>
     </File>
     <File Include="bin/RBush.dll">
       <publishTime>11/14/2024 16:43:18</publishTime>
@@ -283,7 +391,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>05/15/2018 16:29:36</publishTime>
     </File>
     <File Include="bin/System.Diagnostics.DiagnosticSource.dll">
-      <publishTime>04/15/2020 01:49:20</publishTime>
+      <publishTime>10/23/2021 02:41:28</publishTime>
     </File>
     <File Include="bin/System.Drawing.Common.dll">
       <publishTime>03/20/2024 02:40:58</publishTime>
@@ -299,6 +407,9 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
     </File>
     <File Include="bin/System.Memory.dll">
       <publishTime>11/13/2024 00:47:36</publishTime>
+    </File>
+    <File Include="bin/System.Net.Http.Formatting.dll">
+      <publishTime>10/20/2023 23:33:52</publishTime>
     </File>
     <File Include="bin/System.Numerics.Vectors.dll">
       <publishTime>11/13/2024 00:47:26</publishTime>
@@ -320,6 +431,9 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
     </File>
     <File Include="bin/System.Web.Helpers.dll">
       <publishTime>05/27/2022 23:41:54</publishTime>
+    </File>
+    <File Include="bin/System.Web.Http.dll">
+      <publishTime>10/20/2023 23:34:06</publishTime>
     </File>
     <File Include="bin/System.Web.Mvc.dll">
       <publishTime>05/27/2022 23:42:20</publishTime>
@@ -385,10 +499,10 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>01/23/2014 12:57:34</publishTime>
     </File>
     <File Include="bin/yillikizin.dll">
-      <publishTime>02/15/2025 14:55:21</publishTime>
+      <publishTime>02/26/2025 13:38:59</publishTime>
     </File>
     <File Include="bin/yillikizin.pdb">
-      <publishTime>02/15/2025 14:55:21</publishTime>
+      <publishTime>02/26/2025 13:38:59</publishTime>
     </File>
     <File Include="Content/Admin/css/contact.css">
       <publishTime>01/20/2025 13:46:51</publishTime>
@@ -11335,7 +11449,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>01/21/2025 10:57:21</publishTime>
     </File>
     <File Include="Models/Model.edmx.diagram">
-      <publishTime>01/23/2025 08:33:07</publishTime>
+      <publishTime>02/25/2025 13:33:01</publishTime>
     </File>
     <File Include="Rotativa/help-wkhtmltoimage.txt">
       <publishTime>01/27/2025 09:51:08</publishTime>
@@ -11440,19 +11554,19 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>01/25/2025 17:24:42</publishTime>
     </File>
     <File Include="Views/Email/Eposta.cshtml">
-      <publishTime>01/29/2025 10:00:58</publishTime>
+      <publishTime>02/25/2025 13:41:36</publishTime>
     </File>
     <File Include="Views/Email/HareketDegerlendirmeReport.cshtml">
       <publishTime>01/09/2025 16:55:21</publishTime>
     </File>
     <File Include="Views/Email/Index.cshtml">
-      <publishTime>01/29/2025 09:56:16</publishTime>
+      <publishTime>02/22/2025 12:15:19</publishTime>
     </File>
     <File Include="Views/Hareket/FazlaMesai.cshtml">
       <publishTime>01/18/2025 17:13:35</publishTime>
     </File>
     <File Include="Views/Hareket/HareketDegerlendirme.cshtml">
-      <publishTime>02/15/2025 11:43:25</publishTime>
+      <publishTime>02/25/2025 12:37:28</publishTime>
     </File>
     <File Include="Views/Hareket/HareketDegerlendirme2.cshtml">
       <publishTime>01/09/2025 08:33:07</publishTime>
@@ -11461,10 +11575,10 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>01/17/2025 23:41:56</publishTime>
     </File>
     <File Include="Views/Hareket/Index.cshtml">
-      <publishTime>02/04/2025 15:35:36</publishTime>
+      <publishTime>02/25/2025 16:51:01</publishTime>
     </File>
     <File Include="Views/Hareket/_HareketListesi.cshtml">
-      <publishTime>02/15/2025 14:54:37</publishTime>
+      <publishTime>02/23/2025 11:33:31</publishTime>
     </File>
     <File Include="Views/Hareket/_HareketTablosu.cshtml">
       <publishTime>01/06/2025 08:04:42</publishTime>
@@ -11485,7 +11599,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>01/25/2025 17:13:39</publishTime>
     </File>
     <File Include="Views/Home/PersonelEkle.cshtml">
-      <publishTime>01/25/2025 20:45:17</publishTime>
+      <publishTime>02/26/2025 13:33:33</publishTime>
     </File>
     <File Include="Views/Izin/Index.cshtml">
       <publishTime>01/29/2025 00:18:17</publishTime>
@@ -11494,7 +11608,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>01/27/2025 08:58:11</publishTime>
     </File>
     <File Include="Views/Izin/IzinEkle.cshtml">
-      <publishTime>01/27/2025 15:24:54</publishTime>
+      <publishTime>02/24/2025 08:50:32</publishTime>
     </File>
     <File Include="Views/Izin/IzinTuru.cshtml">
       <publishTime>11/01/2024 10:49:10</publishTime>
@@ -11503,19 +11617,19 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>10/07/2024 15:38:32</publishTime>
     </File>
     <File Include="Views/Login/Index.cshtml">
-      <publishTime>01/29/2025 10:52:20</publishTime>
+      <publishTime>02/26/2025 03:28:38</publishTime>
     </File>
     <File Include="Views/Personel/Details.cshtml">
-      <publishTime>01/25/2025 20:44:09</publishTime>
+      <publishTime>02/25/2025 14:00:53</publishTime>
     </File>
     <File Include="Views/Personel/Index.cshtml">
-      <publishTime>01/25/2025 21:29:03</publishTime>
+      <publishTime>02/26/2025 02:59:40</publishTime>
     </File>
     <File Include="Views/Personel/YillikIzin.cshtml">
       <publishTime>10/02/2024 09:16:08</publishTime>
     </File>
     <File Include="Views/Personel/_EditPersonel.cshtml">
-      <publishTime>01/21/2025 11:00:58</publishTime>
+      <publishTime>02/25/2025 15:12:23</publishTime>
     </File>
     <File Include="Views/Rapor/KisiBazliRapor.cshtml">
       <publishTime>01/04/2025 13:13:12</publishTime>
@@ -11523,14 +11637,17 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
     <File Include="Views/Shared/Error.cshtml">
       <publishTime>09/20/2024 07:53:41</publishTime>
     </File>
+    <File Include="Views/Shared/YetkiHatasi.cshtml">
+      <publishTime>02/26/2025 10:06:30</publishTime>
+    </File>
     <File Include="Views/Shared/_Layout.cshtml">
       <publishTime>10/03/2024 09:04:57</publishTime>
     </File>
     <File Include="Views/Shared/_LayoutAdmin.cshtml">
-      <publishTime>01/17/2025 10:47:39</publishTime>
+      <publishTime>02/24/2025 14:16:31</publishTime>
     </File>
     <File Include="Views/Shared/_LeftsideBar.cshtml">
-      <publishTime>01/23/2025 10:11:44</publishTime>
+      <publishTime>02/25/2025 13:28:55</publishTime>
     </File>
     <File Include="Views/Shared/_RightsideBar.cshtml">
       <publishTime>04/27/2024 13:25:19</publishTime>
@@ -11548,7 +11665,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>09/20/2024 07:53:41</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>01/29/2025 08:13:23</publishTime>
+      <publishTime>02/26/2025 10:37:08</publishTime>
     </File>
   </ItemGroup>
 </Project>

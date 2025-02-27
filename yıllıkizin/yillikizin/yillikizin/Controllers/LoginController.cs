@@ -6,13 +6,12 @@ namespace yillikizin.Controllers
 {
     public class LoginController : Controller
     {
-        private YillikizinEntities db = new YillikizinEntities(); // Veritabanı bağlamı
+        private YillikizinEntities db = new YillikizinEntities();
 
         // GET: Login
         [AllowAnonymous]
         public ActionResult Index()
         {
-
             return View();
         }
 
@@ -25,6 +24,13 @@ namespace yillikizin.Controllers
 
             if (user != null)
             {
+                // Çalışma durumu kontrolü
+                if (!user.calisma)
+                {
+                    ModelState.AddModelError("", "Bu hesap devre dışı bırakılmıştır. Sistem yöneticisi ile iletişime geçiniz.");
+                    return View();
+                }
+
                 // Kullanıcı varsa, bilgilerini session'a at
                 Session["KullaniciAdi"] = user.kullaniciadi;
                 Session["Sifre"] = user.sifre;
@@ -42,8 +48,18 @@ namespace yillikizin.Controllers
                 Session["UserHakettigi"] = user.hakettigi;
                 Session["UserIsegiris"] = user.isegiristarih;
 
-                // Kullanıcı başarılıysa, ana sayfaya yönlendir
-                return RedirectToAction("Index", "Home");
+                // Yetkilendirme için kullanıcı grup bilgisini Session'a ekle
+                Session["KullaniciGrupId"] = user.kullaniciGrupId;
+
+                // Kullanıcı tipine göre yönlendirme yap
+                if (user.kullaniciGrupId == 2) // Normal personel
+                {
+                    return RedirectToAction("HareketDegerlendirme", "Hareket");
+                }
+                else // Admin
+                {
+                    return RedirectToAction("Index", "Home");
+                }
             }
             else
             {
@@ -51,6 +67,17 @@ namespace yillikizin.Controllers
                 ModelState.AddModelError("", "Kullanıcı adı veya şifre hatalı.");
                 return View();
             }
+        }
+
+        // Çıkış işlemi için yeni metod ekleyelim
+        public ActionResult Logout()
+        {
+            // Tüm session'ları temizle
+            Session.Clear();
+            Session.Abandon();
+
+            // Login sayfasına yönlendir
+            return RedirectToAction("Index", "Login");
         }
     }
 }
