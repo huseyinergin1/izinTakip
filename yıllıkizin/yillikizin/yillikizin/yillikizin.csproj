@@ -485,11 +485,13 @@
     <Compile Include="Models\departman.cs">
       <DependentUpon>Model.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\DevamsizlikViewModel.cs" />
     <Compile Include="Models\EmailJob.cs" />
     <Compile Include="Models\EmailService.cs" />
     <Compile Include="Models\EmailSettings.cs">
       <DependentUpon>Model.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\GecGelenPersonelModel.cs" />
     <Compile Include="Models\GünlükRaporlar.cs">
       <DependentUpon>Model.tt</DependentUpon>
     </Compile>
@@ -526,6 +528,7 @@
       <DependentUpon>Model.edmx</DependentUpon>
     </Compile>
     <Compile Include="Models\OzelYetkiAttribute.cs" />
+    <Compile Include="Models\PdfController.cs" />
     <Compile Include="Models\personel.cs">
       <DependentUpon>Model.tt</DependentUpon>
     </Compile>
@@ -4271,6 +4274,7 @@
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Email\Eposta.cshtml" />
     <Content Include="Views\Shared\YetkiHatasi.cshtml" />
+    <Content Include="Views\Hareket\DevamsizlikIstatistikleri.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

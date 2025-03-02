@@ -3,16 +3,16 @@
   "WorkspaceRootPath": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\controllers\\hareketcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|c:\\users\\huseyin\\desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\controllers\\hareketcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|solutionrelative:yillikizin\\controllers\\hareketcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|c:\\users\\huseyin\\desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\views\\hareket\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|solutionrelative:yillikizin\\views\\hareket\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|c:\\users\\huseyin\\desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\models\\pdfcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|solutionrelative:yillikizin\\models\\pdfcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|c:\\users\\huseyin\\desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\models\\hareket.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|solutionrelative:yillikizin\\models\\hareket.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{9DF26EE5-5AAA-4BD6-9A70-61426785BE5C}|yillikizin\\yillikizin.csproj|solutionrelative:yillikizin\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -22,32 +22,19 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "Index.cshtml",
-              "DocumentMoniker": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Views\\Hareket\\Index.cshtml",
-              "RelativeDocumentMoniker": "yillikizin\\Views\\Hareket\\Index.cshtml",
-              "ToolTip": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Views\\Hareket\\Index.cshtml",
-              "RelativeToolTip": "yillikizin\\Views\\Hareket\\Index.cshtml",
-              "ViewState": "AgIAABUBAAAAAAAAAAAgwD4BAAAHAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-02-27T06:25:38.214Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Hareket.cs",
-              "DocumentMoniker": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Models\\Hareket.cs",
-              "RelativeDocumentMoniker": "yillikizin\\Models\\Hareket.cs",
-              "ToolTip": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Models\\Hareket.cs",
-              "RelativeToolTip": "yillikizin\\Models\\Hareket.cs",
-              "ViewState": "AgIAACEAAAAAAAAAAAA1wCkAAAAvAAAAAAAAAA==",
+              "Title": "PdfController.cs",
+              "DocumentMoniker": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Models\\PdfController.cs",
+              "RelativeDocumentMoniker": "yillikizin\\Models\\PdfController.cs",
+              "ToolTip": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Models\\PdfController.cs",
+              "RelativeToolTip": "yillikizin\\Models\\PdfController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-02-27T06:09:38.07Z",
+              "WhenOpened": "2025-03-02T10:53:17.625Z",
               "EditorCaption": ""
             },
             {
@@ -58,10 +45,22 @@
               "RelativeDocumentMoniker": "yillikizin\\Controllers\\HareketController.cs",
               "ToolTip": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Controllers\\HareketController.cs",
               "RelativeToolTip": "yillikizin\\Controllers\\HareketController.cs",
-              "ViewState": "AgIAAAIFAAAAAAAAAAAUwLEFAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAABQAAAAAAAAAAAA3wAMCAAAOAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-02-26T12:06:17.918Z",
+              "WhenOpened": "2025-03-02T09:52:43.359Z",
               "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Views\\Home\\Index.cshtml",
+              "RelativeDocumentMoniker": "yillikizin\\Views\\Home\\Index.cshtml",
+              "ToolTip": "C:\\Users\\huseyin\\Desktop\\kisisel\\y\u0131ll\u0131kizin\\yillikizin\\yillikizin\\Views\\Home\\Index.cshtml",
+              "RelativeToolTip": "yillikizin\\Views\\Home\\Index.cshtml",
+              "ViewState": "AgIAAKMAAAAAAAAAAADwv7oAAAAbAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-02-28T13:19:55.381Z"
             }
           ]
         }

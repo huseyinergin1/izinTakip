@@ -43,8 +43,8 @@ namespace yillikizin.Controllers  // Buraya kendi proje namespace'inizi yazın
                 // Giriş yapmamış kullanıcıyı login sayfasına yönlendir
                 filterContext.Result = new RedirectToRouteResult(
                     new RouteValueDictionary {
-                        { "controller", "Account" },
-                        { "action", "Login" }
+                        { "controller", "Login" },
+                        { "action", "Index" }
                     });
             }
             else

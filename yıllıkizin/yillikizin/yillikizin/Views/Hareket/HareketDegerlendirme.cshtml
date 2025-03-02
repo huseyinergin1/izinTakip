@@ -23,7 +23,6 @@
         </div>
         <button type="button" class="btn btn-primary" id="updateButton">Güncelle</button>
         <div class="export-buttons d-flex justify-content-start mt-3">
-            <button type="button" class="btn btn-danger export-btn" id="exportButton">PDF'e Aktar</button>
             <button type="button" class="btn btn-success export-btn" id="exportExcelButton">Excel'e Aktar</button>
         </div>
     </div>
@@ -57,225 +56,279 @@
                @(ViewBag.FilterType == "Devamsiz" ? "checked" : "") />
         <label for="Devamsiz">Devamsızlar</label>
     </label>
-
+    <label>
+        <input type="radio" id="FazlaMesai" name="FilterType" value="FazlaMesai"
+               onchange="filterData()"
+               @(ViewBag.FilterType == "FazlaMesai" ? "checked" : "") />
+        <label for="FazlaMesai">Fazla Mesaili</label>
+    </label>
 </form>
-
-<table id="personelTable" class="table-bordered table-striped table-hover table">
-    <thead>
-        <tr>
-            <th class="header-column">Tarih</th>
-            <th class="header-column">Adı</th>
-            <th class="header-column">Soyadı</th>
-            <th class="header-column">Kart No</th>
-            <th class="header-column">Departman</th>
-            <th class="header-column">Giriş</th>
-            <th class="header-column">Çıkış</th>
-            <th class="header-column">NCS</th>
-            <th class="header-column">MCS</th>
-            <th class="header-column">Eksik</th>
-            <th class="header-column">Mesai</th>
-            <th class="header-column">Bilgi</th>
-        </tr>
-        <tr>
-            <th><input type="text" class="form-control arama" placeholder="Tarih ara..." /></th>
-            <th><input type="text" class="form-control arama" placeholder="Adı ara..." /></th>
-            <th><input type="text" class="form-control arama" placeholder="Soyadı ara..." /></th>
-            <th><input type="text" class="form-control arama" placeholder="Kart No ara..." /></th>
-            <th><input type="text" class="form-control arama" placeholder="Departman ara..." /></th>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (Model.PersonelListesi != null && Model.PersonelListesi.Count > 0)
-        {
-            foreach (var personel in Model.PersonelListesi)
-            {
-                for (var currentDate = Model.StartDate; currentDate <= Model.EndDate; currentDate = currentDate.AddDays(1))
+<div class="table-responsive">
+    <table class="table-bordered table-striped table">
+        <table id="personelTable" class="table-bordered table-striped table-hover table">
+            <thead>
+                <tr>
+                    <th class="header-column">Tarih</th>
+                    <th class="header-column">Adı</th>
+                    <th class="header-column">Soyadı</th>
+                    <th class="header-column">Kart No</th>
+                    <th class="header-column">Departman</th>
+                    <th class="header-column">Giriş</th>
+                    <th class="header-column">Çıkış</th>
+                    <th class="header-column">MCS</th>
+                    <th class="header-column">NCS</th>
+                    <th class="header-column">Eksik</th>
+                    <th class="header-column">Mesai</th>
+                    <th class="header-column2">Bilgi</th>
+                </tr>
+                <tr>
+                    <th><input type="text" class="form-control arama" placeholder="Tarih ara..." /></th>
+                    <th><input type="text" class="form-control arama" placeholder="Adı ara..." /></th>
+                    <th><input type="text" class="form-control arama" placeholder="Soyadı ara..." /></th>
+                    <th><input type="text" class="form-control arama" placeholder="Kart No ara..." /></th>
+                    <th><input type="text" class="form-control arama" placeholder="Departman ara..." /></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.PersonelListesi != null && Model.PersonelListesi.Count > 0)
                 {
-                    var hareket = Model.HareketListesi
-                        .FirstOrDefault(h => h.Tarih.Date == currentDate && h.PersonelId == personel.id);
-
-                    var izin = Model.IzinListesi
-                        .FirstOrDefault(i => i.Personelıd == personel.id && i.BaslangicTarihi <= currentDate && i.BitisTarihi >= currentDate);
-
-                    if (hareket != null)
+                    foreach (var personel in Model.PersonelListesi)
                     {
-                        // Bilgiye göre renk ve simge belirleme
-                        string bilgiClass = hareket.Bilgi == "OK" ? "text-success"
-                            : hareket.Bilgi == "DEVAMSIZ" ? "text-warning"
-                            : "text-danger";
+                        for (var currentDate = Model.StartDate; currentDate <= Model.EndDate; currentDate = currentDate.AddDays(1))
+                        {
+                            var hareket = Model.HareketListesi
+                                .FirstOrDefault(h => h.Tarih.Date == currentDate && h.PersonelId == personel.id);
 
-                        string bilgiIcon = hareket.Bilgi == "OK" ? "&#9989;"
-                            : hareket.Bilgi == "DEVAMSIZ" ? "&#9888;"
-                            : "&#9940;";
+                            var izin = Model.IzinListesi
+                                .FirstOrDefault(i => i.Personelıd == personel.id && i.BaslangicTarihi <= currentDate && i.BitisTarihi >= currentDate);
 
-                        <tr data-girisdurumu="@hareket.GirişDurumu">
-                            <td style="text-align: left;">
-                                @currentDate.ToString("yyyy-MM-dd") @currentDate.ToString("ddd")
-                            </td>
-                            <td>@personel.adi</td>
-                            <td>@personel.soyadi</td>
-                            <td>@personel.kartno</td>
-                            <td>@personel.departman</td>
-                            <td>
-                                @if (hareket.GirişSaatleri != null && hareket.GirişSaatleri.Count > 0)
+                            if (hareket != null)
+                            {
+                                // Bilgiye göre renk ve simge belirleme
+                                string bilgiClass = "";
+                                string bilgiIcon = "";
+                                string bilgiText = "";
+
+                                switch (hareket.Bilgi)
                                 {
-                                    foreach (var girişSaati in hareket.GirişSaatleri)
-                                    {
-                                        if (hareket.GirişDurumu == "Erken")
+                                    case "OK":
+                                        bilgiClass = "text-success";
+                                        bilgiIcon = "✅";
+                                        bilgiText = "OK";
+                                        break;
+                                    case "DEVAMSIZ":
+                                        bilgiClass = "text-warning";
+                                        bilgiIcon = "⚠️";
+                                        bilgiText = "DEVAMSIZLIK";
+                                        break;
+                                    case "GİRİŞ YOK":
+                                        bilgiClass = "text-danger";
+                                        bilgiIcon = "⛔";
+                                        bilgiText = "GİRİŞ YAPILMADI";
+                                        break;
+                                    case "ÇIKIŞ YOK":
+                                        bilgiClass = "text-danger";
+                                        bilgiIcon = "⛔";
+                                        bilgiText = "ÇIKIŞ YAPILMADI";
+                                        break;
+                                }
+
+                                <tr data-girisdurumu="@hareket.GirişDurumu">
+                                    <td style="text-align: left;">
+                                        @currentDate.ToString("yyyy-MM-dd") @currentDate.ToString("ddd")
+                                    </td>
+                                    <td>@personel.adi</td>
+                                    <td>@personel.soyadi</td>
+                                    <td>@personel.kartno</td>
+                                    <td>@personel.departman</td>
+                                    <td>
+                                        @if (hareket.GirişSaatleri != null && hareket.GirişSaatleri.Count > 0)
                                         {
-                                            <div style="color: blue;">@girişSaati.ToString(@"hh\:mm")</div>
-                                        }
-                                        else if (hareket.GirişDurumu == "Geç")
-                                        {
-                                            <div style="color: red;">@girişSaati.ToString(@"hh\:mm")</div>
+                                            foreach (var girişSaati in hareket.GirişSaatleri)
+                                            {
+                                                if (hareket.GirişDurumu == "Erken")
+                                                {
+                                                    <div style="color: blue;">@girişSaati.ToString(@"hh\:mm")</div>
+                                                }
+                                                else if (hareket.GirişDurumu == "Geç")
+                                                {
+                                                    <div style="color: red;">@girişSaati.ToString(@"hh\:mm")</div>
+                                                }
+                                                else
+                                                {
+                                                    <div>@girişSaati.ToString(@"hh\:mm")</div>
+                                                }
+                                            }
                                         }
                                         else
                                         {
-                                            <div>@girişSaati.ToString(@"hh\:mm")</div>
+                                            <span style="color: red;">⚠️</span>
                                         }
-                                    }
-                                }
-                                else
-                                {
-                                    <span style="color: red;">&#9888;</span>
-                                }
-                            </td>
-                            <td>
-                                @if (hareket.ÇıkışSaatleri != null && hareket.ÇıkışSaatleri.Count > 0)
-                                {
-                                    foreach (var çıkışSaati in hareket.ÇıkışSaatleri)
-                                    {
-                                        if (hareket.ÇıkışDurumu == "ErkenÇıkma")
+                                    </td>
+                                    <td>
+                                        @if (hareket.ÇıkışSaatleri != null && hareket.ÇıkışSaatleri.Count > 0)
                                         {
-                                            <div style="color: purple;">@çıkışSaati.ToString(@"hh\:mm")</div>
+                                            foreach (var çıkışSaati in hareket.ÇıkışSaatleri)
+                                            {
+                                                if (hareket.ÇıkışDurumu == "ErkenÇıkma")
+                                                {
+                                                    <div style="color: purple;">@çıkışSaati.ToString(@"hh\:mm")</div>
+                                                }
+                                                else
+                                                {
+                                                    <div>@çıkışSaati.ToString(@"hh\:mm")</div>
+                                                }
+                                            }
                                         }
                                         else
                                         {
-                                            <div>@çıkışSaati.ToString(@"hh\:mm")</div>
+                                            <span style="color: red;">⚠️</span>
                                         }
-                                    }
-                                }
-                                else
-                                {
-                                    <span style="color: red;">&#9888;</span>
-                                }
-                            </td>
-                            <td>
-                                @hareket.MCS.ToString(@"hh\:mm")
+                                    </td>
+                                    <td>
+                                        @hareket.MCS.ToString(@"hh\:mm")
+                                    </td>
+                                    <td>
+                                        @if (hareket.CalismaSuresi != TimeSpan.Zero)
+                                        {
+                                            @hareket.CalismaSuresi.ToString(@"hh\:mm")
+                                        }
+                                        else
+                                        {
+                                            <span style="color: red;">⚠️</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (hareket.EksikSure > TimeSpan.Zero)
+                                        {
+                                            <div style="color: red;">@hareket.EksikSure.ToString(@"hh\:mm")</div>
+                                        }
+                                        else
+                                        {
+                                            <span style="color: green;">00:00</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (hareket.FazlaMesai > TimeSpan.Zero)
+                                        {
+                                            <div style="font-weight: bold;">@hareket.FazlaMesai.ToString(@"hh\:mm")</div>
+                                        }
+                                        else
+                                        {
+                                            <span style="color: green;">00:00</span>
+                                        }
+                                    </td>
+                                    <td class="@bilgiClass" style="min-width: 200px;">
+                                        <div class="d-flex align-items-center">
+                                            <span class="mr-2">@Html.Raw(bilgiIcon)</span>
+                                            <div>
+                                                <strong>@bilgiText</strong>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                            else if (izin != null)
+                            {
+                                <tr>
+                                    <td style="text-align: left;">
+                                        @currentDate.ToString("yyyy-MM-dd") @currentDate.ToString("ddd")
+                                    </td>
+                                    <td>@personel.adi</td>
+                                    <td>@personel.soyadi</td>
+                                    <td>@personel.kartno</td>
+                                    <td>@personel.departman</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td class="text-izin" style="min-width: 200px;">
+                                        <div class="d-flex align-items-center">
+                                            <div>
+                                                <strong>@izin.IzinTuru</strong> <br />
 
-                            </td>
-                            <td>
-                                @if (hareket.CalismaSuresi != TimeSpan.Zero)
+                                                @if (izin.BaslangicTarihi == izin.BitisTarihi)
+                                                {
+                                                    <span>Tek Gün İzin</span>
+                                                }
+                                                else
+                                                {
+                                                    <span>@((izin.BitisTarihi - izin.BaslangicTarihi).Days + 1) Gün İzin</span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                if (currentDate.DayOfWeek == DayOfWeek.Sunday)
                                 {
-                                    @hareket.CalismaSuresi.ToString(@"hh\:mm")
+                                    <tr>
+                                        <td style="text-align: left;">
+                                            @currentDate.ToString("yyyy-MM-dd") @currentDate.ToString("ddd")
+                                        </td>
+                                        <td>@personel.adi</td>
+                                        <td>@personel.soyadi</td>
+                                        <td>@personel.kartno</td>
+                                        <td>@personel.departman</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td class="text-ht" style="min-width: 200px;">
+                                            <div class="d-flex align-items-center">
+                                                <div>
+                                                    <strong >HAFTA <br />TATİLİ</strong>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 }
                                 else
                                 {
-                                    <span style="color: red;">&#9888;</span>
+                                    <tr>
+                                        <td style="text-align: left;">
+                                            @currentDate.ToString("yyyy-MM-dd") @currentDate.ToString("ddd")
+                                        </td>
+                                        <td>@personel.adi</td>
+                                        <td>@personel.soyadi</td>
+                                        <td>@personel.kartno</td>
+                                        <td>@personel.departman</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td class="text-warning" style="min-width: 200px;">
+                                            <div class="d-flex align-items-center">
+                                                <div>
+                                                    <strong>DEVAMSIZ</strong>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 }
-                            </td>
-                            <td>
-                                @if (hareket.EksikSure > TimeSpan.Zero)
-                                {
-                                    <div style="color: red;">@hareket.EksikSure.ToString(@"hh\:mm")</div>
-                                }
-                                else
-                                {
-                                    <span style="color: green;">00:00</span>
-                                }
-                            </td>
-                            <td>
-                                @if (hareket.FazlaMesai > TimeSpan.Zero)
-                                {
-                                    <div style="font-weight: bold;">@hareket.FazlaMesai.ToString(@"hh\:mm")</div>
-                                }
-                                else
-                                {
-                                    <span style="color: green;">00:00</span>
-                                }
-                            </td>
-                            <td class="@bilgiClass">
-                                <span>@Html.Raw(bilgiIcon)</span> @hareket.Bilgi
-                            </td>
-                        </tr>
-                    }
-                    else if (izin != null)
-                    {
-                        <tr>
-                            <td style="text-align: left;">
-                                @currentDate.ToString("yyyy-MM-dd") @currentDate.ToString("ddd")
-                            </td>
-                            <td>@personel.adi</td>
-                            <td>@personel.soyadi</td>
-                            <td>@personel.kartno</td>
-                            <td>@personel.departman</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td class="text-izin"><span>&#127774;</span> @izin.IzinTuru</td>
-                        </tr>
-                    }
-                    else
-                    {
-                        if (currentDate.DayOfWeek == DayOfWeek.Sunday)
-                        {
-                            <tr>
-                                <td style="text-align: left;">
-                                    @currentDate.ToString("yyyy-MM-dd") @currentDate.ToString("ddd")
-                                </td>
-                                <td>@personel.adi</td>
-                                <td>@personel.soyadi</td>
-                                <td>@personel.kartno</td>
-                                <td>@personel.departman</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td class="text-ht"><span>&#127774;</span> HAFTA TATİLİ</td>
-                            </tr>
-                        }
-                        else
-                        {
-                            <tr>
-                                <td style="text-align: left;">
-                                    @currentDate.ToString("yyyy-MM-dd") @currentDate.ToString("ddd")
-                                </td>
-                                <td>@personel.adi</td>
-                                <td>@personel.soyadi</td>
-                                <td>@personel.kartno</td>
-                                <td>@personel.departman</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                  <td></td>
-                                <td class="text-warning"><span>&#9888;</span> DEVAMSIZ</td>
-                            </tr>
+                            }
                         }
                     }
                 }
-            }
-        }
-        else
-        {
-            <tr>
-                <td colspan="8">Henüz hareket bulunmamaktadır.</td>
-            </tr>
-        }
-    </tbody>
-</table>
-
+            </tbody>
+        </table>
+    </table>
+</div>
 
 <script>
 $(document).ready(function () {
@@ -347,12 +400,27 @@ $(document).ready(function () {
         var selectedFilter = $('input[name="FilterType"]:checked').val();
         $('tbody tr').each(function () {
             var girisDurumu = $(this).data('girisdurumu');
+            var fazlaMesaiText = $(this).find('td:nth-child(11) span').text();
+            var fazlaMesaiVar = fazlaMesaiText !== "00:00";
+            var izinli = $(this).find('.text-izin').length > 0;
+            var devamsiz = $(this).find('.text-warning').length > 0;
+            var haftaTatili = $(this).find('.text-ht').length > 0;
+
             if (selectedFilter === "Izinliler") {
-                $(this).toggle($(this).find('.text-izin').length > 0);
-            } else if (selectedFilter === "Devamsiz") {
-                $(this).toggle($(this).find('.text-warning').length > 0);
-            } else {
+                $(this).toggle(izinli);
+            }
+            else if (selectedFilter === "Devamsiz") {
+                $(this).toggle(devamsiz);
+            }
+            else if (selectedFilter === "FazlaMesai") {
+                $(this).toggle(fazlaMesaiVar && !izinli && !devamsiz && !haftaTatili);
+            }
+            else if (selectedFilter === "Erken" || selectedFilter === "Geç" || selectedFilter === "ErkenCikma") {
+                // Giriş durumu filtreleri
                 $(this).toggle(girisDurumu === selectedFilter);
+            }
+            else {
+                $(this).toggle(true); // Filtre seçili değilse tümünü göster
             }
         });
     }
@@ -398,6 +466,56 @@ document.getElementById('exportButton').addEventListener('click', function() {
 });
 </script>
 <style>
+    .text-izin {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+        font-size: 4px;
+    }
+
+    .text-ht {
+        background-color: #fff3e0;
+        color: #ef6c00;
+    }
+
+    .text-warning {
+        background-color: #fff3e0;
+    }
+
+    .text-danger {
+        background-color: #ffebee;
+    }
+
+    .text-success {
+        background-color: #e8f5e9;
+    }
+
+    .text-purple {
+        color: purple;
+    }
+
+    td {
+        padding: 10px !important;
+    }
+
+    .small {
+        font-size: 0.85em;
+        opacity: 0.8;
+    }
+
+    .mr-2 {
+        margin-right: 10px;
+        font-size:12px;
+    }
+
+    .d-flex {
+        display: flex;
+    }
+
+    .align-items-center {
+        align-items: center;
+    }
+
+
     tr.mavi {
         background-color: #cce5ff;
     }
@@ -434,7 +552,11 @@ document.getElementById('exportButton').addEventListener('click', function() {
         text-align: center;
         padding: 10px 15px;
     }
-
+    .header-column2 {
+        background-color: #f2f2f2;
+        font-weight: bold;
+        padding: 10px 15px;
+    }
     /* Satır hücreleri */
     .table td {
         text-align: center;

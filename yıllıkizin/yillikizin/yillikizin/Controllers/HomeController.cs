@@ -39,6 +39,17 @@ namespace yillikizin.Controllers
                 .Distinct()
                 .ToList();
 
+
+            // Erken çıkan personel listesi
+            var erkenCikanPersonelList = GetErkenCikanPersonelWithDetails(today);
+            ViewBag.ErkenCikanPersonelList = erkenCikanPersonelList;
+            ViewBag.ErkenCikanPersonelSayisi = erkenCikanPersonelList.Count;
+
+            // Geç gelen personel listesi
+            var gecGelenPersonelList = GetGecGelenPersonelWithDetails(today);
+            ViewBag.GecGelenPersonelList = gecGelenPersonelList;
+            ViewBag.GecGelenPersonelSayisi = gecGelenPersonelList.Count;
+
             ViewBag.IzinliPersonel = izinliPersonelList.Count;
             ViewBag.IzinliPersonelList = izinliPersonelList;
 
@@ -82,7 +93,79 @@ namespace yillikizin.Controllers
             return View();
         }
 
-        // Belirtilen sayıda hareketi veritabanından al
+        private List<personel> GetErkenCikanPersonelWithDetails(DateTime today)
+        {
+            try
+            {
+                var mesaiBitisSaati = new TimeSpan(17, 0, 0);
+                var simdi = DateTime.Now.TimeOfDay; // Şu anki saat
+
+                // Debug için hareket kayıtlarını kontrol edelim
+                var tumHareketler = db.Hareketler
+                    .Where(h => h.Tarih.Value.Date == today.Date && h.Yon == "02")
+                    .ToList();
+
+                foreach (var hareket in tumHareketler)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Hareket Bulundu: Kart No: {hareket.KartNumarasi}, Saat: {hareket.Saat}, Yon: {hareket.Yon}");
+                }
+
+                var erkenCikanlar = (from h in db.Hareketler
+                                     join p in db.personel on h.KartNumarasi equals p.kartno
+                                     where h.Tarih.Value.Date == today.Date
+                                     && h.Yon == "02"
+                                     && h.Saat.HasValue // Null kontrolü
+                                     && h.Saat.Value < mesaiBitisSaati
+                                     select new { Personel = p, Saat = h.Saat.Value })
+                                    .ToList()
+                                    .Select(x =>
+                                    {
+                                        System.Diagnostics.Debug.WriteLine($"Erken Çıkış Tespit Edildi: {x.Personel.adi} {x.Personel.soyadi}, Saat: {x.Saat}");
+                                        return x.Personel;
+                                    })
+                                    .Distinct()
+                                    .ToList();
+
+                System.Diagnostics.Debug.WriteLine($"Toplam Erken Çıkan Sayısı: {erkenCikanlar.Count}");
+                return erkenCikanlar;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Erken çıkan personel listesi alınırken hata: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+                return new List<personel>();
+            }
+        }
+        private List<GecGelenPersonelModel> GetGecGelenPersonelWithDetails(DateTime today)
+        {
+            try
+            {
+                var mesaiBaslangicSaati = new TimeSpan(8, 45, 0); // Mesai başlangıç saati 08:45
+
+                var gecGelenler = (from h in db.Hareketler
+                                   join p in db.personel on h.KartNumarasi equals p.kartno
+                                   where h.Tarih == today.Date
+                                   && h.Yon == "01" // Giriş hareketleri
+                                   && h.Saat > mesaiBaslangicSaati
+                                   select new GecGelenPersonelModel // Use the new model here
+                                   {
+                                       adi = p.adi,
+                                       soyadi = p.soyadi,
+                                       kartno = p.kartno,
+                                       Saat = h.Saat // Include the Saat here
+                                   })
+                                 .Distinct()
+                                 .ToList();
+
+                return gecGelenler;
+            }
+            catch (Exception ex)
+            {
+                // Hata durumunda boş liste dön
+                System.Diagnostics.Debug.WriteLine($"Geç gelen personel listesi alınırken hata: {ex.Message}");
+                return new List<GecGelenPersonelModel>();
+            }
+        }
         private List<Hareket> ReadLastMovements(int hareketSayisi)
         {
             // Belirtilen sayıda hareketi veritabanından alıyoruz

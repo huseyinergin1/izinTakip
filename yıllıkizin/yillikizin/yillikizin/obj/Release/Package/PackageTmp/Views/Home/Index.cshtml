@@ -3,78 +3,93 @@
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 @model List<yillikizin.Models.personel>
+@using yillikizin.Controllers
 
-<div class="container-fluid">
-    <div class="row justify-content-center">
-        <div class="col-md-4 col-sm-6 mb-3">
-            <div class="modern-box" data-toggle="modal" data-target="#personelListesi">
-                <div class="modern-box-content">
-                    <h3>Personeller</h3>
-                    <p>@ViewBag.TotalPersonel</p>
-                </div>
-                <div class="modern-box-image">
-                    <img src="/images/personel.svg" alt="Personel">
-                </div>
+<!-- Container div'i ekleyelim -->
+<div class="dashboard-container">
+    <div class="dashboard-row">
+        <!-- İlk sıra - 4 kutu -->
+        <div class="modern-box" onclick="$('#personelListesi').modal('show')">
+            <div class="modern-box-content">
+                <h3>Personeller</h3>
+                <p>@ViewBag.TotalPersonel</p>
+            </div>
+            <div class="modern-box-image">
+                <img src="/images/personel.svg" alt="Personel">
             </div>
         </div>
 
-        <div class="col-md-4 col-sm-6 mb-3">
-            <div class="modern-box" data-toggle="modal" data-target="#departmanListesi">
-                <div class="modern-box-content">
-                    <h3>Departmanlar</h3>
-                    <p>@ViewBag.DepartmanSayisi</p>
-                </div>
-                <div class="modern-box-image">
-                    <img src="/images/departman.svg" alt="Departman">
-                </div>
+        <div class="modern-box" onclick="$('#departmanListesi').modal('show')">
+            <div class="modern-box-content">
+                <h3>Departmanlar</h3>
+                <p>@ViewBag.DepartmanSayisi</p>
+            </div>
+            <div class="modern-box-image">
+                <img src="/images/departman.svg" alt="Departman">
             </div>
         </div>
 
-        <div class="col-md-4 col-sm-6 mb-3">
-            <div class="modern-box" data-toggle="modal" data-target="#izinliPersonelListesi">
-                <div class="modern-box-content">
-                    <h3>İzinliler</h3>
-                    <p>@ViewBag.IzinliPersonel</p>
-                </div>
-                <div class="modern-box-image">
-                    <img src="/images/izinli.svg" alt="İzinliler">
-                </div>
+        <div class="modern-box" onclick="$('#izinliPersonelListesi').modal('show')">
+            <div class="modern-box-content">
+                <h3>İzinliler</h3>
+                <p>@ViewBag.IzinliPersonel</p>
+            </div>
+            <div class="modern-box-image">
+                <img src="/images/izinli.svg" alt="İzinliler">
             </div>
         </div>
 
-        <div class="col-md-4 col-sm-6 mb-3">
-            <div class="modern-box" data-toggle="modal" data-target="#dogumGunuListesi">
-                <div class="modern-box-content">
-                    <h3>Doğum Günü Olanlar</h3>
-                    <p>@(ViewBag.DogumGunuOlanlar != null ? ViewBag.DogumGunuOlanlar.Count : 0)</p>
-                </div>
-                <div class="modern-box-image">
-                    <img src="/images/dogumgunu.svg" alt="Doğum Günü">
-                </div>
+        <div class="modern-box" onclick="$('#dogumGunuListesi').modal('show')">
+            <div class="modern-box-content">
+                <h3>Doğum Günü Olanlar</h3>
+                <p>@(ViewBag.DogumGunuOlanlar != null ? ViewBag.DogumGunuOlanlar.Count : 0)</p>
+            </div>
+            <div class="modern-box-image">
+                <img src="/images/dogumgunu.svg" alt="Doğum Günü">
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-row">
+        <!-- İkinci sıra - 4 kutu -->
+        <div class="modern-box" onclick="$('#devamsizPersonelListesi').modal('show')">
+            <div class="modern-box-content">
+                <h3>Devamsız Personeller</h3>
+                <p>@ViewBag.DevamsizPersonelSayisi</p>
+            </div>
+            <div class="modern-box-image">
+                <img src="/images/devamsiz.svg" alt="Devamsız">
             </div>
         </div>
 
-        <div class="col-md-4 col-sm-6 mb-3">
-            <div class="modern-box" data-toggle="modal" data-target="#devamsizPersonelListesi">
-                <div class="modern-box-content">
-                    <h3>Devamsız Personeller</h3>
-                    <p>@ViewBag.DevamsizPersonelSayisi</p>
-                </div>
-                <div class="modern-box-image">
-                    <img src="/images/devamsiz.svg" alt="Devamsız">
-                </div>
+        <div class="modern-box" onclick="$('#iseGelenPersonelListesi').modal('show')">
+            <div class="modern-box-content">
+                <h3>Bugün İşe Gelenler</h3>
+                <p>@ViewBag.IseGelenPersonelSayisi</p>
+            </div>
+            <div class="modern-box-image">
+                <img src="/images/isegelen.svg" alt="İşe Gelenler">
             </div>
         </div>
 
-        <div class="col-md-4 col-sm-6 mb-3">
-            <div class="modern-box" data-toggle="modal" data-target="#iseGelenPersonelListesi">
-                <div class="modern-box-content">
-                    <h3>Bugün İşe Gelenler</h3>
-                    <p>@ViewBag.IseGelenPersonelSayisi</p>
-                </div>
-                <div class="modern-box-image">
-                    <img src="/images/isegelen.svg" alt="İşe Gelenler">
-                </div>
+        <!-- Yeni eklenecek kutular -->
+        <div class="modern-box" onclick="$('#GecGelenler').modal('show')">
+            <div class="modern-box-content">
+                <h3>Geç Gelenler</h3>
+                <p>@ViewBag.GecGelenPersonelSayisi</p>
+            </div>
+            <div class="modern-box-image">
+                <img src="/images/gec.jpg" alt="Geç Gelenler">
+            </div>
+        </div>
+
+        <div class="modern-box" onclick="$('#ErkenCikanlar').modal('show')">
+            <div class="modern-box-content">
+                <h3></h3>
+
+            </div>
+            <div class="modern-box-image">
+
             </div>
         </div>
     </div>
@@ -94,6 +109,14 @@
     <div style="margin-right: 10px;">
         <input id="40" type="radio" name="hareketSayisi" value="40" onchange="updateSelection(this.value)" />
         <label for="40">40</label>
+    </div>
+    <div style="margin-right: 10px;">
+        <input id="60" type="radio" name="hareketSayisi" value="60" onchange="updateSelection(this.value)" />
+        <label for="60">60</label>
+    </div>
+    <div style="margin-right: 10px;">
+        <input id="80" type="radio" name="hareketSayisi" value="80" onchange="updateSelection(this.value)" />
+        <label for="80">80</label>
     </div>
     <button type="button" onclick="setDefault()">Varsayılan Yap</button>
 </form>
@@ -422,6 +445,128 @@ else
     </div>
 </div>
 
+<!-- Geç Gelen Personel Listesi Modal -->
+<div id="GecGelenler" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Geç Gelen Personel Listesi</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="table-striped table" id="gecGelenPersonelTable">
+                    <thead>
+                        <tr>
+                            <th>Ad</th>
+                            <th>Soyad</th>
+                            <th>Kart No</th>
+                            <th>Giriş Saati</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.GecGelenPersonelList != null && ((List<yillikizin.Models.GecGelenPersonelModel>)ViewBag.GecGelenPersonelList).Count > 0)
+                        {
+                            foreach (var personel in (List<yillikizin.Models.GecGelenPersonelModel>)ViewBag.GecGelenPersonelList)
+                            {
+                                <tr>
+                                    <td>@personel.adi</td>
+                                    <td>@personel.soyadi</td>
+                                    <td>@personel.kartno</td>
+                                    <td>
+                                        @if (personel.Saat.HasValue)
+                                        {
+                                            @personel.Saat.Value.ToString(@"hh\:mm")
+                                        }
+                                        else
+                                        {
+                                            <span>Belirsiz</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4" class="text-center">Geç gelen personel bulunmamaktadır.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>
+    
+    <!-- Erken Çıkan Personel Listesi Modal -->
+<div id="ErkenCikanlar" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Erken Çıkan Personel Listesi</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="table-striped table" id="erkenCikanPersonelTable">
+                    <thead>
+                        <tr>
+                            <th>Ad</th>
+                            <th>Soyad</th>
+                            <th>Kart No</th>
+                            <th>Çıkış Saati</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.ErkenCikanPersonelList != null && ViewBag.ErkenCikanPersonelList.Count > 0)
+                        {
+                            foreach (var personel in ViewBag.ErkenCikanPersonelList)
+                            {
+                                <tr>
+                                    <td>@personel.adi</td>
+                                    <td>@personel.soyadi</td>
+                                    <td>@personel.kartno</td>
+                                    <td>
+                                        @{
+                                            var cikisSaati = "";
+                                            if (ViewBag.SonHareketler != null)
+                                            {
+                                                foreach (var h in ViewBag.SonHareketler)
+                                                {
+                                                    if (h.KartNumarasi == personel.kartno && h.Yon == "02")  // Property isimlerini modeldeki gibi kullandık
+                                                    {
+                                                        cikisSaati = h.Saat?.ToString(@"hh\:mm");  // Nullable olduğu için güvenli erişim
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        @cikisSaati
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4" class="text-center">Erken çıkan personel bulunmamaktadır.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="~/Content/Site/js/jquery.js"></script>
 <script src="@Url.Content("~/Content/Admin/plugins/jquery-datatable/jquery.dataTables.js")"></script>
@@ -499,6 +644,7 @@ else
     a.button {
         text-decoration: none;
     }
+
     body {
         font-family: Arial, sans-serif;
         background-color: #f4f6f9;
@@ -507,24 +653,36 @@ else
         padding: 0;
     }
 
+    /* Temel stiller */
+    .dashboard-container {
+        padding: 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .dashboard-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin-bottom: 20px;
+    }
 
     .modern-box {
         display: flex;
         justify-content: space-between;
         align-items: center;
         background: white;
-        border-radius: 8px;
+        border-radius: 12px;
         padding: 20px;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        transition: transform 0.2s, box-shadow 0.2s;
+        transition: all 0.3s ease;
         cursor: pointer;
-        height: 150px; /* Fixed height for consistency */
-        margin-bottom: 10px;
+        height: 150px;
     }
 
         .modern-box:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
         }
 
     .modern-box-content {
@@ -536,21 +694,80 @@ else
         .modern-box-content h3 {
             margin: 0;
             font-size: 1.2em;
-            color: #007bff;
+            color: #2c3e50;
+            font-weight: 600;
         }
 
         .modern-box-content p {
             margin: 10px 0 0;
             font-size: 2em;
-            color: #333;
+            color: #3498db;
+            font-weight: bold;
         }
 
-    .modern-box-image img {
+    .modern-box-image {
         width: 80px;
         height: 80px;
-        object-fit: cover;
+        min-width: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(52, 152, 219, 0.1);
         border-radius: 50%;
+        padding: 15px;
     }
+
+        .modern-box-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+    /* Responsive media queries */
+    @@media screen and (max-width: 1200px) {
+        .dashboard-row {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @@media screen and (max-width: 900px) {
+        .dashboard-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @@media screen and (max-width: 600px) {
+        .dashboard-row {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Diğer mevcut stiller */
+    button,
+    .button {
+        position: relative;
+        background-color: dodgerblue;
+        color: white;
+        border-radius: 0.2em;
+        border: none;
+        box-shadow: 0 0.125em 0.125em rgba(0, 0, 0, 0.3);
+        box-sizing: border-box;
+        display: inline-block;
+        cursor: pointer;
+        user-select: none;
+        -webkit-user-select: none;
+        font-family: inherit;
+        font-size: inherit;
+        line-height: normal;
+        font-weight: bold;
+        text-align: center;
+        outline: none;
+        padding: 0.6em;
+        margin: 0.2em;
+        transition: all 0.1s;
+        min-width: 10em;
+    }
+
 
     h1, h2 {
         color: #007bff;

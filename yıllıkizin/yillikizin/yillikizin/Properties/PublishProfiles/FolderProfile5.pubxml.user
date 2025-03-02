@@ -5,7 +5,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
 <Project>
   <PropertyGroup>
     <_PublishTargetUrl>C:\APDKS</_PublishTargetUrl>
-    <History>True|2025-02-26T10:39:11.8908612Z||;True|2025-02-26T10:37:18.4542211+03:00||;True|2025-02-15T11:44:33.3062905+03:00||;True|2025-02-15T11:09:03.9589727+03:00||;True|2025-01-29T11:38:43.3737245+03:00||;True|2025-01-29T08:13:32.8737441+03:00||;True|2025-01-21T11:49:39.1983668+03:00||;True|2025-01-21T11:04:45.3150294+03:00||;True|2025-01-20T16:22:06.3584879+03:00||;True|2025-01-20T12:08:46.7399244+03:00||;True|2025-01-19T16:35:28.4165737+03:00||;True|2025-01-18T17:51:00.1074238+03:00||;</History>
+    <History>True|2025-02-28T14:05:54.5780653Z||;True|2025-02-28T15:46:01.9163861+03:00||;True|2025-02-28T15:11:28.3025511+03:00||;True|2025-02-27T15:28:50.8939333+03:00||;True|2025-02-26T13:39:11.8908612+03:00||;True|2025-02-26T10:37:18.4542211+03:00||;True|2025-02-15T11:44:33.3062905+03:00||;True|2025-02-15T11:09:03.9589727+03:00||;True|2025-01-29T11:38:43.3737245+03:00||;True|2025-01-29T08:13:32.8737441+03:00||;True|2025-01-21T11:49:39.1983668+03:00||;True|2025-01-21T11:04:45.3150294+03:00||;True|2025-01-20T16:22:06.3584879+03:00||;True|2025-01-20T12:08:46.7399244+03:00||;True|2025-01-19T16:35:28.4165737+03:00||;True|2025-01-18T17:51:00.1074238+03:00||;</History>
     <LastFailureDetails />
   </PropertyGroup>
   <ItemGroup>
@@ -499,10 +499,10 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>01/23/2014 12:57:34</publishTime>
     </File>
     <File Include="bin/yillikizin.dll">
-      <publishTime>02/26/2025 13:38:59</publishTime>
+      <publishTime>02/28/2025 17:05:42</publishTime>
     </File>
     <File Include="bin/yillikizin.pdb">
-      <publishTime>02/26/2025 13:38:59</publishTime>
+      <publishTime>02/28/2025 17:05:42</publishTime>
     </File>
     <File Include="Content/Admin/css/contact.css">
       <publishTime>01/20/2025 13:46:51</publishTime>
@@ -11562,11 +11562,14 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
     <File Include="Views/Email/Index.cshtml">
       <publishTime>02/22/2025 12:15:19</publishTime>
     </File>
+    <File Include="Views/Hareket/DevamsizlikIstatistikleri.cshtml">
+      <publishTime>02/27/2025 15:52:11</publishTime>
+    </File>
     <File Include="Views/Hareket/FazlaMesai.cshtml">
       <publishTime>01/18/2025 17:13:35</publishTime>
     </File>
     <File Include="Views/Hareket/HareketDegerlendirme.cshtml">
-      <publishTime>02/25/2025 12:37:28</publishTime>
+      <publishTime>02/28/2025 16:18:28</publishTime>
     </File>
     <File Include="Views/Hareket/HareketDegerlendirme2.cshtml">
       <publishTime>01/09/2025 08:33:07</publishTime>
@@ -11575,7 +11578,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>01/17/2025 23:41:56</publishTime>
     </File>
     <File Include="Views/Hareket/Index.cshtml">
-      <publishTime>02/25/2025 16:51:01</publishTime>
+      <publishTime>02/27/2025 13:50:55</publishTime>
     </File>
     <File Include="Views/Hareket/_HareketListesi.cshtml">
       <publishTime>02/23/2025 11:33:31</publishTime>
@@ -11596,7 +11599,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>01/25/2025 17:17:38</publishTime>
     </File>
     <File Include="Views/Home/Index.cshtml">
-      <publishTime>01/25/2025 17:13:39</publishTime>
+      <publishTime>02/28/2025 16:46:35</publishTime>
     </File>
     <File Include="Views/Home/PersonelEkle.cshtml">
       <publishTime>02/26/2025 13:33:33</publishTime>
@@ -11644,10 +11647,10 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>10/03/2024 09:04:57</publishTime>
     </File>
     <File Include="Views/Shared/_LayoutAdmin.cshtml">
-      <publishTime>02/24/2025 14:16:31</publishTime>
+      <publishTime>02/28/2025 08:44:29</publishTime>
     </File>
     <File Include="Views/Shared/_LeftsideBar.cshtml">
-      <publishTime>02/25/2025 13:28:55</publishTime>
+      <publishTime>02/27/2025 16:00:52</publishTime>
     </File>
     <File Include="Views/Shared/_RightsideBar.cshtml">
       <publishTime>04/27/2024 13:25:19</publishTime>

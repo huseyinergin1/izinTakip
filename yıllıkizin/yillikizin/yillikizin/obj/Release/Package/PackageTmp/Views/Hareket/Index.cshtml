@@ -99,6 +99,7 @@
             </div>
             <div id="popupMessageToplu" class="alert" style="display:none;"></div>
             <div class="modal-body">
+                <div id="popupMessageToplu" class="alert" style="display:none;"></div>
                 <form id="topluIslemlerForm">
                     <div class="form-row mb-3">
                         <label>İşlem Türü:</label>
@@ -109,6 +110,13 @@
                             <label class="btn btn-outline-primary flex-fill">
                                 <input type="radio" name="islemTuru" value="sil"> Toplu Hareket Sil
                             </label>
+                        </div>
+                    </div>
+                    <div class="form-row mb-3">
+                        <div class="col-md-12">
+                            <div class="alert alert-info">
+                                Seçili Personel: <strong id="selectedPersonelInfo"></strong>
+                            </div>
                         </div>
                     </div>
                     <div class="form-row mb-3">
@@ -174,7 +182,7 @@
                     <div class="form-row mb-3">
                         <div class="col-md-6">
                             <label for="tarih">Tarih:</label>
-                            <input type="date" class="form-control" id="tarih" name="tarih" required />
+                            <input type="date" class="form-control" id="tarih" name="tarih" required>
                         </div>
                         <div class="col-md-6">
                             <label for="saat">Saat:</label>
@@ -184,8 +192,8 @@
                     <div class="form-group">
                         <label>Yön Bilgisi</label>
                         <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                            <label class="btn btn-outline-primary">
-                                <input type="radio" name="yon" value="01"> Giriş
+                            <label class="btn btn-outline-primary active">
+                                <input type="radio" name="yon" value="01" checked> Giriş
                             </label>
                             <label class="btn btn-outline-primary">
                                 <input type="radio" name="yon" value="02"> Çıkış
@@ -205,11 +213,11 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-var selectedIds = [];
-var sortOrder = {}; // Sıralama durumunu takip etmek için bir nesne
-var selectedKartNo = '';
 
 $(document).ready(function () {
+    var selectedIds = [];
+    var selectedKartNo = '';
+
     // Sayfa yüklendiğinde seçilen personeli işaretle
     var selectedPersonelId = sessionStorage.getItem('selectedPersonelId');
     if (selectedPersonelId) {
@@ -218,13 +226,12 @@ $(document).ready(function () {
         row.find("iframe").contents().find("input[type='checkbox']").prop('checked', true);
     }
 
-    // İşlem Türü değiştiğinde yön bilgisi ve saat girişini göster/gizle
+    // İşlem Türü ve Yön Bilgisi event handlers
     $('input[name="islemTuru"]').change(function () {
         toggleYonRow();
         toggleSaatRow();
     });
 
-    // Yön Bilgisi değiştiğinde saat girişini göster/gizle
     $('input[name="yonToplu"]').change(function () {
         toggleSaatRow();
     });
@@ -232,13 +239,10 @@ $(document).ready(function () {
     function toggleYonRow() {
         var islemTuru = $('input[name="islemTuru"]:checked').val();
         if (islemTuru === 'sil') {
-            // Eğer işlem türü sil ise Belirsiz Yön seçeneğini göster
             $('#yonTopluBelirsiz').show();
         } else {
-            // Eğer işlem türü ekle ise Belirsiz Yön seçeneğini gizle
             $('#yonTopluBelirsiz').hide();
-            // Giriş yönünü varsayılan olarak seç
-            $('input[name="yonToplu"][value="01"]').prop('checked', true);
+            $('input[name="yonToplu"][value="01"]').prop('checked', true).parent().addClass('active');
         }
     }
 
@@ -246,46 +250,38 @@ $(document).ready(function () {
         var islemTuru = $('input[name="islemTuru"]:checked').val();
         var yon = $('input[name="yonToplu"]:checked').val();
 
-        if (islemTuru === 'sil' && yon === '03') {
-            // Eğer işlem türü sil ve yön belirsiz ise saat girişini gösterme
-            $('#saatRow').hide();
-            $('#saatToplu').removeAttr('required');
-        } else if (islemTuru === 'sil') {
-            // Eğer işlem türü sil ise saat girişini gösterme
+        if (islemTuru === 'sil' && (yon === '03' || !yon)) {
             $('#saatRow').hide();
             $('#saatToplu').removeAttr('required');
         } else {
-            // Diğer durumlarda saat girişini göster
             $('#saatRow').show();
             $('#saatToplu').attr('required', 'required');
         }
     }
-      // Personel satırına tıklandığında
-  $('#personelListesi').on('click', '.personel-row', function () {
-      var personelId = $(this).data('personel-id');
-      selectedKartNo = $(this).find('td').eq(3).text().trim(); // Kart numarasını al ve boşlukları temizle
-      var personelAdi = $(this).find('td').eq(1).text().trim();
-      var personelSoyadi = $(this).find('td').eq(2).text().trim();
 
-      console.log('Seçilen kart no:', selectedKartNo); // Debug için
+    // Personel satırına tıklandığında
+    $('#personelListesi').on('click', '.personel-row', function () {
+        var personelId = $(this).data('personel-id');
+        selectedKartNo = $(this).find('td').eq(3).text().trim();
+        var personelAdi = $(this).find('td').eq(1).text().trim();
+        var personelSoyadi = $(this).find('td').eq(2).text().trim();
 
-      getHareketler(personelId);
-      $('#personelListesi .personel-row').removeClass('table-active');
-      $(this).addClass('table-active');
-      sessionStorage.setItem('selectedPersonelId', personelId);
-  });
-  // Yeni hareket butonuna tıklandığında
-  $('#yeniHareket').click(function (e) {
-      var selectedRow = $('.table-active');
-      if (selectedRow.length === 0) {
-          e.preventDefault();
-          alert('Lütfen önce bir personel seçin!');
-          return false;
-      }
-  });
+        getHareketler(personelId);
+        $('#personelListesi .personel-row').removeClass('table-active');
+        $(this).addClass('table-active');
+        sessionStorage.setItem('selectedPersonelId', personelId);
+    });
 
-// Modal açıldığında
-    // Modal açıldığında
+    // Yeni hareket butonu kontrolü
+    $('#yeniHareket').click(function (e) {
+        if ($('.table-active').length === 0) {
+            e.preventDefault();
+            alert('Lütfen önce bir personel seçin!');
+            return false;
+        }
+    });
+
+    // Modal açılış işlemleri
     $('#yeniHareketModal').on('show.bs.modal', function () {
         var selectedRow = $('.table-active');
         if (selectedRow.length === 0) {
@@ -296,165 +292,253 @@ $(document).ready(function () {
         // Personel bilgilerini al
         var personelAdi = selectedRow.find('td').eq(1).text().trim();
         var personelSoyadi = selectedRow.find('td').eq(2).text().trim();
-
-        // Personel bilgilerini göster
         $('#selectedPersonelInfo').text(personelAdi + ' ' + personelSoyadi);
 
-        // Bugünün tarihini set et
-        var today = new Date().toISOString().split('T')[0];
-        $('#tarih').val(today);
-
-        // Şimdiki saati set et
-        var now = new Date();
-        var hours = String(now.getHours()).padStart(2, '0');
-        var minutes = String(now.getMinutes()).padStart(2, '0');
-        $('#saat').val(`${hours}:${minutes}`);
-
-        // Eğer hiçbir yön seçili değilse varsayılan olarak giriş seç
-        if (!$('input[name="yon"]:checked').length) {
-            $('input[name="yon"][value="01"]').prop('checked', true).parent().addClass('active');
-            $('input[name="yon"][value="02"]').prop('checked', false).parent().removeClass('active');
-        }
+        // Form değerlerini sıfırla
+        $('#yeniHareketForm')[0].reset();
     });
 
     // Yön seçimi değiştiğinde
     $('input[name="yon"]').change(function () {
-        // Önce tüm butonların active class'ını kaldır
         $('.btn-group-toggle label').removeClass('active');
-        // Seçili butona active class ekle
         $(this).parent().addClass('active');
-
-        // Debug için seçilen değeri konsola yazdır
-        console.log('Seçilen yön:', $(this).val());
     });
-// Yön radio butonları değiştiğinde
-$('input[name="yon"]').change(function() {
-    // Tüm butonların active class'ını kaldır
-    $('input[name="yon"]').parent().removeClass('active');
-    // Seçili butona active class'ı ekle
-    $(this).parent().addClass('active');
-});
 
-// Hareket kaydetme
-$('#btnHareketKaydet').click(function () {
-    $('#popupMessage').hide().removeClass('alert-success alert-danger').text('');
 
-    var selectedRow = $('.table-active');
-    if (selectedRow.length === 0) {
-        $('#popupMessage').addClass('alert-danger').text('Lütfen önce bir personel seçin.').show();
-        return;
-    }
+    // Kaydet butonu işlemleri
+    // Kaydet butonu işlemleri
+    $('#btnHareketKaydet').click(function () {
+        $('#popupMessage').hide().removeClass('alert-success alert-danger').text('');
 
-    var personelId = selectedRow.data('personel-id');
-    var tarih = $('#tarih').val();
-    var saat = $('#saat').val();
-    var yon = $('input[name="yon"]:checked').val();
-    var terminalNo = '001';
+        // Önemli: Modal içindeki elementleri doğru şekilde seç
+        var tarih = $('#yeniHareketModal').find('#tarih').val();
+        var saat = $('#yeniHareketModal').find('#saat').val();
+        var yon = $('#yeniHareketModal').find('input[name="yon"]:checked').val();
+        var terminalNo = $('#yeniHareketModal').find('#terminalNo').val();
 
-    console.log('Seçilen yön:', yon); // Debug için
-
-    if (!tarih || !saat || !yon) {
-        $('#popupMessage').addClass('alert-danger').text('Lütfen tüm alanları doldurun.').show();
-        return;
-    }
-
-    $.ajax({
-        type: 'POST',
-        url: '@Url.Action("YeniHareketEkle", "Hareket")',
-        data: {
-            personelId: personelId,
-            terminalNo: terminalNo,
+        // Debug için değerleri konsola yazdır
+        console.log('Seçilen değerler:', {
             tarih: tarih,
             saat: saat,
-            yon: yon // "01" veya "02" olarak gönderilecek
-        },
-        success: function (response) {
-            if (response.success) {
-                $('#popupMessage').addClass('alert-success').text('Hareket başarıyla eklendi.').show();
-                $('#yeniHareketModal').modal('hide');
+            yon: yon,
+            terminalNo: terminalNo
+        });
 
-                // Hareket listesini güncelle
-                getHareketler(personelId);
-            } else {
-                $('#popupMessage').addClass('alert-danger').text(response.message || 'Bir hata oluştu.').show();
-            }
-        },
-        error: function (xhr, status, error) {
-            var errorMessage = 'Hata Oluştu: ';
-            if (xhr.responseJSON && xhr.responseJSON.message) {
-                errorMessage += xhr.responseJSON.message;
-            } else {
-                errorMessage += error;
-            }
-            $('#popupMessage').addClass('alert-danger').text(errorMessage).show();
-        }
-    });
-});
-
-    // Toplu İşlem Kaydetme
-$('#btnTopluIslemKaydet').click(function () {
-        $('#popupMessageToplu').hide().removeClass('alert-success alert-danger').text('');
-
-        var islemTuru = $('#topluIslemlerModal').find('input[name="islemTuru"]:checked').val();
-        var baslangicTarihi = $('#topluIslemlerModal').find('#baslangicTarihiToplu').val();
-        var bitisTarihi = $('#topluIslemlerModal').find('#bitisTarihiToplu').val();
-        var saat = $('#topluIslemlerModal').find('#saatToplu').val();
-        var yon = $('#topluIslemlerModal').find('input[name="yonToplu"]:checked').val();
-
-        if (!islemTuru || !baslangicTarihi || !bitisTarihi || (islemTuru === 'ekle' && !saat) || !yon) {
-            $('#popupMessageToplu').addClass('alert-danger').text('Lütfen tüm alanları doldurun.').show();
+        // Validasyon kontrolleri
+        if (!tarih || !saat || !yon) {
+            $('#popupMessage').addClass('alert-danger').text('Lütfen tüm alanları doldurun.').show();
             return;
         }
 
+        var selectedRow = $('.table-active');
+        var personelId = selectedRow.data('personel-id');
+
         $.ajax({
             type: 'POST',
-            url: '@Url.Action("TopluIslem", "Hareket")',
+            url: '/Hareket/YeniHareketEkle',
             data: {
+                personelId: personelId,
+                terminalNo: terminalNo,
+                tarih: tarih,
+                saat: saat,
+                yon: yon
+            },
+            success: function (response) {
+                if (response.success) {
+                    $('#popupMessage').addClass('alert-success').text('Hareket başarıyla eklendi.').show();
+
+                    // Yeni satırı oluştur
+                    var newRow = `
+                    <tr data-id="${response.hareketId}">
+                        <td>
+                            ${yon === "01" ?
+                            '<i class="fas fa-sign-in-alt text-success fa-lg"></i>' :
+                            '<i class="fas fa-sign-out-alt text-danger fa-lg"></i>'}
+                        </td>
+                        <td>${terminalNo}</td>
+                        <td>${tarih}</td>
+                        <td>${saat}</td>
+                        <td>
+                            ${yon === "01" ? "Giriş" : "Çıkış"}
+                        </td>
+                        <td>
+                            <button class="btn btn-primary btn-sm btn-duzenle" data-id="${response.hareketId}">Düzenle</button>
+                            <button class="btn btn-danger btn-sm btn-sil" data-id="${response.hareketId}">Sil</button>
+                        </td>
+                    </tr>
+                `;
+
+                    // Yeni hareketi tabloya ekle
+                    $('#hareketTablosu').prepend(newRow);
+
+                    setTimeout(function () {
+                        $('#yeniHareketModal').modal('hide');
+                        getHareketler(personelId);
+                    }, 1500);
+                } else {
+                    $('#popupMessage').addClass('alert-danger').text(response.message || 'Bir hata oluştu.').show();
+                }
+            },
+            error: function (xhr, status, error) {
+                var errorMessage = xhr.responseJSON ? xhr.responseJSON.message : 'Bir hata oluştu: ' + error;
+                $('#popupMessage').addClass('alert-danger').text(errorMessage).show();
+            }
+        });
+    });
+
+    // Toplu işlem modalı açılış işlemleri
+    $('#topluIslemlerModal').on('show.bs.modal', function () {
+        var selectedRow = $('.table-active');
+        if (selectedRow.length === 0) {
+            alert('Lütfen önce bir personel seçin!');
+            return false;
+        }
+
+        // Personel bilgilerini al ve göster
+        var personelAdi = selectedRow.find('td').eq(1).text().trim();
+        var personelSoyadi = selectedRow.find('td').eq(2).text().trim();
+        $('#selectedPersonelInfo').text(personelAdi + ' ' + personelSoyadi);
+
+        // Form değerlerini sıfırla
+        $('#topluIslemlerForm')[0].reset();
+
+        // Varsayılan seçimleri yap
+        $('input[name="islemTuru"][value="ekle"]').prop('checked', true).closest('label').addClass('active');
+        $('input[name="yonToplu"][value="01"]').prop('checked', true).closest('label').addClass('active');
+
+        // Belirsiz yön seçeneğini gizle (varsayılan olarak)
+        $('#yonTopluBelirsiz').hide();
+
+        // Form alanlarını güncelle
+        toggleYonRow();
+        toggleSaatRow();
+    });
+
+    // Kaydet butonu işlemleri
+    $('#btnTopluIslemKaydet').click(function () {
+        $('#popupMessageToplu').hide().removeClass('alert-success alert-danger').text('');
+
+        // Seçili personeli kontrol et
+        var selectedRow = $('.table-active');
+        if (selectedRow.length === 0) {
+            $('#popupMessageToplu').addClass('alert-danger').text('Lütfen önce bir personel seçin.').show();
+            return;
+        }
+
+        // Seçili personelin kart numarasını al
+        var kartNo = selectedRow.find('td').eq(3).text().trim(); // Kart numarası sütun indexine göre ayarlayın
+        var islemTuru = $('input[name="islemTuru"]:checked').val();
+        var baslangicTarihi = $('#baslangicTarihiToplu').val();
+        var bitisTarihi = $('#bitisTarihiToplu').val();
+        var saat = $('#saatToplu').val();
+        var yon = $('input[name="yonToplu"]:checked').val();
+
+        // Validasyon kontrolleri
+        if (!kartNo) {
+            $('#popupMessageToplu').addClass('alert-danger').text('Personel kart numarası bulunamadı.').show();
+            return;
+        }
+        if (!islemTuru) {
+            $('#popupMessageToplu').addClass('alert-danger').text('Lütfen işlem türü seçiniz.').show();
+            return;
+        }
+        if (!baslangicTarihi) {
+            $('#popupMessageToplu').addClass('alert-danger').text('Lütfen başlangıç tarihi seçiniz.').show();
+            return;
+        }
+        if (!bitisTarihi) {
+            $('#popupMessageToplu').addClass('alert-danger').text('Lütfen bitiş tarihi seçiniz.').show();
+            return;
+        }
+        if (islemTuru === 'ekle' && !saat) {
+            $('#popupMessageToplu').addClass('alert-danger').text('Lütfen saat seçiniz.').show();
+            return;
+        }
+        if (!yon) {
+            $('#popupMessageToplu').addClass('alert-danger').text('Lütfen yön seçiniz.').show();
+            return;
+        }
+
+        // Debug için
+        console.log('Gönderilen veriler:', {
+            kartNo: kartNo,
+            islemTuru: islemTuru,
+            baslangicTarihi: baslangicTarihi,
+            bitisTarihi: bitisTarihi,
+            saat: saat,
+            yon: yon
+        });
+
+        $.ajax({
+            type: 'POST',
+            url: '/Hareket/TopluIslem',
+            data: {
+                kartNo: kartNo,
                 islemTuru: islemTuru,
                 baslangicTarihi: baslangicTarihi,
                 bitisTarihi: bitisTarihi,
                 saat: islemTuru === 'ekle' ? saat : null,
-                yon: yon,
-                selectedPersonelIds: selectedIds // Seçilen personel ID'lerini gönder
+                yon: yon
             },
             success: function (response) {
                 if (response.success) {
                     $('#popupMessageToplu').addClass('alert-success').text('İşlem başarıyla gerçekleştirildi.').show();
                     setTimeout(function () {
-                        location.reload();
-                    }, 500);
+                        $('#topluIslemlerModal').modal('hide');
+                        // Kart numarasına göre hareketleri güncelle
+                        getHareketlerByKartNo(kartNo);
+                    }, 1500);
+                } else {
+                    $('#popupMessageToplu').addClass('alert-danger').text(response.message || 'Bir hata oluştu.').show();
                 }
             },
             error: function (xhr, status, error) {
-                var errorMessage = 'Hata Oluştu: ';
-                if (xhr.responseJSON && xhr.responseJSON.message) {
-                    errorMessage += xhr.responseJSON.message;
-                } else {
-                    errorMessage += error;
-                }
+                var errorMessage = xhr.responseJSON ? xhr.responseJSON.message : 'Bir hata oluştu: ' + error;
                 $('#popupMessageToplu').addClass('alert-danger').text(errorMessage).show();
             }
         });
     });
 
-    // Sayfa yüklendiğinde varsayılan seçeneği görsel olarak işaretleyin
+    // Kart numarasına göre hareketleri getiren fonksiyon
+    function getHareketlerByKartNo(kartNo) {
+        $.ajax({
+            url: '/Hareket/GetHareketler',
+            type: 'GET',
+            data: { kartNo: kartNo },
+            success: function (data) {
+                // Hareket tablosunu güncelle
+                // Bu kısmı kendi tablonuza göre uyarlayın
+                $('#hareketTablosu').html(data);
+            }
+        });
+    }
+    // Modal kapanış işlemleri
+    $('#topluIslemlerModal').on('hidden.bs.modal', function () {
+        $('#topluIslemlerForm')[0].reset();
+        $('#popupMessageToplu').hide().removeClass('alert-success alert-danger').text('');
+        $('#selectedPersonelInfo').text('');
+    });
+    // Modal kapanış işlemleri
+    $('#yeniHareketModal').on('hidden.bs.modal', function () {
+        $('#yeniHareketForm')[0].reset();
+        $('#popupMessage').hide().removeClass('alert-success alert-danger').text('');
+    });
+
+    // Sayfa yüklendiğinde varsayılan ayarlar
     $('input[name="islemTuru"][value="ekle"]').closest('label').addClass('active');
-    toggleYonRow(); // Varsayılan durum için yön girişini kontrol et
-    toggleSaatRow(); // Varsayılan durum için saat girişini kontrol et
+    toggleYonRow();
+    toggleSaatRow();
 
     // Sayfa yüklendiğinde bugünün hareketlerini filtrele
     var today = new Date();
-    var day = String(today.getDate()).padStart(2, '0');
-    var month = String(today.getMonth() + 1).padStart(2, '0');
-    var year = today.getFullYear();
-    var todayDate = year + '-' + month + '-' + day;
+    var todayDate = today.getFullYear() + '-' +
+                    String(today.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(today.getDate()).padStart(2, '0');
 
     $('#baslangicTarihi').val(todayDate);
     $('#bitisTarihi').val(todayDate);
     filterHareketler(todayDate, todayDate);
-
 });
-
     // Filtreleme butonu tıklama olayını yönet
     $('#filtrele').click(function () {
         var baslangicTarihi = $('#baslangicTarihi').val();
@@ -509,9 +593,7 @@ function filterHareketler(baslangicTarihi, bitisTarihi) {
         success: function (data) {
             $('#hareketListesi').html(data);
         },
-        error: function () {
-            showMessage('Hareketler yüklenirken bir hata oluştu.', 'danger');
-        }
+
     });
 }
 

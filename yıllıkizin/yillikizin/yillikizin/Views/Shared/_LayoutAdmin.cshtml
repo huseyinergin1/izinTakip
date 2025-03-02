@@ -21,10 +21,11 @@
     <link href="@Url.Content("~/Content/Admin/css/style.css")" rel="stylesheet">
     <link href="@Url.Content("~/Content/Admin/css/themes/all-themes.css")" rel="stylesheet" />
     <link href="~/Content/Admin/css/style.css" rel="stylesheet" />
+    <!-- Var olan CSS referansları -->
+    @RenderSection("Styles", required: false)  <!-- Styles section'ı eklendi -->
 </head>
 
 <body class="theme-red">
-
     <!-- #Top Bar -->
     @Html.Partial("_TopBar")
 

@@ -1,0 +1,172 @@
+﻿@{
+    Layout = null;
+}
+
+
+@section Styles {
+    <link href="https://cdn.jsdelivr.net/npm/chart.js" rel="stylesheet" />
+    <style>
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 400px;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+}
+
+<div class="container-fluid">
+    <h2 class="mb-4">@ViewBag.Title</h2>
+
+    <div class="row">
+        <!-- Aylık Devamsızlık Grafiği -->
+        <div class="col-md-6">
+            <div class="stats-card">
+                <h4>Aylık Devamsızlık</h4>
+                <div class="chart-container">
+                    <canvas id="aylikChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Haftalık Devamsızlık Grafiği -->
+        <div class="col-md-6">
+            <div class="stats-card">
+                <h4>Haftalık Devamsızlık</h4>
+                <div class="chart-container">
+                    <canvas id="haftalikChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detaylı Tablolar -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="stats-card">
+                <h4>Aylık Devamsızlık Detayları</h4>
+                <table class="table-striped table">
+                    <thead>
+                        <tr>
+                            <th>Personel</th>
+                            <th>Kart No</th>
+                            <th>Devamsızlık Sayısı</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in ViewBag.AylikDevamsizlik)
+                        {
+                            <tr>
+                                <td>@item.PersonelAdi</td>
+                                <td>@item.KartNo</td>
+                                <td>@item.DevamsizlikSayisi</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="stats-card">
+                <h4>Haftalık Devamsızlık Detayları</h4>
+                <table class="table-striped table">
+                    <thead>
+                        <tr>
+                            <th>Personel</th>
+                            <th>Kart No</th>
+                            <th>Devamsızlık Sayısı</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in ViewBag.HaftalikDevamsizlik)
+                        {
+                            <tr>
+                                <td>@item.PersonelAdi</td>
+                                <td>@item.KartNo</td>
+                                <td>@item.DevamsizlikSayisi</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        @{
+            // ViewBag verilerini liste olarak cast ediyoruz
+            var aylikListe = ViewBag.AylikDevamsizlik as List<yillikizin.Models.DevamsizlikViewModel>;
+            var haftalikListe = ViewBag.HaftalikDevamsizlik as List<yillikizin.Models.DevamsizlikViewModel>;
+
+            // JSON formatında string olarak hazırlıyoruz
+            var aylikLabels = string.Join(",", aylikListe.Select(x => "'" + x.PersonelAdi.Replace("'", "\\'") + "'"));
+            var aylikData = string.Join(",", aylikListe.Select(x => x.DevamsizlikSayisi));
+
+            var haftalikLabels = string.Join(",", haftalikListe.Select(x => "'" + x.PersonelAdi.Replace("'", "\\'") + "'"));
+            var haftalikData = string.Join(",", haftalikListe.Select(x => x.DevamsizlikSayisi));
+        }
+
+        // Aylık grafik
+        var aylikCtx = document.getElementById('aylikChart').getContext('2d');
+        var aylikChart = new Chart(aylikCtx, {
+            type: 'bar',
+            data: {
+                labels: [@Html.Raw(aylikLabels)],
+                datasets: [{
+                    label: 'Aylık Devamsızlık Sayısı',
+                    data: [@Html.Raw(aylikData)],
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Haftalık grafik
+        var haftalikCtx = document.getElementById('haftalikChart').getContext('2d');
+        var haftalikChart = new Chart(haftalikCtx, {
+            type: 'bar',
+            data: {
+                labels: [@Html.Raw(haftalikLabels)],
+                datasets: [{
+                    label: 'Haftalık Devamsızlık Sayısı',
+                    data: [@Html.Raw(haftalikData)],
+                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+}

@@ -5,12 +5,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using Quartz;
-using Rotativa;
 using yillikizin.Models;
 using Quartz.Impl;
-using yillikizin.Filters;
 using System.Data.Entity;
-using DocumentFormat.OpenXml.Drawing;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
+using System.Drawing;
 
 namespace yillikizin.Controllers
 {
@@ -135,139 +135,252 @@ namespace yillikizin.Controllers
             }
             return RedirectToAction("Eposta");
         }
+        // PDF olarak oluşturulacak rapor
         [HttpPost]
-        public async Task<ActionResult> SendTestEmail()
+        public async Task<ActionResult> SendEmail()
         {
             try
             {
-                var settings = db.EmailSettings.FirstOrDefault();
-                if (settings != null)
+                var emailSettingsList = await db.EmailSettings.ToListAsync();
+
+                if (!emailSettingsList.Any())
                 {
-                    var recipientEmails = settings.RecipientEmails.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToList();
-                    var emailService = new EmailService();
-                    string subject = "Test E-postası";
-                    string body = "Bu, test amaçlı gönderilen bir e-postadır.";
-
-                    // PDF oluşturma işlemini burada gerçekleştiriyoruz
-                    var pdfStream = GeneratePdfStream(DateTime.Now.AddDays(-1), DateTime.Now);
-
-                    using (pdfStream)
-                    {
-                        foreach (var recipientEmail in recipientEmails)
-                        {
-                            pdfStream.Position = 0; // Stream'i başa döndür
-                            await emailService.SendEmailWithAttachmentAsync(recipientEmail, subject, body, pdfStream, "TestRaporu.pdf");
-                        }
-                    }
-
-                    ViewBag.Message = "Test e-postası başarıyla gönderildi.";
+                    TempData["Error"] = "E-posta gönderilecek adres bulunamadı.";
+                    return RedirectToAction("Index");
                 }
-                else
+
+                // Sadece bugünün tarihini kullan
+                DateTime today = DateTime.Now.Date;
+
+                // Excel dosyasını oluştur
+                byte[] excelBytes;
+                using (var package = CreateExcelPackage(today, today, null))
                 {
-                    ViewBag.Message = "E-posta ayarları bulunamadı.";
+                    excelBytes = package.GetAsByteArray();
                 }
-            }
-            catch (Exception ex)
-            {
-                ViewBag.Message = $"Test e-postası gönderimi başarısız oldu: {ex.Message}";
-            }
 
-            return RedirectToAction("Eposta");
-        }
-
-        // PDF olarak oluşturulacak rapor
-        [AllowAnonymous]
-        public ActionResult HareketDegerlendirmeReport(DateTime? StartDate, DateTime? EndDate)
-        {
-            DateTime startDate = StartDate ?? DateTime.Now.Date;
-            DateTime endDate = EndDate ?? DateTime.Now.Date;
-            endDate = endDate.AddHours(23).AddMinutes(59).AddSeconds(59).AddMilliseconds(999);
-
-            var model = new HareketViewModel
-            {
-                PersonelListesi = GetPersonelListesi(),
-                HareketListesi = GetHareketListesi(),
-                StartDate = startDate,
-                EndDate = endDate
-            };
-
-            // Tarih aralığına göre filtreleme
-            model.HareketListesi = model.HareketListesi
-                .Where(h => h.Tarih >= startDate && h.Tarih <= endDate)
-                .ToList();
-
-            // Gruplama ve hareket bilgilerini doldurma
-            model.HareketListesi = model.HareketListesi
-                .GroupBy(h => new { h.Tarih, h.PersonelId })
-                .Select(g =>
+                // Excel dosyasını memory stream'e aktar
+                using (var ms = new MemoryStream(excelBytes))
                 {
-                    var hareket = new Hareket
+                    using (var emailService = new EmailService())
                     {
-                        Tarih = g.Key.Tarih,
-                        PersonelId = g.Key.PersonelId,
-                        personelAdi = g.First().personelAdi,
-                        personelSoyadi = g.First().personelSoyadi,
-                        GirişSaatleri = g.Where(h => h.IslemTipi == "01")
-                                         .OrderBy(h => h.Saat)
-                                         .Select(h => h.Saat)
-                                         .ToList(),
-                        ÇıkışSaatleri = g.Where(h => h.IslemTipi == "02")
-                                         .OrderByDescending(h => h.Saat)
-                                         .Select(h => h.Saat)
-                                         .ToList(),
-                        Bilgi = !g.Any() // Eğer hiçbir hareket yoksa "DEVAMSIZ"
-                        ? "DEVAMSIZ"
-                        : g.Any(h => h.IslemTipi == "01") && g.Any(h => h.IslemTipi == "02")
-                        ? "OK"
-                        : g.Any(h => h.IslemTipi == "01")
-                        ? "ÇIKIŞ YOK"
-                        : g.Any(h => h.IslemTipi == "02")
-                        ? "GİRİŞ YOK"
-                        : "DEVAMSIZ",
-                        GirişDurumu = ""
-                    };
-
-                    // Vardiya bilgilerini al ve giriş durumunu belirle
-                    var personel = model.PersonelListesi.FirstOrDefault(p => p.id == hareket.PersonelId);
-                    if (personel != null)
-                    {
-                        var vardiya = GetVardiyaById(personel.VardiyaId);
-                        if (vardiya != null)
+                        foreach (var emailSetting in emailSettingsList)
                         {
-                            TimeSpan erkenGelmeSaati = vardiya.ErkenGelme;
-                            TimeSpan gecGelmeSaati = vardiya.GecGelme;
-                            var girisSaati = hareket.GirişSaatleri.FirstOrDefault();
-                            if (girisSaati != null && girisSaati.Hours > 0)
+                            if (!string.IsNullOrEmpty(emailSetting.RecipientEmails))
                             {
-                                if (girisSaati < erkenGelmeSaati)
+                                var recipientEmails = emailSetting.RecipientEmails
+                                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                                    .Select(e => e.Trim())
+                                    .Where(e => !string.IsNullOrEmpty(e));
+
+                                foreach (var email in recipientEmails)
                                 {
-                                    hareket.GirişDurumu = "Erken";
-                                }
-                                else if (girisSaati > gecGelmeSaati)
-                                {
-                                    hareket.GirişDurumu = "Geç";
-                                }
-                                else
-                                {
-                                    hareket.GirişDurumu = "OK";
+                                    try
+                                    {
+                                        ms.Position = 0;
+                                        await emailService.SendEmailWithAttachmentAsync(
+                                            email,
+                                            "Günlük Hareket Raporu",
+                                            $"{today:dd.MM.yyyy} tarihli hareket raporu ekte bulunmaktadır.",
+                                            ms,
+                                            $"Hareket_Raporu_{today:yyyyMMdd}.xlsx"
+                                        );
+                                        Console.WriteLine($"E-posta gönderildi: {email}");
+                                    }
+                                    catch (Exception emailEx)
+                                    {
+                                        Console.WriteLine($"E-posta gönderimi başarısız oldu ({email}): {emailEx.Message}");
+                                    }
                                 }
                             }
                         }
                     }
+                }
 
-                    return hareket;
-                })
-                .ToList();
-
-            return View(model);
+                TempData["Success"] = $"{today:dd.MM.yyyy} tarihli raporlar başarıyla gönderildi.";
+                return RedirectToAction("Eposta");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"İşlem sırasında hata oluştu: {ex.Message}";
+                return RedirectToAction("Eposta");
+            }
         }
-    
+        private ExcelPackage CreateExcelPackage(DateTime startDate, DateTime endDate, string filterType)
+        {
+            var package = new ExcelPackage();
+            var worksheet = package.Workbook.Worksheets.Add("Hareketler");
 
-        private List<personel> GetPersonelListesi()
+            // Verileri al
+            var personelListesi = GetPersonelListesi().Where(p => p.calisma == true).ToList();
+            var hareketListesi = GetHareketListesi();
+            var vardiyaListesi = GetVardiyaListesi();
+            var izinListesi = GetIzinListesi();
+
+            var allDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
+                                    .Select(offset => startDate.AddDays(offset))
+                                    .ToList();
+
+            var filteredData = from personel in personelListesi
+                               from tarih in allDates
+                               let hareketler = hareketListesi.Where(h => h.Tarih.Date == tarih.Date && h.kartno == personel.kartno).ToList()
+                               let izin = izinListesi.FirstOrDefault(i => i.Personelıd == personel.id &&
+                                                                         i.BaslangicTarihi <= tarih &&
+                                                                         i.BitisTarihi >= tarih)
+                               let vardiya = vardiyaListesi.FirstOrDefault(v => v.VardiyaId == personel.VardiyaId)
+                               select new
+                               {
+                                   Tarih = tarih,
+                                   PersonelId = personel.id,
+                                   Adi = personel.adi,
+                                   Soyadi = personel.soyadi,
+                                   KartNo = personel.kartno,
+                                   Departman = personel.departman,
+                                   GirişSaatleri = hareketler.Where(h => h.IslemTipi == "01")
+                                                 .OrderBy(h => h.Saat)
+                                                 .Select(h => h.Saat)
+                                                 .ToList(),
+                                   ÇıkışSaatleri = hareketler.Where(h => h.IslemTipi == "02")
+                                                 .OrderByDescending(h => h.Saat)
+                                                 .Select(h => h.Saat)
+                                                 .ToList(),
+                                   Bilgi = tarih.DayOfWeek == DayOfWeek.Sunday ? "HAFTA TATİLİ" :
+                                          izin != null ? izin.IzinTuru :
+                                          !hareketler.Any() ? "DEVAMSIZ" :
+                                          hareketler.Any(h => h.IslemTipi == "01") && hareketler.Any(h => h.IslemTipi == "02") ? "OK" :
+                                          hareketler.Any(h => h.IslemTipi == "01") ? "ÇIKIŞ YOK" : "GİRİŞ YOK",
+                                   GirişDurumu = GetGirisDurumu(hareketler, vardiya),
+                                   Vardiya = vardiya,
+                                   IsPazar = tarih.DayOfWeek == DayOfWeek.Sunday,
+                                   Izin = izin
+                               };
+
+            // Filtrele
+            if (!string.IsNullOrEmpty(filterType))
+            {
+                filteredData = filterType switch
+                {
+                    "Erken" => filteredData.Where(d => d.GirişSaatleri.Any() && d.GirişDurumu == "Erken" &&
+                                                      d.Bilgi != "DEVAMSIZ" && d.Bilgi != "HAFTA TATİLİ" && d.Izin == null),
+                    "Geç" => filteredData.Where(d => d.GirişSaatleri.Any() && d.GirişDurumu == "Geç" &&
+                                                    d.Bilgi != "DEVAMSIZ" && d.Bilgi != "HAFTA TATİLİ" && d.Izin == null),
+                    "Izinliler" => filteredData.Where(d => d.Izin != null),
+                    "Devamsiz" => filteredData.Where(d => d.Bilgi == "DEVAMSIZ"),
+                    _ => filteredData
+                };
+            }
+
+            // Excel başlıkları
+            var headers = new[] { "Tarih", "Adı", "Soyadı", "Kart No", "Departman", "Giriş", "Çıkış",
+                         "NCS", "Eksik", "Mesai", "Bilgi" };
+
+            // Başlıkları ekle
+            for (int i = 0; i < headers.Length; i++)
+            {
+                worksheet.Cells[1, i + 1].Value = headers[i];
+                worksheet.Cells[1, i + 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                worksheet.Cells[1, i + 1].Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                worksheet.Cells[1, i + 1].Style.Font.Bold = true;
+            }
+
+            // Verileri ekle
+            int row = 2;
+            foreach (var data in filteredData)
+            {
+                worksheet.Cells[row, 1].Value = data.Tarih.ToString("yyyy-MM-dd ddd");
+                worksheet.Cells[row, 2].Value = data.Adi;
+                worksheet.Cells[row, 3].Value = data.Soyadi;
+                worksheet.Cells[row, 4].Value = data.KartNo;
+                worksheet.Cells[row, 5].Value = data.Departman;
+
+                // Giriş saatleri
+                var girisSaati = data.GirişSaatleri.FirstOrDefault();
+                worksheet.Cells[row, 6].Value = girisSaati != TimeSpan.Zero ?
+                    girisSaati.ToString(@"hh\:mm") : "00:00";
+
+                // Çıkış saatleri
+                var cikisSaati = data.ÇıkışSaatleri.FirstOrDefault();
+                worksheet.Cells[row, 7].Value = cikisSaati != TimeSpan.Zero ?
+                    cikisSaati.ToString(@"hh\:mm") : "00:00";
+
+                // Çalışma süresi
+                if (girisSaati != TimeSpan.Zero && cikisSaati != TimeSpan.Zero)
+                {
+                    var calismaSuresi = cikisSaati - girisSaati;
+                    worksheet.Cells[row, 8].Value = calismaSuresi.ToString(@"hh\:mm");
+
+                    if (data.Vardiya != null)
+                    {
+                        var vardiyaSuresi = data.Vardiya.CalismaBitis - data.Vardiya.CalismaBaslangic;
+
+                        // Eksik süre
+                        if (vardiyaSuresi > calismaSuresi)
+                        {
+                            worksheet.Cells[row, 9].Value = (vardiyaSuresi - calismaSuresi).ToString(@"hh\:mm");
+                        }
+
+                        // Fazla mesai
+                        if (calismaSuresi > vardiyaSuresi)
+                        {
+                            worksheet.Cells[row, 10].Value = (calismaSuresi - vardiyaSuresi).ToString(@"hh\:mm");
+                        }
+                    }
+                }
+
+                // Bilgi
+                worksheet.Cells[row, 11].Value = data.Bilgi;
+
+                // Satır stilini ayarla
+                var currentRow = worksheet.Cells[row, 1, row, 11];
+                if (data.IsPazar)
+                {
+                    currentRow.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    currentRow.Style.Fill.BackgroundColor.SetColor(Color.LightYellow);
+                }
+                else if (data.Izin != null)
+                {
+                    currentRow.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    currentRow.Style.Fill.BackgroundColor.SetColor(Color.LightGreen);
+                }
+                else if (data.Bilgi == "DEVAMSIZ")
+                {
+                    currentRow.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    currentRow.Style.Fill.BackgroundColor.SetColor(Color.LightPink);
+                }
+
+                row++;
+            }
+
+            // Sütun genişliklerini ayarla
+            for (int i = 1; i <= 11; i++)
+            {
+                worksheet.Column(i).AutoFit();
+            }
+
+            return package;
+        }
+
+        private string GetGirisDurumu(List<Hareket> hareketler, Vardiya vardiya)
+        {
+            if (!hareketler.Any(h => h.IslemTipi == "01") || vardiya == null)
+                return "";
+
+            var girisSaati = hareketler.Where(h => h.IslemTipi == "01")
+                                      .OrderBy(h => h.Saat)
+                                      .Select(h => h.Saat)
+                                      .FirstOrDefault();
+
+            if (girisSaati < vardiya.ErkenGelme)
+                return "Erken";
+            if (girisSaati > vardiya.GecGelme)
+                return "Geç";
+            return "OK";
+        }
+        private List<Izin> GetIzinListesi()
         {
             using (var db = new YillikizinEntities())
             {
-                return db.personel.ToList();
+                return db.Izin.ToList();
             }
         }
 
@@ -284,7 +397,9 @@ namespace yillikizin.Controllers
                         TerminalNo = h.TerminalNo,
                         PersonelId = h.PersonelId ?? 0,
                         IslemTipi = h.Yon,
-                        Bilgi = h.Bilgi
+                        Bilgi = h.Bilgi,
+                        kartno = h.KartNumarasi
+
                     })
                     .OrderBy(h => h.Tarih) // Tarihe göre sıralama
                     .ThenBy(h => h.Saat)  // Saate göre sıralama
@@ -294,152 +409,17 @@ namespace yillikizin.Controllers
             }
         }
 
-        private Vardiya GetVardiyaById(int? vardiyaId)
+        private List<Vardiya> GetVardiyaListesi()
         {
-            if (!vardiyaId.HasValue)
-            {
-                return null;
-            }
-
-            using (var context = new YillikizinEntities())
-            {
-                return context.Vardiya.FirstOrDefault(v => v.VardiyaId == vardiyaId.Value);
-            }
+            // VardiyaListesi'ni veritabanından alın
+            return db.Vardiya.ToList();
         }
-        [HttpPost]
-        public async Task<ActionResult> SendEmail(DateTime? StartDate, DateTime? EndDate)
+        private List<personel> GetPersonelListesi()
         {
             using (var db = new YillikizinEntities())
             {
-                try
-                {
-                    var emailSettingsList = await db.EmailSettings.ToListAsync();
-
-                    if (!emailSettingsList.Any())
-                    {
-                        TempData["Error"] = "E-posta gönderilecek adres bulunamadı.";
-                        return RedirectToAction("Index");
-                    }
-
-                    StartDate = StartDate ?? DateTime.Now.AddDays(-1);
-                    EndDate = EndDate ?? DateTime.Now;
-
-                    using (var pdfStream = CreatePdfStream(StartDate, EndDate)) // Eski PDF metodunu kullan
-                    {
-                        Console.WriteLine("PDF oluşturma işlemi başarılı.");
-
-                        using (var emailService = new EmailService())
-                        {
-                            foreach (var emailSetting in emailSettingsList)
-                            {
-                                if (!string.IsNullOrEmpty(emailSetting.RecipientEmails))
-                                {
-                                    var recipientEmails = emailSetting.RecipientEmails
-                                        .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                                        .Select(e => e.Trim())
-                                        .Where(e => !string.IsNullOrEmpty(e));
-
-                                    foreach (var email in recipientEmails)
-                                    {
-                                        try
-                                        {
-                                            pdfStream.Position = 0; // Stream'i başa sar
-                                            await emailService.SendEmailWithAttachmentAsync(
-                                                email,
-                                                "Rapor",
-                                                "Rapor ekte bulunmaktadır.",
-                                                pdfStream,
-                                                $"Rapor_{DateTime.Now:yyyyMMdd}.pdf"
-                                            );
-                                            Console.WriteLine($"E-posta gönderildi: {email}");
-                                        }
-                                        catch (Exception emailEx)
-                                        {
-                                            Console.WriteLine($"E-posta gönderimi başarısız oldu ({email}): {emailEx.Message}");
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    TempData["Success"] = "E-postalar başarıyla gönderildi.";
-                    Console.WriteLine("Tüm e-posta gönderim işlemleri tamamlandı.");
-                }
-                catch (Exception ex)
-                {
-                    TempData["Error"] = $"İşlem sırasında hata oluştu: {ex.Message}";
-                    Console.WriteLine($"Genel bir hata oluştu: {ex.Message}");
-                }
-            }
-
-            return RedirectToAction("Eposta");
-        }
-
-        // Eski PDF oluşturma metodu
-        public MemoryStream CreatePdfStream(DateTime? StartDate, DateTime? EndDate)
-        {
-            try
-            {
-                var pdfResult = new ActionAsPdf("HareketDegerlendirmeReport", new { StartDate, EndDate })
-                {
-                    FileName = "Rapor.pdf",
-                    PageSize = Rotativa.Options.Size.A4,
-                    PageOrientation = Rotativa.Options.Orientation.Portrait,
-                    CustomSwitches = "--disable-smart-shrinking"
-                };
-
-                var pdfData = pdfResult.BuildFile(ControllerContext);
-                if (pdfData == null || pdfData.Length == 0)
-                {
-                    throw new InvalidOperationException("PDF oluşturulamadı.");
-                }
-
-                var pdfStream = new MemoryStream(pdfData);
-                pdfStream.Position = 0;
-                Console.WriteLine($"PDF başarıyla oluşturuldu. Boyut: {pdfData.Length} bytes");
-                return pdfStream;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"PDF oluşturma hatası: {ex.Message}");
-                if (ex.InnerException != null)
-                {
-                    Console.WriteLine($"İç hata: {ex.InnerException.Message}");
-                }
-                throw;
+                return db.personel.ToList();
             }
         }
-        private MemoryStream GeneratePdfStream(DateTime? StartDate, DateTime? EndDate)
-        {
-            try
-            {
-                if (!StartDate.HasValue || !EndDate.HasValue)
-                {
-                    throw new ArgumentException("Başlangıç ve bitiş tarihleri gereklidir.");
-                }
-
-                var pdfResult = new ActionAsPdf("HareketDegerlendirmeReport", new { StartDate, EndDate })
-                {
-                    FileName = "Rapor.pdf"
-                };
-
-                byte[] pdfData = pdfResult.BuildFile(ControllerContext);
-                if (pdfData == null || pdfData.Length == 0)
-                {
-                    throw new InvalidOperationException("PDF oluşturulamadı veya boş.");
-                }
-
-                var pdfStream = new MemoryStream(pdfData);
-                Console.WriteLine($"PDF başarıyla oluşturuldu. Boyut: {pdfData.Length} bytes");
-                return pdfStream;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"PDF oluşturma hatası: {ex.Message}");
-                throw new Exception("PDF raporu oluşturulurken bir hata oluştu.", ex);
-            }
-        }
-        // PDF oluşturma işlemi için ayrı bir metod
     }
 }
