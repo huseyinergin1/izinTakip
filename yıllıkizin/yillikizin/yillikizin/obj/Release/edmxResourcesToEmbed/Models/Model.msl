@@ -159,6 +159,7 @@
     <EntitySetMapping Name="Vardiya">
       <EntityTypeMapping TypeName="YillikizinModel.Vardiya">
         <MappingFragment StoreEntitySet="Vardiya">
+          <ScalarProperty Name="fmOpsiyon" ColumnName="fmOpsiyon" />
           <ScalarProperty Name="Aciklama" ColumnName="Aciklama" />
           <ScalarProperty Name="GecCikma" ColumnName="GecCikma" />
           <ScalarProperty Name="ErkenCikma" ColumnName="ErkenCikma" />

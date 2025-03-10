@@ -22,6 +22,7 @@
             <th>Geç Gelme</th>
             <th>Erken Çıkma</th>
             <th>Geç Çıkma</th>
+            <th>FM Opsiyon</th>
             <th>Açıklama</th>
             <th>İşlemler</th>
         </tr>
@@ -39,6 +40,7 @@
                 <td>@vardiya.GecGelme</td>
                 <td>@vardiya.ErkenCikma</td>
                 <td>@vardiya.GecCikma</td>
+                <td>@vardiya.fmOpsiyon</td>
                 <td>@vardiya.Aciklama</td>
                 <td>
                     <button type="button" class="btn btn-warning btn-sm" onclick="loadVardiyaDetails(@vardiya.VardiyaId)">
@@ -97,6 +99,10 @@
                         @Html.TextBox("GecGelme", "", new { @class = "form-control", @type = "time" })
                     </div>
                     <div class="form-group">
+                        <label for="fmOpsiyon">Fazla Mesai Opsiyon</label>
+                        @Html.TextBox("fmOpsiyon", "", new { @class = "form-control", @type = "int" })
+                    </div>
+                    <div class="form-group">
                         <label for="Aciklama">Açıklama</label>
                         @Html.TextArea("Aciklama", "", new { @class = "form-control", rows = "3" })
                     </div>
@@ -109,7 +115,7 @@
 
 <!-- Vardiya Düzenle Modal -->
 <div class="modal fade" id="editVardiyaModal" tabindex="-1" role="dialog" aria-labelledby="editVardiyaModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="editVardiyaModalLabel">Vardiya Düzenle</h5>
@@ -120,51 +126,179 @@
             <div class="modal-body">
                 @using (Html.BeginForm("Duzenle", "Vardiya", FormMethod.Post, new { id = "editVardiyaForm" }))
                 {
-                    @Html.Hidden("Id", "", new { id = "editVardiyaId" })
-                    <div class="form-group">
-                        <label for="editAd">Ad</label>
-                        @Html.TextBox("Ad", "", new { @class = "form-control", @id = "editAd" })
+                    @Html.Hidden("VardiyaId", "", new { id = "editVardiyaId" })
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="editAd">Ad</label>
+                                @Html.TextBox("Ad", "", new { @class = "form-control", @id = "editAd" })
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="editAciklama">Açıklama</label>
+                                @Html.TextBox("Aciklama", "", new { @class = "form-control", @id = "editAciklama" })
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="editCalismaBaslangic">Çalışma Başlangıç</label>
-                        @Html.TextBox("CalismaBaslangic", "", new { @class = "form-control", @type = "time" })
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="editCalismaBaslangic">Çalışma Başlangıç</label>
+                                @Html.TextBox("CalismaBaslangic", "", new { @class = "form-control", @type = "time", @id = "editCalismaBaslangic" })
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="editCalismaBitis">Çalışma Bitiş</label>
+                                @Html.TextBox("CalismaBitis", "", new { @class = "form-control", @type = "time", @id = "editCalismaBitis" })
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="editCalismaBitis">Çalışma Bitiş</label>
-                        @Html.TextBox("CalismaBitis", "", new { @class = "form-control", @type = "time" })
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="editMesaiBaslangic">Mesai Başlangıç</label>
+                                @Html.TextBox("MesaiBaslangic", "", new { @class = "form-control", @type = "time", @id = "editMesaiBaslangic" })
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="editMesaiBitis">Mesai Bitiş</label>
+                                @Html.TextBox("MesaiBitis", "", new { @class = "form-control", @type = "time", @id = "editMesaiBitis" })
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="editMesaiBaslangic">Mesai Başlangıç</label>
-                        @Html.TextBox("MesaiBaslangic", "", new { @class = "form-control", @type = "time" })
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="editErkenGelme">Erken Gelme</label>
+                                @Html.TextBox("ErkenGelme", "", new { @class = "form-control", @type = "time", @id = "editErkenGelme" })
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="editGecGelme">Geç Gelme</label>
+                                @Html.TextBox("GecGelme", "", new { @class = "form-control", @type = "time", @id = "editGecGelme" })
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="editMesaiBitis">Mesai Bitiş</label>
-                        @Html.TextBox("MesaiBitis", "", new { @class = "form-control", @type = "time" })
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="editErkenCikma">Erken Çıkma</label>
+                                @Html.TextBox("ErkenCikma", "", new { @class = "form-control", @type = "time", @id = "editErkenCikma" })
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="editGecCikma">Geç Çıkma</label>
+                                @Html.TextBox("GecCikma", "", new { @class = "form-control", @type = "time", @id = "editGecCikma" })
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="editAciklama">Açıklama</label>
-                        @Html.TextArea("Aciklama", "", new { @class = "form-control", rows = "3" })
+
+                    <!-- SerbestCalisma seçeneğini ekleyin (fmOpsiyon satırının altına) -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="editFMopsiyon">Fazla Mesai Opsiyon (dk)</label>
+                                @Html.TextBox("fmOpsiyon", "", new { @class = "form-control", @id = "editFMopsiyon", @type = "number" })
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="editSerbestCalisma" name="SerbestCalisma">
+                                    <label class="custom-control-label" for="editSerbestCalisma">Serbest Çalışma</label>
+                                </div>
+                                <small class="form-text text-muted">Serbest çalışma modunda vardiya saatleri yerine giriş-çıkış saatleri baz alınır.</small>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="editErkenMesai" name="ErkenMesai">
+                                    <label class="custom-control-label" for="editErkenMesai">Erken Mesai</label>
+                                </div>
+                                <small class="text-muted">Vardiya başlangıç saatinden önce gelen personel için erken mesai hesaplanır.</small>
+                            </div>
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-warning">Güncelle</button>
+
+                    <div class="row mt-3">
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-warning">Güncelle</button>
+                            <button type="button" class="btn btn-secondary ml-2" data-dismiss="modal">İptal</button>
+                        </div>
+                    </div>
                 }
             </div>
         </div>
     </div>
 </div>
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+    $(document).ready(function () {
+        $('#editSerbestCalisma').change(function () {
+            if ($(this).is(':checked')) {
+                $('#editErkenMesai').prop('disabled', true).prop('checked', false);
+            } else {
+                $('#editErkenMesai').prop('disabled', false);
+            }
+        });
+
+        $('#editErkenMesai').change(function () {
+            if ($(this).is(':checked')) {
+                $('#editSerbestCalisma').prop('disabled', true).prop('checked', false);
+            } else {
+                $('#editSerbestCalisma').prop('disabled', false);
+            }
+        });
+
+        // Sayfa yüklendiğinde checkbox'ların durumlarını kontrol et
+        if ($('#editSerbestCalisma').is(':checked')) {
+            $('#editErkenMesai').prop('disabled', true);
+        }
+
+        if ($('#editErkenMesai').is(':checked')) {
+            $('#editSerbestCalisma').prop('disabled', true);
+        }
+    });
+
     function loadVardiyaDetails(vardiyaId) {
         // Vardiya bilgilerini sunucudan al
         $.get('/Vardiya/GetVardiya/' + vardiyaId, function (data) {
             if (data.success) {
+                console.log("Gelen veriler:", data); // Hata ayıklama için
+
                 // Gelen verileri düzenleme modalındaki alanlara doldur
                 $('#editVardiyaId').val(data.VardiyaId);
                 $('#editAd').val(data.Ad);
-                $('#editCalismaBaslangic').val(data.CalismaBaslangic);
-                $('#editCalismaBitis').val(data.CalismaBitis);
-                $('#editMesaiBaslangic').val(data.MesaiBaslangic);
-                $('#editMesaiBitis').val(data.MesaiBitis);
+
+                // Zaman alanlarını doğru biçimde ayarla
+                $('#editCalismaBaslangic').val(formatTimeForInput(data.CalismaBaslangic));
+                $('#editCalismaBitis').val(formatTimeForInput(data.CalismaBitis));
+                $('#editMesaiBaslangic').val(formatTimeForInput(data.MesaiBaslangic));
+                $('#editMesaiBitis').val(formatTimeForInput(data.MesaiBitis));
+                $('#editErkenGelme').val(formatTimeForInput(data.ErkenGelme));
+                $('#editGecGelme').val(formatTimeForInput(data.GecGelme));
+                $('#editErkenCikma').val(formatTimeForInput(data.ErkenCikma));
+                $('#editGecCikma').val(formatTimeForInput(data.GecCikma));
                 $('#editAciklama').val(data.Aciklama);
+
+                // fmOpsiyon değerini ekledik
+                $('#editFMopsiyon').val(data.fmOpsiyon);
+
+                // SerbestCalisma checkbox'ını ayarla
+                $('#editSerbestCalisma').prop('checked', data.serbestcalisma === true);
+
+                // ErkenMesai checkbox'ını ayarla
+                $('#editErkenMesai').prop('checked', data.ErkenMesai === true);
 
                 // Modalı aç
                 $('#editVardiyaModal').modal('show');
@@ -172,12 +306,35 @@
                 // Eğer bir hata varsa mesajı göster
                 alert(data.message || 'Vardiya bilgileri yüklenemedi. Lütfen tekrar deneyin.');
             }
-        }).fail(function () {
+        }).fail(function (xhr, status, error) {
+            console.error("AJAX Hatası:", status, error); // Hata ayıklama için
+            console.error("Yanıt:", xhr.responseText); // Hata detayını görmek için
             // AJAX çağrısı başarısız olursa kullanıcıyı bilgilendir
             alert('Bir hata oluştu. Lütfen bağlantınızı kontrol edin ve tekrar deneyin.');
         });
     }
 
+    // Zaman formatı için yardımcı fonksiyon
+    function formatTimeForInput(timeStr) {
+        if (!timeStr) return '';
+
+        // Eğer zaten HH:MM formatındaysa doğrudan döndür
+        if (timeStr.match(/^\d{2}:\d{2}$/)) {
+            return timeStr;
+        }
+
+        try {
+            // "hh:mm" formatını düzelt
+            var parts = timeStr.split(':');
+            if (parts.length >= 2) {
+                return parts[0].padStart(2, '0') + ':' + parts[1].padStart(2, '0');
+            }
+            return timeStr;
+        } catch (e) {
+            console.error('Zaman formatı dönüştürme hatası:', e);
+            return timeStr;
+        }
+    }
 
     function deleteVardiya(vardiyaId) {
         if (confirm('Bu vardiyayı silmek istediğinize emin misiniz?')) {
@@ -188,6 +345,16 @@
     }
 </script>
 <style>
+    .form-check-input {
+        position: static;
+        margin-top: 0.3rem;
+        margin-left: 0;
+    }
+
+    .form-check-label {
+        margin-left: 5px;
+    }
+
     button,
     .button {
         position: relative;

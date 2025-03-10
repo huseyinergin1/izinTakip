@@ -15,7 +15,7 @@
                 <p>@ViewBag.TotalPersonel</p>
             </div>
             <div class="modern-box-image">
-                <img src="/images/personel.svg" alt="Personel">
+                <img src="~/images/personeller.png" alt="Personel">
             </div>
         </div>
 
@@ -25,7 +25,7 @@
                 <p>@ViewBag.DepartmanSayisi</p>
             </div>
             <div class="modern-box-image">
-                <img src="/images/departman.svg" alt="Departman">
+                <img src="~/images/departmanlar.png" />
             </div>
         </div>
 
@@ -35,7 +35,7 @@
                 <p>@ViewBag.IzinliPersonel</p>
             </div>
             <div class="modern-box-image">
-                <img src="/images/izinli.svg" alt="İzinliler">
+                <img src="~/images/izinliler.png" />
             </div>
         </div>
 
@@ -45,7 +45,7 @@
                 <p>@(ViewBag.DogumGunuOlanlar != null ? ViewBag.DogumGunuOlanlar.Count : 0)</p>
             </div>
             <div class="modern-box-image">
-                <img src="/images/dogumgunu.svg" alt="Doğum Günü">
+                <img src="~/images/dogum.png" />
             </div>
         </div>
     </div>
@@ -54,11 +54,11 @@
         <!-- İkinci sıra - 4 kutu -->
         <div class="modern-box" onclick="$('#devamsizPersonelListesi').modal('show')">
             <div class="modern-box-content">
-                <h3>Devamsız Personeller</h3>
+                <h3>Devamsızlar</h3>
                 <p>@ViewBag.DevamsizPersonelSayisi</p>
             </div>
             <div class="modern-box-image">
-                <img src="/images/devamsiz.svg" alt="Devamsız">
+                <img src="~/images/devamsiz.png" />
             </div>
         </div>
 
@@ -68,7 +68,7 @@
                 <p>@ViewBag.IseGelenPersonelSayisi</p>
             </div>
             <div class="modern-box-image">
-                <img src="/images/isegelen.svg" alt="İşe Gelenler">
+                <img src="~/images/bugüngelen.png" />
             </div>
         </div>
 
@@ -79,19 +79,19 @@
                 <p>@ViewBag.GecGelenPersonelSayisi</p>
             </div>
             <div class="modern-box-image">
-                <img src="/images/gec.jpg" alt="Geç Gelenler">
+                <img src="~/images/gec.png" />
             </div>
         </div>
-
-        <div class="modern-box" onclick="$('#ErkenCikanlar').modal('show')">
+        <div class="modern-box" onclick="$('#IstenCikanlar').modal('show')">
             <div class="modern-box-content">
-                <h3></h3>
-
+                <h3>İşten Çıkanlar</h3>
+                <p>@ViewBag.IstenCikanPersonelSayisi</p>
             </div>
             <div class="modern-box-image">
-
+                <img src="~/images/istencikan.png" />
             </div>
         </div>
+
     </div>
 </div>
 
@@ -502,52 +502,45 @@ else
         </div>
     </div>
 </div>
-    
-    <!-- Erken Çıkan Personel Listesi Modal -->
-<div id="ErkenCikanlar" class="modal fade" tabindex="-1" role="dialog">
+
+<!-- İşten Çıkan Personel Listesi Modal -->
+<div id="IstenCikanlar" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Erken Çıkan Personel Listesi</h5>
+                <h5 class="modal-title">İşten Çıkan Personel Listesi</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <table class="table-striped table" id="erkenCikanPersonelTable">
+                <table class="table-striped table">
                     <thead>
                         <tr>
                             <th>Ad</th>
                             <th>Soyad</th>
                             <th>Kart No</th>
-                            <th>Çıkış Saati</th>
+                            <th>Çıkış Tarihi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @if (ViewBag.ErkenCikanPersonelList != null && ViewBag.ErkenCikanPersonelList.Count > 0)
+                        @if (ViewBag.IstenCikanPersonelList != null && ((List<yillikizin.Models.personel>)ViewBag.IstenCikanPersonelList).Count > 0)
                         {
-                            foreach (var personel in ViewBag.ErkenCikanPersonelList)
+                            foreach (var personel in (List<yillikizin.Models.personel>)ViewBag.IstenCikanPersonelList)
                             {
                                 <tr>
                                     <td>@personel.adi</td>
                                     <td>@personel.soyadi</td>
                                     <td>@personel.kartno</td>
                                     <td>
-                                        @{
-                                            var cikisSaati = "";
-                                            if (ViewBag.SonHareketler != null)
-                                            {
-                                                foreach (var h in ViewBag.SonHareketler)
-                                                {
-                                                    if (h.KartNumarasi == personel.kartno && h.Yon == "02")  // Property isimlerini modeldeki gibi kullandık
-                                                    {
-                                                        cikisSaati = h.Saat?.ToString(@"hh\:mm");  // Nullable olduğu için güvenli erişim
-                                                        break;
-                                                    }
-                                                }
-                                            }
+                                        @if (personel.iscikistarih.HasValue)
+                                        {
+                                            @personel.iscikistarih.Value.ToString("dd.MM.yyyy")
                                         }
-                                        @cikisSaati
+                                        else
+                                        {
+                                            <span>Belirsiz</span>
+                                        }
                                     </td>
                                 </tr>
                             }
@@ -555,7 +548,7 @@ else
                         else
                         {
                             <tr>
-                                <td colspan="4" class="text-center">Erken çıkan personel bulunmamaktadır.</td>
+                                <td colspan="4" class="text-center">İşten çıkan personel bulunmamaktadır.</td>
                             </tr>
                         }
                     </tbody>
@@ -567,6 +560,8 @@ else
         </div>
     </div>
 </div>
+
+
 
 <script src="~/Content/Site/js/jquery.js"></script>
 <script src="@Url.Content("~/Content/Admin/plugins/jquery-datatable/jquery.dataTables.js")"></script>

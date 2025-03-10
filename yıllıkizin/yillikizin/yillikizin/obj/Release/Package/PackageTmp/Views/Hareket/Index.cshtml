@@ -1,4 +1,4 @@
-﻿﻿@model yillikizin.Models.HareketViewModel
+﻿﻿﻿@model yillikizin.Models.HareketViewModel
 
 @{
     ViewBag.Title = "Personel Hareketleri";
@@ -75,7 +75,7 @@
                 <label for="bitisTarihi" class="mr-2">Bitiş Tarihi:</label>
                 <input type="date" id="bitisTarihi" class="form-control mr-2" />
                 <button id="filtrele" class="btn btn-primary mr-2">Filtrele</button>
-                <button id="yeniHareket" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#yeniHareketModal" onclick="setKartNo()">Yeni Hareket</button>
+                <button id="yeniHareket" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#yeniHareketModal">Yeni Hareket</button>
                 <button id="topluIslemler" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#topluIslemlerModal">Toplu İşlemler</button>
             </div>
 
@@ -169,16 +169,10 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
+
             <div class="modal-body">
                 <div id="popupMessage" class="alert" style="display:none;"></div>
                 <form id="yeniHareketForm">
-                    <div class="form-row mb-3">
-                        <div class="col-md-12">
-                            <div class="alert alert-info">
-                                Seçili Personel: <strong id="selectedPersonelInfo"></strong>
-                            </div>
-                        </div>
-                    </div>
                     <div class="form-row mb-3">
                         <div class="col-md-6">
                             <label for="tarih">Tarih:</label>
@@ -213,11 +207,11 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-
-$(document).ready(function () {
     var selectedIds = [];
+    var sortOrder = {}; // Sıralama durumunu takip etmek için bir nesne
     var selectedKartNo = '';
 
+$(document).ready(function () {
     // Sayfa yüklendiğinde seçilen personeli işaretle
     var selectedPersonelId = sessionStorage.getItem('selectedPersonelId');
     if (selectedPersonelId) {
@@ -258,7 +252,6 @@ $(document).ready(function () {
             $('#saatToplu').attr('required', 'required');
         }
     }
-
     // Personel satırına tıklandığında
     $('#personelListesi').on('click', '.personel-row', function () {
         var personelId = $(this).data('personel-id');
@@ -272,6 +265,19 @@ $(document).ready(function () {
         sessionStorage.setItem('selectedPersonelId', personelId);
     });
 
+
+    // Modal kapanış işlemleri
+    $('#yeniHareketModal').on('hidden.bs.modal', function () {
+        $('#yeniHareketForm')[0].reset();
+        $('#popupMessage').hide().removeClass('alert-success alert-danger').text('');
+        $('#selectedPersonelInfo').text('');
+    });
+    // Modal kapanış işlemleri
+    $('#topluIslemlerModal').on('hidden.bs.modal', function () {
+        $('#topluIslemlerForm')[0].reset();
+        $('#popupMessageToplu').hide().removeClass('alert-success alert-danger').text('');
+        $('#selectedPersonelInfo').text('');
+    });
     // Yeni hareket butonu kontrolü
     $('#yeniHareket').click(function (e) {
         if ($('.table-active').length === 0) {
@@ -280,7 +286,33 @@ $(document).ready(function () {
             return false;
         }
     });
+    // Toplu işlem modalı açılış işlemleri
+    $('#topluIslemlerModal').on('show.bs.modal', function () {
+        var selectedRow = $('.table-active');
+        if (selectedRow.length === 0) {
+            alert('Lütfen önce bir personel seçin!');
+            return false;
+        }
 
+        // Personel bilgilerini al ve göster
+        var personelAdi = selectedRow.find('td').eq(1).text().trim();
+        var personelSoyadi = selectedRow.find('td').eq(2).text().trim();
+        $('#selectedPersonelInfo').text(personelAdi + ' ' + personelSoyadi);
+
+        // Form değerlerini sıfırla
+        $('#topluIslemlerForm')[0].reset();
+
+        // Varsayılan seçimleri yap
+        $('input[name="islemTuru"][value="ekle"]').prop('checked', true).closest('label').addClass('active');
+        $('input[name="yonToplu"][value="01"]').prop('checked', true).closest('label').addClass('active');
+
+        // Belirsiz yön seçeneğini gizle (varsayılan olarak)
+        $('#yonTopluBelirsiz').hide();
+
+        // Form alanlarını güncelle
+        toggleYonRow();
+        toggleSaatRow();
+    });
     // Modal açılış işlemleri
     $('#yeniHareketModal').on('show.bs.modal', function () {
         var selectedRow = $('.table-active');
@@ -289,7 +321,7 @@ $(document).ready(function () {
             return false;
         }
 
-        // Personel bilgilerini al
+        // Personel bilgilerini al ve göster
         var personelAdi = selectedRow.find('td').eq(1).text().trim();
         var personelSoyadi = selectedRow.find('td').eq(2).text().trim();
         $('#selectedPersonelInfo').text(personelAdi + ' ' + personelSoyadi);
@@ -304,8 +336,6 @@ $(document).ready(function () {
         $(this).parent().addClass('active');
     });
 
-
-    // Kaydet butonu işlemleri
     // Kaydet butonu işlemleri
     $('#btnHareketKaydet').click(function () {
         $('#popupMessage').hide().removeClass('alert-success alert-danger').text('');
@@ -386,33 +416,6 @@ $(document).ready(function () {
         });
     });
 
-    // Toplu işlem modalı açılış işlemleri
-    $('#topluIslemlerModal').on('show.bs.modal', function () {
-        var selectedRow = $('.table-active');
-        if (selectedRow.length === 0) {
-            alert('Lütfen önce bir personel seçin!');
-            return false;
-        }
-
-        // Personel bilgilerini al ve göster
-        var personelAdi = selectedRow.find('td').eq(1).text().trim();
-        var personelSoyadi = selectedRow.find('td').eq(2).text().trim();
-        $('#selectedPersonelInfo').text(personelAdi + ' ' + personelSoyadi);
-
-        // Form değerlerini sıfırla
-        $('#topluIslemlerForm')[0].reset();
-
-        // Varsayılan seçimleri yap
-        $('input[name="islemTuru"][value="ekle"]').prop('checked', true).closest('label').addClass('active');
-        $('input[name="yonToplu"][value="01"]').prop('checked', true).closest('label').addClass('active');
-
-        // Belirsiz yön seçeneğini gizle (varsayılan olarak)
-        $('#yonTopluBelirsiz').hide();
-
-        // Form alanlarını güncelle
-        toggleYonRow();
-        toggleSaatRow();
-    });
 
     // Kaydet butonu işlemleri
     $('#btnTopluIslemKaydet').click(function () {
@@ -512,17 +515,6 @@ $(document).ready(function () {
             }
         });
     }
-    // Modal kapanış işlemleri
-    $('#topluIslemlerModal').on('hidden.bs.modal', function () {
-        $('#topluIslemlerForm')[0].reset();
-        $('#popupMessageToplu').hide().removeClass('alert-success alert-danger').text('');
-        $('#selectedPersonelInfo').text('');
-    });
-    // Modal kapanış işlemleri
-    $('#yeniHareketModal').on('hidden.bs.modal', function () {
-        $('#yeniHareketForm')[0].reset();
-        $('#popupMessage').hide().removeClass('alert-success alert-danger').text('');
-    });
 
     // Sayfa yüklendiğinde varsayılan ayarlar
     $('input[name="islemTuru"][value="ekle"]').closest('label').addClass('active');
@@ -619,33 +611,37 @@ function toggleRowSelection(personelId) {
     updateHiddenInputs();
 }
 
-function toggleSelectAll() {
-    var table = document.getElementById('personelListesi');
-    var rows = Array.from(table.querySelectorAll('.personel-row'));
-    var iframeCheckbox = document.getElementById('selectAllIframe').contentDocument.getElementById('selectAll');
-    var allSelected = rows.every(row => selectedIds.includes(row.getAttribute('data-personel-id')));
+    function toggleSelectAll() {
+        var table = document.getElementById('personelListesi');
+        var rows = Array.from(table.querySelectorAll('.personel-row')); // Sadece personel satırlarını al
+        var iframeCheckbox = document.getElementById('selectAllIframe').contentDocument.getElementById('selectAll');
+        var allSelected = rows.every(row => selectedIds.includes(row.getAttribute('data-personel-id')));
 
-    rows.forEach(function (row) {
-        var personelId = row.getAttribute('data-personel-id');
-        const rowIframe = row.querySelector('.row-checkbox-iframe');
-        const rowCheckbox = rowIframe.contentDocument.getElementById(`checkbox_${personelId}`);
+        rows.forEach(function (row) {
+            var personelId = row.getAttribute('data-personel-id');
+            const rowIframe = row.querySelector('.row-checkbox-iframe');
+            const rowCheckbox = rowIframe.contentDocument.getElementById(`checkbox_${personelId}`);
 
-        if (allSelected) {
-            selectedIds = selectedIds.filter(id => id !== personelId);
-            row.style.backgroundColor = "";
-            rowCheckbox.checked = false;
-        } else {
-            if (!selectedIds.includes(personelId)) {
-                                selectedIds.push(personelId);
+            if (allSelected) {
+                // Zaten tümü seçiliyse, tümünü kaldır
+                selectedIds = selectedIds.filter(id => id !== personelId);
+                row.style.backgroundColor = ""; // Arka plan rengini sıfırla
+                rowCheckbox.checked = false; // Checkbox'u işaretsiz yap
+            } else {
+                // Aksi takdirde tümünü seç
+                if (!selectedIds.includes(personelId)) {
+                    selectedIds.push(personelId);
+                }
+                row.style.backgroundColor = "#c8e6c9"; // Seçili personel için yeşil arka plan
+                rowCheckbox.checked = true; // Checkbox'u işaretli yap
             }
-            row.style.backgroundColor = "#c8e6c9";
-            rowCheckbox.checked = true;
-        }
-    });
+        });
 
-    iframeCheckbox.checked = !allSelected;
-    updateHiddenInputs();
-}
+        // iframe checkbox'unu güncelle
+        iframeCheckbox.checked = !allSelected;
+
+        updateHiddenInputs();
+    }
 
 function updateHiddenInputs() {
     document.querySelectorAll('input[name="selectedPersonelIds"]').forEach(input => input.remove());

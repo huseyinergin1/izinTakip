@@ -214,14 +214,17 @@
     <Property Name="Ad" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
     <Property Name="CalismaBaslangic" Type="Time" Nullable="false" Precision="7" />
     <Property Name="CalismaBitis" Type="Time" Nullable="false" Precision="7" />
-    <Property Name="MesaiBaslangic" Type="Time" Nullable="false" Precision="7" />
-    <Property Name="MesaiBitis" Type="Time" Nullable="false" Precision="7" />
-    <Property Name="ErkenGelme" Type="Time" Nullable="false" Precision="7" />
-    <Property Name="GecGelme" Type="Time" Nullable="false" Precision="7" />
-    <Property Name="ErkenCikma" Type="Time" Nullable="false" Precision="7" />
-    <Property Name="GecCikma" Type="Time" Nullable="false" Precision="7" />
-    <Property Name="Aciklama" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="MesaiBaslangic" Type="Time" Precision="7" />
+    <Property Name="MesaiBitis" Type="Time" Precision="7" />
+    <Property Name="ErkenGelme" Type="Time" Precision="7" />
+    <Property Name="GecGelme" Type="Time" Precision="7" />
+    <Property Name="ErkenCikma" Type="Time" Precision="7" />
+    <Property Name="GecCikma" Type="Time" Precision="7" />
+    <Property Name="Aciklama" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
     <NavigationProperty Name="personel" Relationship="YillikizinModel.FK_Personel_Vardiya" FromRole="Vardiya" ToRole="personel" />
+    <Property Name="fmOpsiyon" Type="Int32" />
+    <Property Name="serbestcalisma" Type="Boolean" />
+    <Property Name="ErkenMesai" Type="Boolean" />
   </EntityType>
   <Association Name="FK_belge_personel">
     <End Type="YillikizinModel.personel" Role="personel" Multiplicity="1" />

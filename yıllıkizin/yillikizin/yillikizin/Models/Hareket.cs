@@ -39,6 +39,8 @@ namespace yillikizin.Models {
         public virtual personel Personel { get; set; }
         public TimeSpan CalismaSuresi { get; set; }
         public TimeSpan FazlaMesai { get; set; }
+        public TimeSpan FazlaMesai1 { get; set; }
+        public TimeSpan FazlaMesai3 { get; set; }
         public TimeSpan EksikSure { get; set; }
         public TimeSpan MCS { get; set; }
     }

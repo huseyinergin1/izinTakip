@@ -1,0 +1,340 @@
+﻿@model List<yillikizin.Models.DevamsizViewModel>
+
+@{
+    ViewBag.Title = "Devamsız Raporu";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h2 class="my-4 text-center">Devamsız Raporu</h2>
+
+<div class="d-flex justify-content-center align-items-center mb-4">
+    <form id="filterForm" class="form-inline d-flex align-items-center" method="get" action="@Url.Action("DevamsizRapor")">
+        <div class="d-flex">
+            <div class="form-group mx-2">
+                <label for="startDate" class="mr-2">Başlangıç Tarihi:</label>
+                <input type="date" id="startDate" name="startDate" value="@ViewBag.StartDate?.ToString(" yyyy-MM-dd")" class="form-control" style="width: 200px;" />
+
+                <label for="endDate" class="mr-2">Bitiş Tarihi:</label>
+                <input type="date" id="endDate" name="endDate" value="@ViewBag.EndDate?.ToString(" yyyy-MM-dd")" class="form-control" style="width: 200px;" />
+            </div>
+        </div>
+        <button type="button" class="btn btn-primary ml-3" onclick="filterDevamsizlar()">Filtrele</button>
+        <button type="button" class="btn btn-success mb-2 ml-3" onclick="exportToExcel()">Excel'e Aktar</button>
+    </form>
+</div>
+
+<div class="table-responsive">
+    <table class="table-striped table-bordered table-hover table">
+        <thead class="thead-dark">
+            <tr>
+                <th class="sortable" data-column="0">Tarih <span class="sort-icon"></span></th>
+                <th class="sortable" data-column="1">Kart No <span class="sort-icon"></span></th>
+                <th class="sortable" data-column="2">Adı <span class="sort-icon"></span></th>
+                <th class="sortable" data-column="3">Soyadı <span class="sort-icon"></span></th>
+                <th class="sortable" data-column="4">Departman <span class="sort-icon"></span></th>
+                <th class="sortable" data-column="5">Bilgi <span class="sort-icon"></span></th>
+            </tr>
+            <tr>
+                <th><input type="text" id="searchTarih" class="form-control" placeholder="Tarih Ara"></th>
+                <th><input type="text" id="searchKartNo" class="form-control" placeholder="Kart No Ara"></th>
+                <th><input type="text" id="searchAdi" class="form-control" placeholder="Adı Ara"></th>
+                <th><input type="text" id="searchSoyadi" class="form-control" placeholder="Soyadı Ara"></th>
+                <th><input type="text" id="searchDepartman" class="form-control" placeholder="Departman Ara"></th>
+                <th><input type="text" id="searchBilgi" class="form-control" placeholder="Bilgi Ara"></th>
+            </tr>
+        </thead>
+        <tbody id="devamsizTable">
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Tarih.ToString("dd.MM.yyyy")</td>
+                    <td>@item.KartNo</td>
+                    <td>@item.Adi</td>
+                    <td>@item.Soyadi</td>
+                    <td>@item.Departman</td>
+                    <td><span class="badge badge-danger">@item.Bilgi</span></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<style>
+    .sortable {
+        cursor: pointer;
+        user-select: none;
+    }
+
+        .sortable:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+    .sort-icon::after {
+        content: "↕️";
+        margin-left: 5px;
+        opacity: 0.3;
+    }
+
+    .sort-asc::after {
+        content: "↑";
+        opacity: 1;
+    }
+
+    .sort-desc::after {
+        content: "↓";
+        opacity: 1;
+    }
+</style>
+
+<script>
+    // Filtreleme fonksiyonları
+    function filterDevamsizlar() {
+        const form = document.getElementById('filterForm');
+        const startDate = form.startDate.value;
+        const endDate = form.endDate.value;
+
+        fetch(`@Url.Action("DevamsizRapor")?startDate=${startDate}&endDate=${endDate}`)
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newTableBody = doc.getElementById('devamsizTable');
+                document.getElementById('devamsizTable').innerHTML = newTableBody.innerHTML;
+                addFilterEventListeners();
+                addSortListeners(); // Yeni içerik geldiğinde sıralama olaylarını tekrar ekle
+            });
+    }
+
+    function exportToExcel() {
+        const form = document.getElementById('filterForm');
+        const startDate = form.startDate.value;
+        const endDate = form.endDate.value;
+        const searchTarih = document.getElementById('searchTarih').value;
+        const searchKartNo = document.getElementById('searchKartNo').value;
+        const searchAdi = document.getElementById('searchAdi').value;
+        const searchSoyadi = document.getElementById('searchSoyadi').value;
+        const searchDepartman = document.getElementById('searchDepartman').value;
+        const searchBilgi = document.getElementById('searchBilgi').value;
+
+        const query = `startDate=${startDate}&endDate=${endDate}&searchTarih=${searchTarih}&searchKartNo=${searchKartNo}&searchAdi=${searchAdi}&searchSoyadi=${searchSoyadi}&searchDepartman=${searchDepartman}&searchBilgi=${searchBilgi}`;
+        window.location.href = `@Url.Action("ExportDevamsizToExcel", "Hareket")?${query}`;
+    }
+
+    function filterTable() {
+        const searchTarih = document.getElementById('searchTarih').value.toLowerCase();
+        const searchKartNo = document.getElementById('searchKartNo').value.toLowerCase();
+        const searchAdi = document.getElementById('searchAdi').value.toLowerCase();
+        const searchSoyadi = document.getElementById('searchSoyadi').value.toLowerCase();
+        const searchDepartman = document.getElementById('searchDepartman').value.toLowerCase();
+        const searchBilgi = document.getElementById('searchBilgi').value.toLowerCase();
+
+        const rows = document.querySelectorAll('#devamsizTable tr');
+
+        rows.forEach(row => {
+            const tarih = row.children[0] ? row.children[0].textContent.toLowerCase() : '';
+            const kartNo = row.children[1] ? row.children[1].textContent.toLowerCase() : '';
+            const adi = row.children[2] ? row.children[2].textContent.toLowerCase() : '';
+            const soyadi = row.children[3] ? row.children[3].textContent.toLowerCase() : '';
+            const departman = row.children[4] ? row.children[4].textContent.toLowerCase() : '';
+            const bilgi = row.children[5] ? row.children[5].textContent.toLowerCase() : '';
+
+            if (tarih.includes(searchTarih) &&
+                kartNo.includes(searchKartNo) &&
+                adi.includes(searchAdi) &&
+                soyadi.includes(searchSoyadi) &&
+                departman.includes(searchDepartman) &&
+                bilgi.includes(searchBilgi)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    function addFilterEventListeners() {
+        document.querySelectorAll('#searchTarih, #searchKartNo, #searchAdi, #searchSoyadi, #searchDepartman, #searchBilgi').forEach(input => {
+            input.addEventListener('input', filterTable);
+        });
+    }
+
+   // Her sütun için sıralama durumu: 0 = Varsayılan, 1 = Artan, 2 = Azalan
+const columnSortStates = {};
+
+// Tarih formatını parse eden yardımcı fonksiyon
+function parseTurkishDate(dateStr) {
+    const parts = dateStr.split('.');
+    if (parts.length === 3) {
+        return new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+    }
+    return new Date(0);
+}
+
+// Sıralama fonksiyonu (Döngüsel sıralama)
+function sortTableByColumn(columnIndex) {
+    const tbody = document.getElementById('devamsizTable');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+
+    // Varsayılan sıralama durumu alınıyor (eğer tanımlı değilse 0 yap)
+    if (!(columnIndex in columnSortStates)) {
+        columnSortStates[columnIndex] = 0;
+    }
+
+    // Sıralama yönünü değiştir (0 → 1 → 2 → 0 döngüsü)
+    columnSortStates[columnIndex] = (columnSortStates[columnIndex] + 1) % 3;
+
+    const sortState = columnSortStates[columnIndex];
+
+    // Tüm sıralama ikonlarını temizle
+    document.querySelectorAll('.sort-icon').forEach(icon => {
+        icon.classList.remove('sort-asc', 'sort-desc');
+    });
+
+    // Tıklanan sütunun ikonunu güncelle
+    const currentIcon = document.querySelector(`th[data-column="${columnIndex}"] .sort-icon`);
+    if (sortState === 1) {
+        currentIcon.classList.add('sort-asc');
+    } else if (sortState === 2) {
+        currentIcon.classList.add('sort-desc');
+    }
+
+    if (sortState === 0) {
+        // Varsayılan sıralamaya geri döndür (orijinal sırayı koru)
+        rows.sort((rowA, rowB) => rowA.getAttribute('data-index') - rowB.getAttribute('data-index'));
+    } else {
+        // Sıralama işlemi
+        rows.sort((rowA, rowB) => {
+            let valueA, valueB;
+
+            // Tarih sütunu için özel işlem
+            if (columnIndex === 0) {
+                valueA = parseTurkishDate(rowA.cells[columnIndex].textContent.trim());
+                valueB = parseTurkishDate(rowB.cells[columnIndex].textContent.trim());
+            } else {
+                valueA = rowA.cells[columnIndex].textContent.trim();
+                valueB = rowB.cells[columnIndex].textContent.trim();
+
+                // Sayısal değer kontrolü
+                if (!isNaN(valueA) && !isNaN(valueB)) {
+                    valueA = parseFloat(valueA);
+                    valueB = parseFloat(valueB);
+                }
+            }
+
+            if (sortState === 1) {
+                return valueA > valueB ? 1 : -1; // Artan sıralama
+            } else {
+                return valueA < valueB ? 1 : -1; // Azalan sıralama
+            }
+        });
+    }
+
+    // Sıralanmış satırları tabloya yeniden ekle
+    rows.forEach(row => tbody.appendChild(row));
+}
+
+// Sıralama olaylarını ekle
+function addSortListeners() {
+    document.querySelectorAll('th.sortable').forEach(th => {
+        th.addEventListener('click', function() {
+            const columnIndex = parseInt(this.getAttribute('data-column'));
+            sortTableByColumn(columnIndex);
+        });
+    });
+}
+
+// Sayfa yüklendiğinde olayları ekle ve başlangıç index'lerini kaydet
+window.addEventListener('DOMContentLoaded', function() {
+    addSortListeners();
+
+    // Varsayılan tablo sırasını sakla (ilk haline geri dönmek için)
+    document.querySelectorAll('#devamsizTable tr').forEach((row, index) => {
+        row.setAttribute('data-index', index);
+    });
+});
+
+</script>
+
+@section styles {
+
+    <style>
+        .sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+
+            .sortable:hover {
+                background-color: rgba(0, 0, 0, 0.1);
+            }
+
+        .sort-icon::after {
+            content: "↕️";
+            margin-left: 5px;
+            font-size: 12px;
+            opacity: 0.3;
+        }
+
+        .sort-asc::after {
+            content: "↑";
+            opacity: 1;
+        }
+
+        .sort-desc::after {
+            content: "↓";
+            opacity: 1;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #343a40;
+            margin: 0;
+            padding: 0;
+        }
+
+        h2 {
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        .form-inline {
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 650px;
+        }
+
+        .form-control {
+            margin-right: 10px;
+        }
+
+        .table-responsive {
+            margin-top: 20px;
+        }
+
+        .table-striped {
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table thead.thead-dark {
+            background: #f0f0f0;
+            color: black;
+        }
+
+        .table th,
+        .table td {
+            padding: 12px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .badge-danger {
+            background-color: #dc3545;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+    </style>
+}

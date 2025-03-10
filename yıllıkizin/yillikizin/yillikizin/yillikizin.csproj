@@ -486,6 +486,7 @@
       <DependentUpon>Model.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\DevamsizlikViewModel.cs" />
+    <Compile Include="Models\DevamsizViewModel.cs" />
     <Compile Include="Models\EmailJob.cs" />
     <Compile Include="Models\EmailService.cs" />
     <Compile Include="Models\EmailSettings.cs">
@@ -3966,18 +3967,14 @@
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
-    <Content Include="images\blog\071448bf-3da4-403b-9f6e-b021f96c5005.png" />
-    <Content Include="images\blog\09c1a3f2-b4cd-4b14-882b-89b2a36ae7eb.png" />
-    <Content Include="images\blog\1b24b574-e10b-498a-b344-8051a0ca01a7.png" />
-    <Content Include="images\blog\33b0b7f2-cf4e-4504-981c-0a6455f480ec.png" />
-    <Content Include="images\blog\a72ebaa8-9891-479e-ae96-a39f89411543.jpg" />
-    <Content Include="images\blog\beda958c-dde5-4ccd-a253-ac8f827a5072.png" />
-    <Content Include="images\blog\c38adc73-fd55-4d15-b87b-cfa3bf358585.png" />
-    <Content Include="images\blog\c5c47676-74a5-4485-b4f8-144ac9afb273.jpg.png" />
-    <Content Include="images\blog\e24e2697-b731-4f11-be05-3064d2702247.png" />
-    <Content Include="images\dene.png" />
-    <Content Include="images\logo.jpg" />
-    <Content Include="images\sidebar.jpg.png" />
+    <Content Include="images\bugüngelen.png" />
+    <Content Include="images\departmanlar.png" />
+    <Content Include="images\devamsiz.png" />
+    <Content Include="images\dogum.png" />
+    <Content Include="images\gec.png" />
+    <Content Include="images\istencikan.png" />
+    <Content Include="images\izinliler.png" />
+    <Content Include="images\personeller.png" />
     <Content Include="images\tek.png" />
     <Content Include="images\users\26b56c7c-e92c-4a07-9215-c0f8b8eb834f.png" />
     <Content Include="images\users\5295b5d3-11d9-42e3-b74c-6b9259641220.jpg" />
@@ -4275,6 +4272,7 @@
     <Content Include="Views\Email\Eposta.cshtml" />
     <Content Include="Views\Shared\YetkiHatasi.cshtml" />
     <Content Include="Views\Hareket\DevamsizlikIstatistikleri.cshtml" />
+    <Content Include="Views\Hareket\DevamsizRapor.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

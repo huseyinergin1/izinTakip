@@ -49,35 +49,6 @@
             </div>
 
             <div class="form-row">
-                <label>İletişim Bilgileri</label>
-                <div style="display: flex; gap: 10px;">
-                    <div style="flex: 1;">
-                        <label>Telefon</label>
-                        @Html.TextBoxFor(model => model.gsm, new { placeholder = "Telefon", type = "tel", maxlength = "10" })
-                    </div>
-                    <div style="flex: 1;">
-                        <label>Adres</label>
-                        @Html.TextAreaFor(model => model.adres, new { placeholder = "Adres", rows = "3" })
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <label>Tarih Bilgileri</label>
-                <div style="display: flex; gap: 10px;">
-                    <div style="flex: 1;">
-                        <label>Doğum Tarihi</label>
-                        @Html.TextBoxFor(model => model.dogumtarih, new { @class = "form-control", @type = "date", @required = "required" })
-                    </div>
-                    <div style="flex: 1;">
-                        <label>İşe Giriş Tarihi</label>
-                        @Html.TextBoxFor(model => model.isegiristarih, new { @class = "form-control", @type = "date", @required = "required" })
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <label>Kişisel Bilgiler</label>
                 <div style="display: flex; gap: 10px;">
                     <div style="flex: 1;">
                         <label>Kart Numarası</label>
@@ -89,41 +60,24 @@
                         @Html.TextBoxFor(model => model.sicilno, new { @required = "required", maxlength = "50" })
                         @Html.ValidationMessageFor(model => model.sicilno, "", new { @class = "text-danger" })
                     </div>
-                    <div style="flex: 1;">
-                        <label>Kan Grubu</label>
-                        @Html.TextBoxFor(model => model.kan, new { maxlength = "50" })
-                    </div>
-                    <div style="flex: 1;">
-                        <label>Beden</label>
-                        @Html.TextBoxFor(model => model.beden, new { placeholder = "Beden" })
-                    </div>
-                    <div style="flex: 1;">
-                        <label>Ayakkabı Numarası</label>
-                        @Html.TextBoxFor(model => model.ayakkabino, new { placeholder = "Ayakkabı No" })
-                    </div>
                 </div>
             </div>
 
             <div class="form-row">
-                <label>Departman Bilgileri</label>
                 <div style="display: flex; gap: 10px;">
                     <div style="flex: 1;">
-                        <label>Ünvan</label>
-                        @Html.TextBoxFor(model => model.unvan, new { @required = "required", maxlength = "150" })
+                        <label>İşe Giriş Tarihi</label>
+                        @Html.TextBoxFor(model => model.isegiristarih, new { @class = "form-control", @type = "date", @required = "required" })
                     </div>
                     <div style="flex: 1;">
-                        <label>Departman</label>
-                        <div class="departman-container" style="display: flex; flex-wrap: wrap;">
-                            @foreach (var departman in (IEnumerable<SelectListItem>)ViewBag.DepartmanList)
-                            {
-                                <div style="margin-right: 15px;">
-                                    <input type="radio" id="departman_@departman.Value" name="departmanId" value="@departman.Value" required />
-                                    <label for="departman_@departman.Value">@departman.Text</label>
-                                </div>
-                            }
-                            @Html.ValidationMessage("departmanId", "", new { @class = "text-danger" })
-                        </div>
+                        <label>Doğum Tarihi</label>
+                        @Html.TextBoxFor(model => model.dogumtarih, new { @class = "form-control", @type = "date" })
                     </div>
+
+                </div>
+            </div>
+            <div class="form-row">
+                <div style="display: flex; gap: 10px;">
                     <div style="flex: 1;">
                         <label for="VardiyaId">Vardiya Seçimi</label>
                         <div class="vardiya-container" style="display: flex; flex-wrap: wrap;">
@@ -137,23 +91,110 @@
                             @Html.ValidationMessage("vardiyaId", "", new { @class = "text-danger" })
                         </div>
                     </div>
+                    <div style="flex: 1;">
+                        <label>Ünvan</label>
+                        @Html.TextBoxFor(model => model.unvan, new { @required = "required", maxlength = "150" })
+                    </div>
+                </div>
+            </div>
+            <label>Departman</label>
+            <div class="departman-container" style="display: flex; flex-wrap: wrap;">
+                @foreach (var departman in (IEnumerable<SelectListItem>)ViewBag.DepartmanList)
+                {
+                    <div style="margin-right: 15px;">
+                        <input type="radio" id="departman_@departman.Value" name="departmanId" value="@departman.Value" required />
+                        <label for="departman_@departman.Value">@departman.Text</label>
+                    </div>
+                }
+                @Html.ValidationMessage("departmanId", "", new { @class = "text-danger" })
+            </div>
+            <div class="form-row">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#iletisimModal">
+                    İletişim Bilgilerini Gir
+                </button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#izinModal">
+                    İzin Bilgilerini Gir
+                </button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#kimlikModal">
+                    Kişisel Bilgilerini Gir
+                </button>
+            </div>
+            <div class="modal fade" id="izinModal" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Kimlik Bilgileri</h5>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label>Hak Ettiği İzin</label>
+                                @Html.TextBoxFor(model => model.hakettigi, new { @class = "form-control", maxlength = "3" })
+                            </div>
+                            <div class="form-group">
+                                <label>Kullandığı İzin</label>
+                                @Html.TextBoxFor(model => model.kullandigi, new { @class = "form-control", maxlength = "3" })
+                            </div>
+                            <div class="form-group">
+                                <label>Kalan İzin</label>
+                                @Html.TextBoxFor(model => model.kalan, new { @class = "form-control", maxlength = "3" })
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="form-row">
-                <label>İzin Bilgileri</label>
-                <div style="display: flex; gap: 10px;">
-                    <div style="flex: 1;">
-                        <label>Hak Ettiği İzin</label>
-                        @Html.TextBoxFor(model => model.hakettigi, new { @required = "required", maxlength = "150" })
+            <div class="modal fade" id="kimlikModal" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Kimlik Bilgileri</h5>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label>Kan Grubu</label>
+                                @Html.TextBoxFor(model => model.kan, new { @class = "form-control", maxlength = "50", placeholder = "A+" })
+                            </div>
+                            <div class="form-group">
+                                <label>Beden</label>
+                                @Html.TextBoxFor(model => model.beden, new { @class = "form-control", placeholder = "M" })
+                            </div>
+                            <div class="form-group">
+                                <label>Ayakkabı Numarası</label>
+                                @Html.TextBoxFor(model => model.ayakkabino, new { @class = "form-control", placeholder = "36" })
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+                            </div>
+                        </div>
                     </div>
-                    <div style="flex: 1;">
-                        <label>Kullandığı İzin</label>
-                        @Html.TextBoxFor(model => model.kullandigi, new { @required = "required", maxlength = "150" })
-                    </div>
-                    <div style="flex: 1;">
-                        <label>Kalan İzin</label>
-                        @Html.TextBoxFor(model => model.kalan, new { @required = "required", maxlength = "500" })
+                </div>
+            </div>
+
+            <div class="modal fade" id="iletisimModal" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">İletişim Bilgileri</h5>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label>Telefon</label>
+                                @Html.TextBoxFor(model => model.gsm, new { @class = "form-control", type = "tel", maxlength = "10", placeholder = "+90 999 999 99 99" })
+                            </div>
+                            <div class="form-group">
+                                <label>Adres</label>
+                                @Html.TextAreaFor(model => model.adres, new { @class = "form-control", rows = "3", placeholder = "İstanbul/TÜRKİYE" })
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+                        </div>
                     </div>
                 </div>
             </div>

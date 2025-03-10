@@ -150,13 +150,14 @@
     <Property Name="Ad" Type="nvarchar" MaxLength="50" Nullable="false" />
     <Property Name="CalismaBaslangic" Type="time" Precision="7" Nullable="false" />
     <Property Name="CalismaBitis" Type="time" Precision="7" Nullable="false" />
-    <Property Name="MesaiBaslangic" Type="time" Precision="7" Nullable="false" />
-    <Property Name="MesaiBitis" Type="time" Precision="7" Nullable="false" />
-    <Property Name="ErkenGelme" Type="time" Precision="7" Nullable="false" />
-    <Property Name="GecGelme" Type="time" Precision="7" Nullable="false" />
-    <Property Name="ErkenCikma" Type="time" Precision="7" Nullable="false" />
-    <Property Name="GecCikma" Type="time" Precision="7" Nullable="false" />
-    <Property Name="Aciklama" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="MesaiBaslangic" Type="time" Precision="7" />
+    <Property Name="MesaiBitis" Type="time" Precision="7" />
+    <Property Name="ErkenGelme" Type="time" Precision="7" />
+    <Property Name="GecGelme" Type="time" Precision="7" />
+    <Property Name="ErkenCikma" Type="time" Precision="7" />
+    <Property Name="GecCikma" Type="time" Precision="7" />
+    <Property Name="Aciklama" Type="nvarchar(max)" />
+    <Property Name="fmOpsiyon" Type="int" />
   </EntityType>
   <Association Name="FK_belge_personel">
     <End Role="personel" Type="Self.personel" Multiplicity="1" />

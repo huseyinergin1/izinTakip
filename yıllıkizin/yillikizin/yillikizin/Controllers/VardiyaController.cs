@@ -38,6 +38,9 @@ namespace yillikizin.Controllers
             ModelState.Remove("GecGelme");
             ModelState.Remove("ErkenCikma");
             ModelState.Remove("GecCikma");
+            ModelState.Remove("fmOpsiyon");
+            ModelState.Remove("ErkenMesai");
+            ModelState.Remove("SerbestCalisma"); // SerbestCalisma için ModelState'i kaldır
             ModelState.Remove("Aciklama");
 
             if (!ModelState.IsValid)
@@ -50,6 +53,18 @@ namespace yillikizin.Controllers
             {
                 using (var db = new YillikizinEntities())
                 {
+                    // Form değerlerini kontrol et
+                    string erkenMesaiStr = Request.Form["ErkenMesai"];
+                    string serbestCalismaStr = Request.Form["SerbestCalisma"];
+
+                    // ErkenMesai checkbox değerini ayarla
+                    yeniVardiya.ErkenMesai = !string.IsNullOrEmpty(erkenMesaiStr) &&
+                                            (erkenMesaiStr.ToLower() == "true" || erkenMesaiStr == "on");
+
+                    // SerbestCalisma checkbox değerini ayarla
+                    yeniVardiya.serbestcalisma = !string.IsNullOrEmpty(serbestCalismaStr) &&
+                                                (serbestCalismaStr.ToLower() == "true" || serbestCalismaStr == "on");
+
                     db.Vardiya.Add(yeniVardiya);
                     db.SaveChanges();
                 }
@@ -71,53 +86,84 @@ namespace yillikizin.Controllers
 
         public JsonResult GetVardiya(int id)
         {
-            var vardiya = db.Vardiya.Find(id); // id ile ilgili vardiyayı bul
+            var vardiya = db.Vardiya.Find(id);
             if (vardiya == null)
             {
                 return Json(new { success = false, message = "Vardiya bulunamadı." }, JsonRequestBehavior.AllowGet);
             }
+
             return Json(new
             {
                 success = true,
                 VardiyaId = vardiya.VardiyaId,
                 Ad = vardiya.Ad,
-                CalismaBaslangic = vardiya.CalismaBaslangic.ToString(@"hh\:mm"),
-                CalismaBitis = vardiya.CalismaBitis.ToString(@"hh\:mm"),
-                MesaiBaslangic = vardiya.MesaiBaslangic.ToString(@"hh\:mm"),
-                MesaiBitis = vardiya.MesaiBitis.ToString(@"hh\:mm"),
-                ErkenGelme = vardiya.ErkenGelme.ToString(@"hh\:mm"),
-                GecGelme = vardiya.GecGelme.ToString(@"hh\:mm"),
-                ErkenCikma = vardiya.ErkenCikma.ToString(@"hh\:mm"),
-                GecCikma = vardiya.GecCikma.ToString(@"hh\:mm"),
+                CalismaBaslangic = string.Format("{0:hh\\:mm}", vardiya.CalismaBaslangic),
+                CalismaBitis = string.Format("{0:hh\\:mm}", vardiya.CalismaBitis),
+                MesaiBaslangic = string.Format("{0:hh\\:mm}", vardiya.MesaiBaslangic),
+                MesaiBitis = string.Format("{0:hh\\:mm}", vardiya.MesaiBitis),
+                ErkenGelme = string.Format("{0:hh\\:mm}", vardiya.ErkenGelme),
+                GecGelme = string.Format("{0:hh\\:mm}", vardiya.GecGelme),
+                ErkenCikma = string.Format("{0:hh\\:mm}", vardiya.ErkenCikma),
+                GecCikma = string.Format("{0:hh\\:mm}", vardiya.GecCikma),
+                fmOpsiyon = vardiya.fmOpsiyon,
+                serbestcalisma = vardiya.serbestcalisma, // Değişken adı küçük harfle
+                ErkenMesai = vardiya.ErkenMesai,
                 Aciklama = vardiya.Aciklama
             }, JsonRequestBehavior.AllowGet);
         }
 
-
-        // Vardiya düzenleme işlemi
         [HttpPost]
         public ActionResult Duzenle(Vardiya vardiya)
         {
-            if (!ModelState.IsValid)
-            {
-                return new HttpStatusCodeResult(400, "Geçersiz veri.");
-            }
-
             try
             {
                 using (var db = new YillikizinEntities())
                 {
-                    db.Entry(vardiya).State = System.Data.Entity.EntityState.Modified;
+                    var mevcutVardiya = db.Vardiya.Find(vardiya.VardiyaId);
+                    if (mevcutVardiya == null)
+                    {
+                        return new HttpStatusCodeResult(404, "Vardiya bulunamadı.");
+                    }
+
+                    // Form değerlerini kontrol et
+                    string erkenMesaiStr = Request.Form["ErkenMesai"];
+                    string serbestCalismaStr = Request.Form["SerbestCalisma"];
+
+                    // İŞLEM SIRASI: Önce değerleri hazırla, sonra atama yap
+                    bool erkenMesaiValue = !string.IsNullOrEmpty(erkenMesaiStr) &&
+                                          (erkenMesaiStr.ToLower() == "true" || erkenMesaiStr == "on");
+
+                    bool serbestCalismaValue = !string.IsNullOrEmpty(serbestCalismaStr) &&
+                                              (serbestCalismaStr.ToLower() == "true" || serbestCalismaStr == "on");
+
+                    // Değerleri güncelle
+                    mevcutVardiya.Ad = vardiya.Ad;
+                    mevcutVardiya.CalismaBaslangic = vardiya.CalismaBaslangic;
+                    mevcutVardiya.CalismaBitis = vardiya.CalismaBitis;
+                    mevcutVardiya.MesaiBaslangic = vardiya.MesaiBaslangic;
+                    mevcutVardiya.MesaiBitis = vardiya.MesaiBitis;
+                    mevcutVardiya.ErkenGelme = vardiya.ErkenGelme;
+                    mevcutVardiya.GecGelme = vardiya.GecGelme;
+                    mevcutVardiya.ErkenCikma = vardiya.ErkenCikma;
+                    mevcutVardiya.GecCikma = vardiya.GecCikma;
+                    mevcutVardiya.Aciklama = vardiya.Aciklama;
+                    mevcutVardiya.fmOpsiyon = vardiya.fmOpsiyon;
+
+                    // Checkbox değerlerini ayarla
+                    mevcutVardiya.ErkenMesai = erkenMesaiValue;
+                    mevcutVardiya.serbestcalisma = serbestCalismaValue;
+
                     db.SaveChanges();
                 }
-                return new HttpStatusCodeResult(200);
+                return RedirectToAction("Index");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return new HttpStatusCodeResult(500, "Veritabanı hatası oluştu.");
+                // Hata loglama
+                System.Diagnostics.Debug.WriteLine($"Vardiya Düzenle Hatası: {ex.Message}");
+                return new HttpStatusCodeResult(500, "Veritabanı hatası oluştu: " + ex.Message);
             }
         }
-
         // Vardiya silme işlemi
         [HttpPost]
         public ActionResult Sil(int id)

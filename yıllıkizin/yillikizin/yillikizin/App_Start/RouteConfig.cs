@@ -14,6 +14,11 @@ namespace yillikizin
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "Login", action = "Index", id = UrlParameter.Optional }
             );
+            routes.MapRoute(
+               name: "DevamsizRapor",
+               url: "Hareket/DevamsizRapor",
+           defaults: new { controller = "Hareket", action = "DevamsizRapor" }
+           );
         }
     }
 }

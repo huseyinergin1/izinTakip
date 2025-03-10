@@ -11,7 +11,7 @@ namespace yillikizin.Models
 {
     using System;
     using System.Collections.Generic;
-    
+
     public partial class Vardiya
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -19,7 +19,7 @@ namespace yillikizin.Models
         {
             this.personel = new HashSet<personel>();
         }
-    
+
         public int VardiyaId { get; set; }
         public string Ad { get; set; }
         public System.TimeSpan CalismaBaslangic { get; set; }
@@ -31,7 +31,11 @@ namespace yillikizin.Models
         public System.TimeSpan ErkenCikma { get; set; }
         public System.TimeSpan GecCikma { get; set; }
         public string Aciklama { get; set; }
-    
+        public Nullable<int> fmOpsiyon { get; set; }
+        public Nullable<bool> serbestcalisma { get; set; }
+        public Nullable<bool> ErkenMesai { get; set; }
+
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<personel> personel { get; set; }
     }

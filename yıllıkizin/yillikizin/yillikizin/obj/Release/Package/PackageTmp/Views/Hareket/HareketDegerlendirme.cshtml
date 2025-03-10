@@ -1,4 +1,4 @@
-﻿@model yillikizin.Models.HareketViewModel
+﻿﻿@model yillikizin.Models.HareketViewModel
 
 @{
     ViewBag.Title = "Personel Hareketleri";
@@ -23,7 +23,6 @@
         </div>
         <button type="button" class="btn btn-primary" id="updateButton">Güncelle</button>
         <div class="export-buttons d-flex justify-content-start mt-3">
-            <button type="button" class="btn btn-danger export-btn" id="exportButton">PDF'e Aktar</button>
             <button type="button" class="btn btn-success export-btn" id="exportExcelButton">Excel'e Aktar</button>
         </div>
     </div>
@@ -70,6 +69,7 @@
             <thead>
                 <tr>
                     <th class="header-column">Tarih</th>
+                    <th class="header-column">Gün</th>
                     <th class="header-column">Adı</th>
                     <th class="header-column">Soyadı</th>
                     <th class="header-column">Kart No</th>
@@ -84,6 +84,7 @@
                 </tr>
                 <tr>
                     <th><input type="text" class="form-control arama" placeholder="Tarih ara..." /></th>
+                    <th><input type="text" class="form-control arama" placeholder="Gün ara..." /></th>
                     <th><input type="text" class="form-control arama" placeholder="Adı ara..." /></th>
                     <th><input type="text" class="form-control arama" placeholder="Soyadı ara..." /></th>
                     <th><input type="text" class="form-control arama" placeholder="Kart No ara..." /></th>
@@ -143,8 +144,9 @@
 
                                 <tr data-girisdurumu="@hareket.GirişDurumu">
                                     <td style="text-align: left;">
-                                        @currentDate.ToString("yyyy-MM-dd") @currentDate.ToString("ddd")
+                                        @currentDate.ToString("dd.MM.yyyy")
                                     </td>
+                                    <td>@currentDate.ToString("dddd")</td>
                                     <td>@personel.adi</td>
                                     <td>@personel.soyadi</td>
                                     <td>@personel.kartno</td>
@@ -240,8 +242,9 @@
                             {
                                 <tr>
                                     <td style="text-align: left;">
-                                        @currentDate.ToString("yyyy-MM-dd") @currentDate.ToString("ddd")
+                                        @currentDate.ToString("dd.MM.yyyy")
                                     </td>
+                                    <td>@currentDate.ToString("dddd")</td>
                                     <td>@personel.adi</td>
                                     <td>@personel.soyadi</td>
                                     <td>@personel.kartno</td>
@@ -276,8 +279,9 @@
                                 {
                                     <tr>
                                         <td style="text-align: left;">
-                                            @currentDate.ToString("yyyy-MM-dd") @currentDate.ToString("ddd")
+                                            @currentDate.ToString("dd.MM.yyyy")
                                         </td>
+                                        <td>@currentDate.ToString("dddd")</td>
                                         <td>@personel.adi</td>
                                         <td>@personel.soyadi</td>
                                         <td>@personel.kartno</td>
@@ -291,7 +295,7 @@
                                         <td class="text-ht" style="min-width: 200px;">
                                             <div class="d-flex align-items-center">
                                                 <div>
-                                                    <strong >HAFTA <br />TATİLİ</strong>
+                                                    <strong>HAFTA <br />TATİLİ</strong>
                                                 </div>
                                             </div>
                                         </td>
@@ -301,8 +305,9 @@
                                 {
                                     <tr>
                                         <td style="text-align: left;">
-                                            @currentDate.ToString("yyyy-MM-dd") @currentDate.ToString("ddd")
+                                            @currentDate.ToString("dd.MM.yyyy")
                                         </td>
+                                        <td> @currentDate.ToString("dddd")</td>
                                         <td>@personel.adi</td>
                                         <td>@personel.soyadi</td>
                                         <td>@personel.kartno</td>
@@ -331,10 +336,12 @@
     </table>
 </div>
 
+
 <script>
 $(document).ready(function () {
     $('.arama').on('keyup', function () {
         var tarihArama = $('th input[placeholder="Tarih ara..."]').val().toLowerCase();
+        var gunArama = $('th input[placeholder="Gün ara..."]').val().toLowerCase();
         var adiArama = $('th input[placeholder="Adı ara..."]').val().toLowerCase();
         var soyadiArama = $('th input[placeholder="Soyadı ara..."]').val().toLowerCase();
         var kartArama = $('th input[placeholder="Kart No ara..."]').val().toLowerCase();
@@ -342,18 +349,20 @@ $(document).ready(function () {
 
         $('tbody tr').filter(function () {
             var tarih = $(this).find('td').eq(0).text().toLowerCase();
-            var adi = $(this).find('td').eq(1).text().toLowerCase();
-            var soyadi = $(this).find('td').eq(2).text().toLowerCase();
-            var kart = $(this).find('td').eq(3).text().toLowerCase();
-            var departman = $(this).find('td').eq(4).text().toLowerCase();
+            var gun = $(this).find('td').eq(1).text().toLowerCase();
+            var adi = $(this).find('td').eq(2).text().toLowerCase();
+            var soyadi = $(this).find('td').eq(3).text().toLowerCase();
+            var kart = $(this).find('td').eq(4).text().toLowerCase();
+            var departman = $(this).find('td').eq(5).text().toLowerCase();
 
             var tarihEslesti = tarih.indexOf(tarihArama) > -1;
+            var gunEslesti = gun.indexOf(gunArama) > -1;
             var adiEslesti = adi.indexOf(adiArama) > -1;
             var soyadiEslesti = soyadi.indexOf(soyadiArama) > -1;
             var kartEslesti = kart.indexOf(kartArama) > -1;
             var departmanEslesti = departman.indexOf(departmanArama) > -1;
 
-            $(this).toggle(tarihEslesti && adiEslesti && soyadiEslesti && kartEslesti && departmanEslesti);
+            $(this).toggle(tarihEslesti && gunEslesti && adiEslesti && soyadiEslesti && kartEslesti && departmanEslesti);
         });
     });
 
@@ -401,7 +410,7 @@ $(document).ready(function () {
         var selectedFilter = $('input[name="FilterType"]:checked').val();
         $('tbody tr').each(function () {
             var girisDurumu = $(this).data('girisdurumu');
-            var fazlaMesaiText = $(this).find('td:nth-child(11) span').text();
+            var fazlaMesaiText = $(this).find('td:nth-child(12) span').text();
             var fazlaMesaiVar = fazlaMesaiText !== "00:00";
             var izinli = $(this).find('.text-izin').length > 0;
             var devamsiz = $(this).find('.text-warning').length > 0;
@@ -505,7 +514,7 @@ document.getElementById('exportButton').addEventListener('click', function() {
 
     .mr-2 {
         margin-right: 10px;
-        font-size:12px;
+        font-size: 12px;
     }
 
     .d-flex {
@@ -553,6 +562,7 @@ document.getElementById('exportButton').addEventListener('click', function() {
         text-align: center;
         padding: 10px 15px;
     }
+
     .header-column2 {
         background-color: #f2f2f2;
         font-weight: bold;

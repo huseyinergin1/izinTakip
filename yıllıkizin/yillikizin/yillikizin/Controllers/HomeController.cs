@@ -40,10 +40,10 @@ namespace yillikizin.Controllers
                 .ToList();
 
 
-            // Erken çıkan personel listesi
-            var erkenCikanPersonelList = GetErkenCikanPersonelWithDetails(today);
-            ViewBag.ErkenCikanPersonelList = erkenCikanPersonelList;
-            ViewBag.ErkenCikanPersonelSayisi = erkenCikanPersonelList.Count;
+            // İşten çıkan personelleri al
+            var istenCikanPersonelList = GetIstenCikanPersoneller();
+            ViewBag.IstenCikanPersonelList = istenCikanPersonelList;
+            ViewBag.IstenCikanPersonelSayisi = istenCikanPersonelList.Count;
 
             // Geç gelen personel listesi
             var gecGelenPersonelList = GetGecGelenPersonelWithDetails(today);
@@ -93,48 +93,9 @@ namespace yillikizin.Controllers
             return View();
         }
 
-        private List<personel> GetErkenCikanPersonelWithDetails(DateTime today)
+        private List<personel> GetIstenCikanPersoneller()
         {
-            try
-            {
-                var mesaiBitisSaati = new TimeSpan(17, 0, 0);
-                var simdi = DateTime.Now.TimeOfDay; // Şu anki saat
-
-                // Debug için hareket kayıtlarını kontrol edelim
-                var tumHareketler = db.Hareketler
-                    .Where(h => h.Tarih.Value.Date == today.Date && h.Yon == "02")
-                    .ToList();
-
-                foreach (var hareket in tumHareketler)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Hareket Bulundu: Kart No: {hareket.KartNumarasi}, Saat: {hareket.Saat}, Yon: {hareket.Yon}");
-                }
-
-                var erkenCikanlar = (from h in db.Hareketler
-                                     join p in db.personel on h.KartNumarasi equals p.kartno
-                                     where h.Tarih.Value.Date == today.Date
-                                     && h.Yon == "02"
-                                     && h.Saat.HasValue // Null kontrolü
-                                     && h.Saat.Value < mesaiBitisSaati
-                                     select new { Personel = p, Saat = h.Saat.Value })
-                                    .ToList()
-                                    .Select(x =>
-                                    {
-                                        System.Diagnostics.Debug.WriteLine($"Erken Çıkış Tespit Edildi: {x.Personel.adi} {x.Personel.soyadi}, Saat: {x.Saat}");
-                                        return x.Personel;
-                                    })
-                                    .Distinct()
-                                    .ToList();
-
-                System.Diagnostics.Debug.WriteLine($"Toplam Erken Çıkan Sayısı: {erkenCikanlar.Count}");
-                return erkenCikanlar;
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Erken çıkan personel listesi alınırken hata: {ex.Message}");
-                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
-                return new List<personel>();
-            }
+            return db.personel.Where(p => p.calisma == false).ToList();
         }
         private List<GecGelenPersonelModel> GetGecGelenPersonelWithDetails(DateTime today)
         {
@@ -199,9 +160,16 @@ namespace yillikizin.Controllers
                 .Select(h => h.KartNumarasi)
                 .ToList();
 
-            // Sadece çalışma durumu 'true' olan personelleri getir
+            // Bugün izinli olan personelleri al
+            var izinliPersonelList = db.Izin
+                .Where(i => i.BaslangicTarihi <= today && i.BitisTarihi >= today)
+                .Select(i => i.personel.kartno)
+                .Distinct()
+                .ToList();
+
+            // Sadece çalışma durumu 'true' olan ve izinli olmayan personelleri getir
             var tumPersoneller = db.personel
-                .Where(p => p.calisma == true) // Çalışanları filtrele
+                .Where(p => p.calisma == true && !izinliPersonelList.Contains(p.kartno)) // İzinlileri hariç tut
                 .ToList();
 
             foreach (var personel in tumPersoneller)
@@ -308,19 +276,15 @@ namespace yillikizin.Controllers
 
                 var kullaniciGruplari = db.kullanici_grup.ToList();
                 ViewBag.KullaniciGrupList = new SelectList(kullaniciGruplari, "kullaniciGrupId", "grupAdi");
-                
+
                 var vardiyalar = db.Vardiya.ToList();
                 ViewBag.VardiyaList = new SelectList(db.Vardiya, "vardiyaId", "Ad");
                 return View(Personel);
             }
 
             // Kart numarasını 10 haneye tamamla
-            // Kart numarasını string'e çeviriyoruz
             string kartNoString = Personel.kartno; // artık string olarak alıyoruz
-                                                   // PadLeft kullanarak 10 haneye tamamlıyoruz
             kartNoString = kartNoString?.PadLeft(10, '0');
-
-            // Personel modeline kart numarasını atıyoruz
             Personel.kartno = kartNoString; // kartno artık string
 
             // Resim yükleme işlemi
@@ -346,6 +310,7 @@ namespace yillikizin.Controllers
             Personel.kullaniciGrupId = int.Parse(Request.Form["kullaniciGrupId"]);
 
             Personel.VardiyaId = int.Parse(Request.Form["vardiyaId"]);
+
             // Departman adı almak için departmanId ile karşılaştırma yap
             var departmanName = db.departman
                 .Where(d => d.departmanId == Personel.departmanId)
@@ -367,6 +332,10 @@ namespace yillikizin.Controllers
             {
                 Personel.kullaniciGrupAdi = grupAdi; // Personel tablosundaki grupAdi alanına yaz
             }
+
+            Personel.hakettigi = Personel.hakettigi.HasValue ? Personel.hakettigi.Value : 0;
+            Personel.kullandigi = Personel.kullandigi.HasValue ? Personel.kullandigi.Value : 0;
+            Personel.kalan = Personel.kalan.HasValue ? Personel.kalan.Value : 0;
 
             // Yeni personeli ekle
             db.personel.Add(Personel);
