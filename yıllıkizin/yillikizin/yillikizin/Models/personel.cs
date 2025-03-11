@@ -48,7 +48,9 @@ namespace yillikizin.Models
         public string gsm { get; set; }
         public Nullable<System.DateTime> iscikistarih { get; set; }
         public bool calisma { get; set; } = true; // Default de�er true olarak ayarland�
-                                                  // 
+        public Nullable<int> netmaas { get; set; }
+        public Nullable<int> saatucret { get; set; }
+        public Nullable<int> gunucret { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<belge> belge { get; set; }
